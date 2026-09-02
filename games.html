@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Games - Cool Site</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .games-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .game-card {
+      background: #333;
+      padding: 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.3s;
+      text-align: center;
+    }
+    .game-card:hover {
+      transform: scale(1.05);
+    }
+    .game-card h2 {
+      margin: 0 0 10px 0;
+    }
+    canvas {
+      border: 2px solid #fff;
+      display: block;
+      margin: 20px auto;
+      background: #000;
+    }
+    .game-section {
+      display: none;
+    }
+    .game-section.active {
+      display: block;
+    }
+    .back-btn {
+      background: #555;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 0;
+    }
+    .back-btn:hover {
+      background: #777;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li class="visitor-counter">
+        <img src="https://visitor-badge.laobi.icu/badge?page_id=arjunmtamoria-jpg.github.io" alt="Visitor Count">
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <!-- Games Menu -->
+    <div id="menu" class="game-section active">
+      <h1>🎮 Games</h1>
+      <div class="games-container">
+        <div class="game-card" onclick="startGame('snake')">
+          <h2>🐍 Snake</h2>
+          <p>Classic arcade game. Eat food and grow!</p>
+        </div>
+        <div class="game-card" onclick="startGame('flappy')">
+          <h2>🐦 Flappy Bird</h2>
+          <p>Tap to fly! Avoid the pipes!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Snake Game -->
+    <div id="snake-game" class="game-section">
+      <button class="back-btn" onclick="backToMenu()">← Back to Menu</button>
+      <h1>🐍 Snake Game</h1>
+      <p>Use Arrow Keys or WASD to move. Eat the red food!</p>
+      <canvas id="snakeCanvas" width="400" height="400"></canvas>
+      <p>Score: <span id="snakeScore">0</span></p>
+    </div>
+
+    <!-- Flappy Bird Game -->
+    <div id="flappy-game" class="game-section">
+      <button class="back-btn" onclick="backToMenu()">← Back to Menu</button>
+      <h1>🐦 Flappy Bird</h1>
+      <p>Click or Press Space to fly. Avoid the pipes!</p>
+      <canvas id="flappyCanvas" width="400" height="600"></canvas>
+      <p>Score: <span id="flappyScore">0</span></p>
+    </div>
+  </div>
+
+  <script>
+    // Game State
+    let currentGame = null;
+
+    // Menu Navigation
+    function startGame(game) {
+      document.getElementById('menu').classList.remove('active');
+      currentGame = game;
+      
+      if (game === 'snake') {
+        document.getElementById('snake-game').classList.add('active');
+        startSnakeGame();
+      } else if (game === 'flappy') {
+        document.getElementById('flappy-game').classList.add('active');
+        startFlappyGame();
+      }
+    }
+
+    function backToMenu() {
+      document.querySelectorAll('.game-section').forEach(el => el.classList.remove('active'));
+      document.getElementById('menu').classList.add('active');
+      currentGame = null;
+    }
+
+    // ========== SNAKE GAME ==========
+    const snakeCanvas = document.getElementById('snakeCanvas');
+    const snakeCtx = snakeCanvas.getContext('2d');
+    let snakeGame = {
+      snake: [{x: 10, y: 10}],
+      food: {x: 15, y: 15},
+      direction: {x: 1, y: 0},
+      nextDirection: {x: 1, y: 0},
+      score: 0,
+      gameOver: false,
+      running: false
+    };
+
+    function startSnakeGame() {
+      snakeGame.snake = [{x: 10, y: 10}];
+      snakeGame.food = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
+      snakeGame.direction = {x: 1, y: 0};
+      snakeGame.nextDirection = {x: 1, y: 0};
+      snakeGame.score = 0;
+      snakeGame.gameOver = false;
+      snakeGame.running = true;
+      
+      document.addEventListener('keydown', snakeKeyHandler);
+      snakeGameLoop();
+    }
+
+    function snakeKeyHandler(e) {
+      if (!snakeGame.running) return;
+      
+      switch(e.key.toLowerCase()) {
+        case 'arrowup':
+        case 'w':
+          if (snakeGame.direction.y === 0) snakeGame.nextDirection = {x: 0, y: -1};
+          break;
+        case 'arrowdown':
+        case 's':
+          if (snakeGame.direction.y === 0) snakeGame.nextDirection = {x: 0, y: 1};
+          break;
+        case 'arrowleft':
+        case 'a':
+          if (snakeGame.direction.x === 0) snakeGame.nextDirection = {x: -1, y: 0};
+          break;
+        case 'arrowright':
+        case 'd':
+          if (snakeGame.direction.x === 0) snakeGame.nextDirection = {x: 1, y: 0};
+          break;
+      }
+    }
+
+    function snakeGameLoop() {
+      if (!snakeGame.running) return;
+
+      snakeGame.direction = snakeGame.nextDirection;
+      
+      let head = {x: snakeGame.snake[0].x + snakeGame.direction.x, y: snakeGame.snake[0].y + snakeGame.direction.y};
+      
+      // Check collisions
+      if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
+        snakeGame.gameOver = true;
+        snakeGame.running = false;
+        alert('Game Over! Score: ' + snakeGame.score);
+        document.removeEventListener('keydown', snakeKeyHandler);
+        return;
+      }
+      
+      for (let segment of snakeGame.snake) {
+        if (head.x === segment.x && head.y === segment.y) {
+          snakeGame.gameOver = true;
+          snakeGame.running = false;
+          alert('Game Over! Score: ' + snakeGame.score);
+          document.removeEventListener('keydown', snakeKeyHandler);
+          return;
+        }
+      }
+      
+      snakeGame.snake.unshift(head);
+      
+      if (head.x === snakeGame.food.x && head.y === snakeGame.food.y) {
+        snakeGame.score += 10;
+        snakeGame.food = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
+      } else {
+        snakeGame.snake.pop();
+      }
+      
+      drawSnakeGame();
+      setTimeout(snakeGameLoop, 100);
+    }
+
+    function drawSnakeGame() {
+      snakeCtx.fillStyle = '#000';
+      snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
+      
+      snakeCtx.fillStyle = '#00ff00';
+      for (let segment of snakeGame.snake) {
+        snakeCtx.fillRect(segment.x * 20, segment.y * 20, 20, 20);
+      }
+      
+      snakeCtx.fillStyle = '#ff0000';
+      snakeCtx.fillRect(snakeGame.food.x * 20, snakeGame.food.y * 20, 20, 20);
+      
+      document.getElementById('snakeScore').textContent = snakeGame.score;
+    }
+
+    // ========== FLAPPY BIRD GAME ==========
+    const flappyCanvas = document.getElementById('flappyCanvas');
+    const flappyCtx = flappyCanvas.getContext('2d');
+    let flappyGame = {
+      bird: {x: 50, y: 300, width: 30, height: 30, velocity: 0},
+      pipes: [],
+      score: 0,
+      gameOver: false,
+      running: false,
+      gravity: 0.5,
+      flapPower: -12
+    };
+
+    function startFlappyGame() {
+      flappyGame.bird = {x: 50, y: 300, width: 30, height: 30, velocity: 0};
+      flappyGame.pipes = [];
+      flappyGame.score = 0;
+      flappyGame.gameOver = false;
+      flappyGame.running = true;
+      
+      document.addEventListener('keydown', flappyKeyHandler);
+      document.addEventListener('click', flappyFlap);
+      flappyCanvas.addEventListener('click', flappyFlap);
+      
+      flappyGameLoop();
+    }
+
+    function flappyFlap() {
+      if (flappyGame.running) {
+        flappyGame.bird.velocity = flappyGame.flapPower;
+      }
+    }
+
+    function flappyKeyHandler(e) {
+      if (e.key === ' ') {
+        e.preventDefault();
+        flappyFlap();
+      }
+    }
+
+    function flappyGameLoop() {
+      if (!flappyGame.running) return;
+      
+      flappyGame.bird.velocity += flappyGame.gravity;
+      flappyGame.bird.y += flappyGame.bird.velocity;
+      
+      if (flappyGame.bird.y + flappyGame.bird.height > flappyCanvas.height || flappyGame.bird.y < 0) {
+        endFlappyGame();
+        return;
+      }
+      
+      if (flappyGame.pipes.length === 0 || flappyGame.pipes[flappyGame.pipes.length - 1].x < 150) {
+        flappyGame.pipes.push({x: flappyCanvas.width, gap: Math.random() * 200 + 100});
+      }
+      
+      for (let i = 0; i < flappyGame.pipes.length; i++) {
+        flappyGame.pipes[i].x -= 5;
+        
+        if (flappyGame.pipes[i].x + 50 < flappyGame.bird.x) {
+          if (!flappyGame.pipes[i].scored) {
+            flappyGame.score += 1;
+            flappyGame.pipes[i].scored = true;
+          }
+        }
+        
+        if (flappyGame.pipes[i].x < flappyGame.bird.x + flappyGame.bird.width &&
+            flappyGame.pipes[i].x + 50 > flappyGame.bird.x) {
+          if (flappyGame.bird.y < flappyGame.pipes[i].gap ||
+              flappyGame.bird.y + flappyGame.bird.height > flappyGame.pipes[i].gap + 150) {
+            endFlappyGame();
+            return;
+          }
+        }
+        
+        if (flappyGame.pipes[i].x < -50) {
+          flappyGame.pipes.splice(i, 1);
+        }
+      }
+      
+      drawFlappyGame();
+      setTimeout(flappyGameLoop, 30);
+    }
+
+    function drawFlappyGame() {
+      flappyCtx.fillStyle = '#87CEEB';
+      flappyCtx.fillRect(0, 0, flappyCanvas.width, flappyCanvas.height);
+      
+      flappyCtx.fillStyle = '#FFD700';
+      flappyCtx.beginPath();
+      flappyCtx.arc(flappyGame.bird.x + flappyGame.bird.width / 2, flappyGame.bird.y + flappyGame.bird.height / 2, flappyGame.bird.width / 2, 0, Math.PI * 2);
+      flappyCtx.fill();
+      
+      flappyCtx.fillStyle = '#228B22';
+      for (let pipe of flappyGame.pipes) {
+        flappyCtx.fillRect(pipe.x, 0, 50, pipe.gap);
+        flappyCtx.fillRect(pipe.x, pipe.gap + 150, 50, flappyCanvas.height - pipe.gap - 150);
+      }
+      
+      document.getElementById('flappyScore').textContent = flappyGame.score;
+    }
+
+    function endFlappyGame() {
+      flappyGame.running = false;
+      alert('Game Over! Score: ' + flappyGame.score);
+      document.removeEventListener('keydown', flappyKeyHandler);
+      document.removeEventListener('click', flappyFlap);
+    }
+  </script>
+</body>
+</html>
