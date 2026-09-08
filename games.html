@@ -44,8 +44,9 @@
       gap: 10px;
       justify-content: center;
       margin: 10px 0;
+      flex-wrap: wrap;
     }
-    .back-btn, .reset-btn {
+    .back-btn, .reset-btn, .start-btn {
       background: #555;
       color: white;
       padding: 10px 20px;
@@ -54,7 +55,7 @@
       cursor: pointer;
       font-size: 16px;
     }
-    .back-btn:hover, .reset-btn:hover {
+    .back-btn:hover, .reset-btn:hover, .start-btn:hover {
       background: #777;
     }
     .reset-btn {
@@ -62,6 +63,37 @@
     }
     .reset-btn:hover {
       background: #ff8787;
+    }
+    .start-btn {
+      background: #51cf66;
+      font-size: 18px;
+      padding: 12px 30px;
+    }
+    .start-btn:hover {
+      background: #69db7c;
+    }
+    .game-info {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin: 15px 0;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .score-display, .high-score-display {
+      background: #333;
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: 2px solid #555;
+    }
+    .high-score-display {
+      border-color: #ffed4e;
+      color: #ffed4e;
+    }
+    .game-not-started {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
     }
   </style>
 </head>
@@ -102,9 +134,20 @@
         <button class="reset-btn" onclick="resetSnakeGame()">🔄 Reset Game</button>
       </div>
       <h1>🐍 Snake Game</h1>
-      <p>Use Arrow Keys or WASD to move. Eat the red food!</p>
-      <canvas id="snakeCanvas" width="400" height="400"></canvas>
-      <p>Score: <span id="snakeScore">0</span></p>
+      
+      <div id="snake-not-started" class="game-not-started">
+        <p>Click the button below to start playing!</p>
+        <button class="start-btn" onclick="startSnakeGameplay()">▶ Start Game</button>
+      </div>
+
+      <div id="snake-gameplay" style="display: none;">
+        <p>Use Arrow Keys or WASD to move. Eat the red food!</p>
+        <div class="game-info">
+          <div class="score-display">Score: <span id="snakeScore">0</span></div>
+          <div class="high-score-display">High Score: <span id="snakeHighScore">0</span></div>
+        </div>
+        <canvas id="snakeCanvas" width="400" height="400"></canvas>
+      </div>
     </div>
 
     <!-- Flappy Bird Game -->
@@ -114,15 +157,50 @@
         <button class="reset-btn" onclick="resetFlappyGame()">🔄 Reset Game</button>
       </div>
       <h1>🐦 Flappy Bird</h1>
-      <p>Click or Press Space to fly. Avoid the pipes!</p>
-      <canvas id="flappyCanvas" width="400" height="600"></canvas>
-      <p>Score: <span id="flappyScore">0</span></p>
+      
+      <div id="flappy-not-started" class="game-not-started">
+        <p>Click the button below to start playing!</p>
+        <button class="start-btn" onclick="startFlappyGameplay()">▶ Start Game</button>
+      </div>
+
+      <div id="flappy-gameplay" style="display: none;">
+        <p>Click or Press Space to fly. Avoid the pipes!</p>
+        <div class="game-info">
+          <div class="score-display">Score: <span id="flappyScore">0</span></div>
+          <div class="high-score-display">High Score: <span id="flappyHighScore">0</span></div>
+        </div>
+        <canvas id="flappyCanvas" width="400" height="600"></canvas>
+      </div>
     </div>
   </div>
 
   <script>
     // Game State
     let currentGame = null;
+
+    // Load high scores from localStorage
+    function loadHighScores() {
+      let snakeHS = localStorage.getItem('snakeHighScore');
+      let flappyHS = localStorage.getItem('flappyHighScore');
+      return {
+        snake: snakeHS ? parseInt(snakeHS) : 0,
+        flappy: flappyHS ? parseInt(flappyHS) : 0
+      };
+    }
+
+    function saveHighScore(game, score) {
+      if (game === 'snake') {
+        localStorage.setItem('snakeHighScore', score);
+      } else if (game === 'flappy') {
+        localStorage.setItem('flappyHighScore', score);
+      }
+    }
+
+    let highScores = loadHighScores();
+
+    // Initialize high score displays
+    document.getElementById('snakeHighScore').textContent = highScores.snake;
+    document.getElementById('flappyHighScore').textContent = highScores.flappy;
 
     // Menu Navigation
     function startGame(game) {
@@ -131,10 +209,8 @@
       
       if (game === 'snake') {
         document.getElementById('snake-game').classList.add('active');
-        startSnakeGame();
       } else if (game === 'flappy') {
         document.getElementById('flappy-game').classList.add('active');
-        startFlappyGame();
       }
     }
 
@@ -162,7 +238,14 @@
       running: false
     };
 
-    function startSnakeGame() {
+    function startSnakeGameplay() {
+      document.getElementById('snake-not-started').style.display = 'none';
+      document.getElementById('snake-gameplay').style.display = 'block';
+      initializeSnakeGame();
+      snakeGameLoop();
+    }
+
+    function initializeSnakeGame() {
       snakeGame.snake = [{x: 10, y: 10}];
       snakeGame.food = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
       snakeGame.direction = {x: 1, y: 0};
@@ -172,12 +255,15 @@
       snakeGame.running = true;
       
       document.addEventListener('keydown', snakeKeyHandler);
-      snakeGameLoop();
     }
 
     function resetSnakeGame() {
-      snakeGame.running = false;
-      startSnakeGame();
+      if (snakeGame.running || snakeGame.gameOver) {
+        snakeGame.running = false;
+        document.removeEventListener('keydown', snakeKeyHandler);
+        initializeSnakeGame();
+        snakeGameLoop();
+      }
     }
 
     function snakeKeyHandler(e) {
@@ -212,19 +298,13 @@
       
       // Check collisions
       if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20) {
-        snakeGame.gameOver = true;
-        snakeGame.running = false;
-        alert('Game Over! Score: ' + snakeGame.score);
-        document.removeEventListener('keydown', snakeKeyHandler);
+        endSnakeGame();
         return;
       }
       
       for (let segment of snakeGame.snake) {
         if (head.x === segment.x && head.y === segment.y) {
-          snakeGame.gameOver = true;
-          snakeGame.running = false;
-          alert('Game Over! Score: ' + snakeGame.score);
-          document.removeEventListener('keydown', snakeKeyHandler);
+          endSnakeGame();
           return;
         }
       }
@@ -233,6 +313,11 @@
       
       if (head.x === snakeGame.food.x && head.y === snakeGame.food.y) {
         snakeGame.score += 10;
+        if (snakeGame.score > highScores.snake) {
+          highScores.snake = snakeGame.score;
+          document.getElementById('snakeHighScore').textContent = highScores.snake;
+          saveHighScore('snake', highScores.snake);
+        }
         snakeGame.food = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
       } else {
         snakeGame.snake.pop();
@@ -257,6 +342,12 @@
       document.getElementById('snakeScore').textContent = snakeGame.score;
     }
 
+    function endSnakeGame() {
+      snakeGame.running = false;
+      alert('Game Over! Score: ' + snakeGame.score);
+      document.removeEventListener('keydown', snakeKeyHandler);
+    }
+
     // ========== FLAPPY BIRD GAME ==========
     const flappyCanvas = document.getElementById('flappyCanvas');
     const flappyCtx = flappyCanvas.getContext('2d');
@@ -270,7 +361,14 @@
       flapPower: -12
     };
 
-    function startFlappyGame() {
+    function startFlappyGameplay() {
+      document.getElementById('flappy-not-started').style.display = 'none';
+      document.getElementById('flappy-gameplay').style.display = 'block';
+      initializeFlappyGame();
+      flappyGameLoop();
+    }
+
+    function initializeFlappyGame() {
       flappyGame.bird = {x: 50, y: 300, width: 30, height: 30, velocity: 0};
       flappyGame.pipes = [];
       flappyGame.score = 0;
@@ -280,13 +378,16 @@
       document.addEventListener('keydown', flappyKeyHandler);
       document.addEventListener('click', flappyFlap);
       flappyCanvas.addEventListener('click', flappyFlap);
-      
-      flappyGameLoop();
     }
 
     function resetFlappyGame() {
-      flappyGame.running = false;
-      startFlappyGame();
+      if (flappyGame.running || flappyGame.gameOver) {
+        flappyGame.running = false;
+        document.removeEventListener('keydown', flappyKeyHandler);
+        document.removeEventListener('click', flappyFlap);
+        initializeFlappyGame();
+        flappyGameLoop();
+      }
     }
 
     function flappyFlap() {
@@ -323,6 +424,11 @@
         if (flappyGame.pipes[i].x + 50 < flappyGame.bird.x) {
           if (!flappyGame.pipes[i].scored) {
             flappyGame.score += 1;
+            if (flappyGame.score > highScores.flappy) {
+              highScores.flappy = flappyGame.score;
+              document.getElementById('flappyHighScore').textContent = highScores.flappy;
+              saveHighScore('flappy', highScores.flappy);
+            }
             flappyGame.pipes[i].scored = true;
           }
         }
