@@ -32,6 +32,7 @@
       display: block;
       margin: 20px auto;
       background: #000;
+      touch-action: none;
     }
     .game-section {
       display: none;
@@ -95,6 +96,23 @@
       padding: 40px;
       font-size: 18px;
     }
+    .controls-info {
+      text-align: center;
+      margin: 10px 0;
+      font-size: 14px;
+      color: #aaa;
+    }
+    @media (max-width: 600px) {
+      canvas {
+        width: 100%;
+        height: auto;
+        max-width: 400px;
+      }
+      .game-info {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -141,7 +159,7 @@
       </div>
 
       <div id="snake-gameplay" style="display: none;">
-        <p>Use Arrow Keys or WASD to move. Eat the red food!</p>
+        <p id="snake-controls-info" class="controls-info">Use Arrow Keys or WASD to move. On mobile, swipe to control!</p>
         <div class="game-info">
           <div class="score-display">Score: <span id="snakeScore">0</span></div>
           <div class="high-score-display">High Score: <span id="snakeHighScore">0</span></div>
@@ -223,6 +241,8 @@
       document.removeEventListener('keydown', snakeKeyHandler);
       document.removeEventListener('keydown', flappyKeyHandler);
       document.removeEventListener('click', flappyFlap);
+      snakeCanvas.removeEventListener('touchstart', snakeTouchStart);
+      snakeCanvas.removeEventListener('touchend', snakeTouchEnd);
     }
 
     // ========== SNAKE GAME ==========
@@ -237,6 +257,51 @@
       gameOver: false,
       running: false
     };
+
+    // Touch tracking for snake swipe controls
+    let snakeTouchStartX = 0;
+    let snakeTouchStartY = 0;
+    const SWIPE_THRESHOLD = 50; // Minimum distance for a swipe to register
+
+    function snakeTouchStart(e) {
+      snakeTouchStartX = e.touches[0].clientX;
+      snakeTouchStartY = e.touches[0].clientY;
+    }
+
+    function snakeTouchEnd(e) {
+      if (!snakeGame.running) return;
+
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+
+      const diffX = touchEndX - snakeTouchStartX;
+      const diffY = touchEndY - snakeTouchStartY;
+
+      // Determine if swipe was more horizontal or vertical
+      if (Math.abs(diffX) > Math.abs(diffY)) {
+        // Horizontal swipe
+        if (Math.abs(diffX) > SWIPE_THRESHOLD) {
+          if (diffX > 0) {
+            // Swipe right
+            if (snakeGame.direction.x === 0) snakeGame.nextDirection = {x: 1, y: 0};
+          } else {
+            // Swipe left
+            if (snakeGame.direction.x === 0) snakeGame.nextDirection = {x: -1, y: 0};
+          }
+        }
+      } else {
+        // Vertical swipe
+        if (Math.abs(diffY) > SWIPE_THRESHOLD) {
+          if (diffY > 0) {
+            // Swipe down
+            if (snakeGame.direction.y === 0) snakeGame.nextDirection = {x: 0, y: 1};
+          } else {
+            // Swipe up
+            if (snakeGame.direction.y === 0) snakeGame.nextDirection = {x: 0, y: -1};
+          }
+        }
+      }
+    }
 
     function startSnakeGameplay() {
       document.getElementById('snake-not-started').style.display = 'none';
@@ -255,12 +320,16 @@
       snakeGame.running = true;
       
       document.addEventListener('keydown', snakeKeyHandler);
+      snakeCanvas.addEventListener('touchstart', snakeTouchStart);
+      snakeCanvas.addEventListener('touchend', snakeTouchEnd);
     }
 
     function resetSnakeGame() {
       if (snakeGame.running || snakeGame.gameOver) {
         snakeGame.running = false;
         document.removeEventListener('keydown', snakeKeyHandler);
+        snakeCanvas.removeEventListener('touchstart', snakeTouchStart);
+        snakeCanvas.removeEventListener('touchend', snakeTouchEnd);
         initializeSnakeGame();
         snakeGameLoop();
       }
@@ -346,6 +415,8 @@
       snakeGame.running = false;
       alert('Game Over! Score: ' + snakeGame.score);
       document.removeEventListener('keydown', snakeKeyHandler);
+      snakeCanvas.removeEventListener('touchstart', snakeTouchStart);
+      snakeCanvas.removeEventListener('touchend', snakeTouchEnd);
     }
 
     // ========== FLAPPY BIRD GAME ==========
@@ -378,6 +449,7 @@
       document.addEventListener('keydown', flappyKeyHandler);
       document.addEventListener('click', flappyFlap);
       flappyCanvas.addEventListener('click', flappyFlap);
+      flappyCanvas.addEventListener('touchstart', flappyFlap);
     }
 
     function resetFlappyGame() {
@@ -385,6 +457,8 @@
         flappyGame.running = false;
         document.removeEventListener('keydown', flappyKeyHandler);
         document.removeEventListener('click', flappyFlap);
+        flappyCanvas.removeEventListener('click', flappyFlap);
+        flappyCanvas.removeEventListener('touchstart', flappyFlap);
         initializeFlappyGame();
         flappyGameLoop();
       }
@@ -474,6 +548,8 @@
       alert('Game Over! Score: ' + flappyGame.score);
       document.removeEventListener('keydown', flappyKeyHandler);
       document.removeEventListener('click', flappyFlap);
+      flappyCanvas.removeEventListener('click', flappyFlap);
+      flappyCanvas.removeEventListener('touchstart', flappyFlap);
     }
   </script>
 </body>
