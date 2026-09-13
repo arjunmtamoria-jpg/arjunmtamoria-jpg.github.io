@@ -123,6 +123,15 @@
     .mobile-controls button:active {
       background: #45a049;
     }
+    .arcade-embed {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .arcade-embed iframe {
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
     @media (max-width: 600px) {
       canvas {
         width: 100%;
@@ -132,6 +141,10 @@
       .game-info {
         flex-direction: column;
         gap: 10px;
+      }
+      .arcade-embed iframe {
+        width: 100% !important;
+        height: auto !important;
       }
     }
   </style>
@@ -166,6 +179,10 @@
         <div class="game-card" onclick="startGame('platformer')">
           <h2>🦔 Sonic Run</h2>
           <p>Run and jump! Collect rings!</p>
+        </div>
+        <div class="game-card" onclick="startGame('arcade')">
+          <h2>🎯 MakeCode Arcade</h2>
+          <p>Play a game created with Microsoft MakeCode!</p>
         </div>
       </div>
     </div>
@@ -241,6 +258,23 @@
           <button onmousedown="jumpPlatformer()" ontouchstart="jumpPlatformer()">↑ Jump</button>
           <button onmousedown="platformerKeys.right=true" onmouseup="platformerKeys.right=false" ontouchstart="platformerKeys.right=true" ontouchend="platformerKeys.right=false">Right →</button>
         </div>
+      </div>
+    </div>
+
+    <!-- MakeCode Arcade Game -->
+    <div id="arcade-game" class="game-section">
+      <div class="button-group">
+        <button class="back-btn" onclick="backToMenu()">← Back to Menu</button>
+      </div>
+      <h1>🎯 MakeCode Arcade</h1>
+      <p class="controls-info">Enjoy this game created with Microsoft MakeCode Arcade!</p>
+      <div class="arcade-embed">
+        <iframe 
+          src="https://arcade.makecode.com/#pub:_38496-01097-92418-23814" 
+          allowfullscreen="allowfullscreen" 
+          sandbox="allow-popups allow-forms allow-scripts allow-same-origin" 
+          style="width: 100%; height: 600px; border: none;">
+        </iframe>
       </div>
     </div>
   </div>
