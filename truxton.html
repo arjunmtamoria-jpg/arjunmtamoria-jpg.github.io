@@ -248,7 +248,7 @@
       <button class="button bomb" onclick="dropBomb()">Drop Bomb</button>
     </div>
 
-    <div class="status" id="status">Move: Arrow keys/WASD or drag on the screen • Fire: hold Space • Bomb: B or Bomb button</div>
+    <div class="status" id="status">Move: Arrow keys/WASD or drag on the screen • Auto fire on • Bomb: B or Bomb button</div>
   </div>
 
   <script>
@@ -592,6 +592,7 @@
       if (keys.ArrowDown || keys.s) player.y += player.speed;
 
       if (keys[' '] || keys.Space) shoot();
+      shoot();
 
       player.x = clamp(player.x, 0, canvas.width - player.width);
       player.y = clamp(player.y, 20, canvas.height - player.height);
