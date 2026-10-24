@@ -17,6 +17,8 @@
       --danger-hover: #f87171;
       --success: #22c55e;
       --success-hover: #4ade80;
+      --ring: #facc15;
+      --ring-dark: #ca8a04;
     }
 
     body {
@@ -94,7 +96,7 @@
       flex-wrap: wrap;
     }
 
-    .score-display, .high-score-display {
+    .score-display, .high-score-display, .level-display {
       background: rgba(15, 23, 42, 0.85);
       border: 2px solid rgba(148, 163, 184, 0.3);
       border-radius: 8px;
@@ -105,6 +107,11 @@
     .high-score-display {
       border-color: rgba(250, 204, 21, 0.7);
       color: #facc15;
+    }
+
+    .level-display {
+      border-color: rgba(56, 189, 248, 0.7);
+      color: #7dd3fc;
     }
 
     .game-not-started {
@@ -186,6 +193,7 @@
       <p class="controls-info">Arrow Keys/WASD to move, SPACE to jump. Collect rings and avoid enemies!</p>
       <div class="game-info">
         <div class="score-display">Rings: <span id="platformerScore">0</span></div>
+        <div class="level-display">Level: <span id="platformerLevel">1</span></div>
         <div class="high-score-display">High Score: <span id="platformerHighScore">0</span></div>
       </div>
       <canvas id="platformerCanvas" width="800" height="400"></canvas>
@@ -203,47 +211,135 @@
     let highScores = { platformer: parseInt(localStorage.getItem('platformerHighScore')) || 0 };
     document.getElementById('platformerHighScore').textContent = highScores.platformer;
 
+    const LEVELS = [
+      {
+        name: 'Green Hill',
+        width: 2200,
+        startX: 50,
+        goal: { x: 2100, y: 180, width: 26, height: 100 },
+        platforms: [
+          { x: 0, y: 380, width: 520, height: 20 },
+          { x: 620, y: 330, width: 220, height: 20 },
+          { x: 930, y: 270, width: 220, height: 20 },
+          { x: 1260, y: 230, width: 180, height: 20 },
+          { x: 1520, y: 300, width: 180, height: 20 },
+          { x: 1750, y: 260, width: 220, height: 20 },
+          { x: 2000, y: 380, width: 200, height: 20 }
+        ],
+        rings: [
+          { x: 220, y: 320 }, { x: 310, y: 260 }, { x: 700, y: 280 }, { x: 1020, y: 220 },
+          { x: 1340, y: 180 }, { x: 1600, y: 250 }, { x: 1800, y: 210 }, { x: 2060, y: 330 }
+        ],
+        enemies: [
+          { x: 700, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 1460, y: 350, width: 30, height: 30, dir: -1 }
+        ]
+      },
+      {
+        name: 'Skyline Rush',
+        width: 2600,
+        startX: 60,
+        goal: { x: 2480, y: 160, width: 26, height: 100 },
+        platforms: [
+          { x: 0, y: 380, width: 420, height: 20 },
+          { x: 520, y: 340, width: 140, height: 20 },
+          { x: 720, y: 300, width: 150, height: 20 },
+          { x: 980, y: 250, width: 180, height: 20 },
+          { x: 1270, y: 220, width: 170, height: 20 },
+          { x: 1510, y: 270, width: 200, height: 20 },
+          { x: 1780, y: 210, width: 190, height: 20 },
+          { x: 2020, y: 170, width: 170, height: 20 },
+          { x: 2280, y: 380, width: 320, height: 20 }
+        ],
+        rings: [
+          { x: 180, y: 330 }, { x: 580, y: 290 }, { x: 780, y: 250 }, { x: 1040, y: 200 },
+          { x: 1330, y: 170 }, { x: 1560, y: 220 }, { x: 1840, y: 160 }, { x: 2080, y: 120 },
+          { x: 2330, y: 330 }
+        ],
+        enemies: [
+          { x: 540, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 1580, y: 350, width: 30, height: 30, dir: -1 },
+          { x: 2140, y: 350, width: 30, height: 30, dir: 1 }
+        ]
+      },
+      {
+        name: 'Crystal Cave',
+        width: 3000,
+        startX: 70,
+        goal: { x: 2865, y: 140, width: 26, height: 100 },
+        platforms: [
+          { x: 0, y: 380, width: 390, height: 20 },
+          { x: 470, y: 320, width: 160, height: 20 },
+          { x: 710, y: 260, width: 180, height: 20 },
+          { x: 980, y: 200, width: 150, height: 20 },
+          { x: 1200, y: 250, width: 180, height: 20 },
+          { x: 1440, y: 300, width: 170, height: 20 },
+          { x: 1685, y: 210, width: 180, height: 20 },
+          { x: 1920, y: 160, width: 180, height: 20 },
+          { x: 2160, y: 240, width: 160, height: 20 },
+          { x: 2390, y: 310, width: 180, height: 20 },
+          { x: 2650, y: 380, width: 350, height: 20 }
+        ],
+        rings: [
+          { x: 180, y: 330 }, { x: 540, y: 270 }, { x: 770, y: 210 }, { x: 1050, y: 150 },
+          { x: 1260, y: 200 }, { x: 1500, y: 250 }, { x: 1735, y: 160 }, { x: 1980, y: 110 },
+          { x: 2210, y: 190 }, { x: 2460, y: 260 }, { x: 2730, y: 330 }
+        ],
+        enemies: [
+          { x: 570, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 1260, y: 350, width: 30, height: 30, dir: -1 },
+          { x: 1750, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 2430, y: 350, width: 30, height: 30, dir: -1 }
+        ]
+      }
+    ];
+
     let platformerKeys = { left: false, right: false };
-    let platformerGame = {
-      player: {x: 50, y: 300, width: 30, height: 40, velocityY: 0, velocityX: 0, jumping: false},
-      platforms: [
-        {x: 0, y: 380, width: 800, height: 20},
-        {x: 200, y: 320, width: 200, height: 20},
-        {x: 550, y: 260, width: 200, height: 20},
-        {x: 100, y: 200, width: 150, height: 20}
-      ],
-      rings: [
-        {x: 280, y: 280}, {x: 400, y: 200}, {x: 630, y: 180}, {x: 200, y: 150}
-      ],
-      enemies: [{x: 300, y: 340, width: 30, height: 30, dir: 1}],
-      score: 0,
-      running: false,
-      gravity: 0.6
-    };
+    let levelIndex = 0;
+    let cameraX = 0;
+    let levelCleared = false;
+
+    function buildLevel(levelData) {
+      return {
+        name: levelData.name,
+        width: levelData.width,
+        goal: { ...levelData.goal },
+        player: {
+          x: levelData.startX,
+          y: 300,
+          width: 30,
+          height: 40,
+          velocityY: 0,
+          velocityX: 0,
+          jumping: false
+        },
+        platforms: levelData.platforms.map(p => ({ ...p })),
+        rings: levelData.rings.map(r => ({ ...r })),
+        enemies: levelData.enemies.map(e => ({ ...e })),
+        score: 0,
+        running: true,
+        gravity: 0.6
+      };
+    }
+
+    let platformerGame = buildLevel(LEVELS[0]);
 
     function saveHighScore(game, score) {
       localStorage.setItem(game + 'HighScore', score);
     }
 
+    function updateLevelLabel() {
+      document.getElementById('platformerLevel').textContent = (levelIndex + 1) + ' / ' + LEVELS.length;
+    }
+
     function startPlatformerGameplay() {
       document.getElementById('platformer-not-started').style.display = 'none';
       document.getElementById('platformer-gameplay').style.display = 'block';
-      platformerGame = {
-        player: {x: 50, y: 300, width: 30, height: 40, velocityY: 0, velocityX: 0, jumping: false},
-        platforms: [
-          {x: 0, y: 380, width: 800, height: 20},
-          {x: 200, y: 320, width: 200, height: 20},
-          {x: 550, y: 260, width: 200, height: 20},
-          {x: 100, y: 200, width: 150, height: 20}
-        ],
-        rings: [
-          {x: 280, y: 280}, {x: 400, y: 200}, {x: 630, y: 180}, {x: 200, y: 150}
-        ],
-        enemies: [{x: 300, y: 340, width: 30, height: 30, dir: 1}],
-        score: 0,
-        running: true,
-        gravity: 0.6
-      };
+      levelIndex = 0;
+      levelCleared = false;
+      cameraX = 0;
+      platformerGame = buildLevel(LEVELS[levelIndex]);
+      updateLevelLabel();
       platformerKeys = { left: false, right: false };
       document.addEventListener('keydown', platformerKeyHandler);
       document.addEventListener('keyup', platformerKeyUpHandler);
@@ -273,6 +369,20 @@
       }
     }
 
+    function nextLevel() {
+      if (levelIndex < LEVELS.length - 1) {
+        levelIndex += 1;
+        cameraX = 0;
+        levelCleared = false;
+        platformerGame = buildLevel(LEVELS[levelIndex]);
+        updateLevelLabel();
+        platformerGameLoop();
+      } else {
+        platformerGame.running = false;
+        alert('You beat all levels! Final rings: ' + platformerGame.score);
+      }
+    }
+
     function platformerGameLoop() {
       if (!platformerGame.running) return;
 
@@ -286,7 +396,7 @@
       p.y += p.velocityY;
 
       if (p.x < 0) p.x = 0;
-      if (p.x + p.width > platformerCanvas.width) p.x = platformerCanvas.width - p.width;
+      if (p.x + p.width > platformerGame.width) p.x = platformerGame.width - p.width;
 
       let onGround = false;
       platformerGame.platforms.forEach(plat => {
@@ -299,6 +409,8 @@
       });
 
       if (!onGround && p.velocityY > 0) p.jumping = true;
+
+      cameraX = Math.max(0, Math.min(platformerGame.width - platformerCanvas.width, p.x - 250));
 
       platformerGame.rings = platformerGame.rings.filter(ring => {
         if (p.x < ring.x + 20 && p.x + p.width > ring.x && p.y < ring.y + 20 && p.y + p.height > ring.y) {
@@ -315,7 +427,7 @@
 
       platformerGame.enemies.forEach(enemy => {
         enemy.x += enemy.dir * 2;
-        if (enemy.x < 200 || enemy.x > 600) enemy.dir *= -1;
+        if (enemy.x < 200 || enemy.x > platformerGame.width - 200) enemy.dir *= -1;
         if (p.x < enemy.x + enemy.width && p.x + p.width > enemy.x && p.y < enemy.y + enemy.height && p.y + p.height > enemy.y) {
           platformerGame.running = false;
           alert('Game Over! Rings: ' + platformerGame.score);
@@ -323,34 +435,79 @@
         }
       });
 
-      if (p.y > platformerCanvas.height) {
+      if (p.y > platformerCanvas.height + 100) {
         platformerGame.running = false;
         alert('Game Over! Rings: ' + platformerGame.score);
         return;
       }
 
-      platformerCtx.fillStyle = '#87CEEB';
-      platformerCtx.fillRect(0, 0, platformerCanvas.width, platformerCanvas.height);
+      const goal = platformerGame.goal;
+      if (p.x + p.width > goal.x && p.y + p.height > goal.y && p.y < goal.y + goal.height) {
+        setTimeout(nextLevel, 200);
+        return;
+      }
+
+      drawBackground();
 
       platformerCtx.fillStyle = '#8B4513';
-      platformerGame.platforms.forEach(plat => platformerCtx.fillRect(plat.x, plat.y, plat.width, plat.height));
+      platformerGame.platforms.forEach(plat => {
+        const drawX = plat.x - cameraX;
+        platformerCtx.fillRect(drawX, plat.y, plat.width, plat.height);
+      });
 
-      platformerCtx.fillStyle = '#FFD700';
-      platformerCtx.lineWidth = 3;
+      platformerCtx.fillStyle = '#facc15';
       platformerGame.rings.forEach(ring => {
+        const drawX = ring.x - cameraX;
+        const drawY = ring.y;
         platformerCtx.beginPath();
-        platformerCtx.arc(ring.x + 10, ring.y + 10, 10, 0, Math.PI * 2);
+        platformerCtx.arc(drawX + 10, drawY + 10, 10, 0, Math.PI * 2);
+        platformerCtx.fill();
+        platformerCtx.lineWidth = 2;
+        platformerCtx.strokeStyle = '#ca8a04';
         platformerCtx.stroke();
       });
 
       platformerCtx.fillStyle = '#FF0000';
-      platformerGame.enemies.forEach(enemy => platformerCtx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height));
+      platformerGame.enemies.forEach(enemy => {
+        const drawX = enemy.x - cameraX;
+        platformerCtx.fillRect(drawX, enemy.y, enemy.width, enemy.height);
+      });
+
+      platformerCtx.fillStyle = '#22c55e';
+      const goalX = goal.x - cameraX;
+      platformerCtx.fillRect(goalX, goal.y, goal.width, goal.height);
 
       platformerCtx.fillStyle = '#0066FF';
-      platformerCtx.fillRect(p.x, p.y, p.width, p.height);
+      const drawPlayerX = p.x - cameraX;
+      platformerCtx.fillRect(drawPlayerX, p.y, p.width, p.height);
 
       document.getElementById('platformerScore').textContent = platformerGame.score;
       setTimeout(platformerGameLoop, 30);
+    }
+
+    function drawBackground() {
+      platformerCtx.clearRect(0, 0, platformerCanvas.width, platformerCanvas.height);
+      platformerCtx.fillStyle = '#87CEEB';
+      platformerCtx.fillRect(0, 0, platformerCanvas.width, platformerCanvas.height);
+
+      platformerCtx.fillStyle = '#dbeafe';
+      for (let i = 0; i < 7; i++) {
+        const x = ((i * 180) - (cameraX * 0.3)) % (platformerCanvas.width + 200);
+        platformerCtx.beginPath();
+        platformerCtx.arc(x, 80, 28, 0, Math.PI * 2);
+        platformerCtx.arc(x + 30, 60, 26, 0, Math.PI * 2);
+        platformerCtx.arc(x + 60, 80, 28, 0, Math.PI * 2);
+        platformerCtx.fill();
+      }
+
+      platformerCtx.fillStyle = '#7dd3fc';
+      for (let i = 0; i < 6; i++) {
+        const hillX = ((i * 220) - (cameraX * 0.5)) % (platformerCanvas.width + 250);
+        platformerCtx.beginPath();
+        platformerCtx.moveTo(hillX, 400);
+        platformerCtx.quadraticCurveTo(hillX + 60, 260, hillX + 120, 400);
+        platformerCtx.fill();
+      }
     }
   </script>
 </body>
