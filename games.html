@@ -6,146 +6,61 @@
   <title>Games - Cool Site</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    body {
+      background: #111827;
+      color: #f9fafb;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 30px;
+      background: rgba(17, 24, 39, 0.9);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #f8fafc;
+    }
+
     .games-container {
       display: flex;
       flex-wrap: wrap;
       gap: 20px;
       justify-content: center;
-      margin: 20px 0;
+      margin-top: 30px;
     }
+
     .game-card {
-      background: #333;
-      padding: 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: transform 0.3s;
-      text-align: center;
+      display: block;
+      width: 220px;
+      background: linear-gradient(145deg, #1f2937, #111827);
+      color: #fff;
+      padding: 22px 18px;
+      border-radius: 12px;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
     }
+
     .game-card:hover {
-      transform: scale(1.05);
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 16px 32px rgba(0,0,0,0.28);
     }
+
     .game-card h2 {
-      margin: 0 0 10px 0;
+      margin: 0 0 10px;
+      font-size: 1.8rem;
     }
-    canvas {
-      border: 2px solid #fff;
-      display: block;
-      margin: 20px auto;
-      background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
-      touch-action: none;
-    }
-    .game-section {
-      display: none;
-    }
-    .game-section.active {
-      display: block;
-    }
-    .button-group {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin: 10px 0;
-      flex-wrap: wrap;
-    }
-    .back-btn, .reset-btn, .start-btn {
-      background: #555;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .back-btn:hover, .reset-btn:hover, .start-btn:hover {
-      background: #777;
-    }
-    .reset-btn {
-      background: #ff6b6b;
-    }
-    .reset-btn:hover {
-      background: #ff8787;
-    }
-    .start-btn {
-      background: #51cf66;
-      font-size: 18px;
-      padding: 12px 30px;
-    }
-    .start-btn:hover {
-      background: #69db7c;
-    }
-    .game-info {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      margin: 15px 0;
-      font-size: 18px;
-      font-weight: bold;
-    }
-    .score-display, .high-score-display {
-      background: #333;
-      padding: 10px 20px;
-      border-radius: 5px;
-      border: 2px solid #555;
-    }
-    .high-score-display {
-      border-color: #ffed4e;
-      color: #ffed4e;
-    }
-    .game-not-started {
-      text-align: center;
-      padding: 40px;
-      font-size: 18px;
-    }
-    .controls-info {
-      text-align: center;
-      margin: 10px 0;
-      font-size: 14px;
-      color: #aaa;
-    }
-    .mobile-controls {
-      text-align: center;
-      margin-top: 10px;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .mobile-controls button {
-      background: #4CAF50;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
-    }
-    .mobile-controls button:active {
-      background: #45a049;
-    }
-    .arcade-embed {
-      display: flex;
-      justify-content: center;
-      margin: 20px 0;
-    }
-    .arcade-embed iframe {
-      border-radius: 10px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    }
-    @media (max-width: 600px) {
-      canvas {
-        width: 100%;
-        height: auto;
-        max-width: 400px;
-      }
-      .game-info {
-        flex-direction: column;
-        gap: 10px;
-      }
-      .arcade-embed iframe {
-        width: 100% !important;
-        height: auto !important;
-      }
+
+    .game-card p {
+      margin: 0;
+      color: #d1d5db;
+      line-height: 1.5;
     }
   </style>
 </head>
@@ -164,463 +79,28 @@
   </nav>
 
   <div class="container">
-    <!-- Games Menu -->
-    <div id="menu" class="game-section active">
-      <h1>🎮 Games</h1>
-      <div class="games-container">
-        <div class="game-card" onclick="startGame('snake')">
-          <h2>🐍 Snake</h2>
-          <p>Classic arcade game. Eat food and grow!</p>
-        </div>
-        <div class="game-card" onclick="startGame('flappy')">
-          <h2>🐦 Flappy Bird</h2>
-          <p>Tap to fly! Avoid the pipes!</p>
-        </div>
-        <div class="game-card" onclick="startGame('platformer')">
-          <h2>🦔 Sonic Run</h2>
-          <p>Run and jump! Collect rings!</p>
-        </div>
-        <div class="game-card" onclick="startGame('arcade')">
-          <h2>🎯 MakeCode Arcade</h2>
-          <p>Play a game created with Microsoft MakeCode!</p>
-        </div>
-      </div>
-    </div>
+    <h1>🎮 Games</h1>
+    <div class="games-container">
+      <a class="game-card" href="snake.html">
+        <h2>🐍 Snake</h2>
+        <p>Classic arcade game. Eat food and grow!</p>
+      </a>
 
-    <!-- Snake Game -->
-    <div id="snake-game" class="game-section">
-      <div class="button-group">
-        <button class="back-btn" onclick="backToMenu()">← Back to Menu</button>
-        <button class="reset-btn" onclick="resetSnakeGame()">🔄 Reset Game</button>
-      </div>
-      <h1>🐍 Snake Game</h1>
-      
-      <div id="snake-not-started" class="game-not-started">
-        <p>Click the button below to start playing!</p>
-        <button class="start-btn" onclick="startSnakeGameplay()">▶ Start Game</button>
-      </div>
+      <a class="game-card" href="flappy.html">
+        <h2>🐦 Flappy Bird</h2>
+        <p>Tap to fly and avoid the pipes!</p>
+      </a>
 
-      <div id="snake-gameplay" style="display: none;">
-        <p class="controls-info">Use Arrow Keys or WASD to move. On mobile, swipe to control!</p>
-        <div class="game-info">
-          <div class="score-display">Score: <span id="snakeScore">0</span></div>
-          <div class="high-score-display">High Score: <span id="snakeHighScore">0</span></div>
-        </div>
-        <canvas id="snakeCanvas" width="400" height="400"></canvas>
-      </div>
-    </div>
+      <a class="game-card" href="platformer.html">
+        <h2>🦔 Sonic Run</h2>
+        <p>Run, jump, collect rings, and dodge danger!</p>
+      </a>
 
-    <!-- Flappy Bird Game -->
-    <div id="flappy-game" class="game-section">
-      <div class="button-group">
-        <button class="back-btn" onclick="backToMenu()">← Back to Menu</button>
-        <button class="reset-btn" onclick="resetFlappyGame()">🔄 Reset Game</button>
-      </div>
-      <h1>🐦 Flappy Bird</h1>
-      
-      <div id="flappy-not-started" class="game-not-started">
-        <p>Click the button below to start playing!</p>
-        <button class="start-btn" onclick="startFlappyGameplay()">▶ Start Game</button>
-      </div>
-
-      <div id="flappy-gameplay" style="display: none;">
-        <p class="controls-info">Click or Press Space to fly. On mobile, tap to fly!</p>
-        <div class="game-info">
-          <div class="score-display">Score: <span id="flappyScore">0</span></div>
-          <div class="high-score-display">High Score: <span id="flappyHighScore">0</span></div>
-        </div>
-        <canvas id="flappyCanvas" width="400" height="600"></canvas>
-      </div>
-    </div>
-
-    <!-- Platformer Game -->
-    <div id="platformer-game" class="game-section">
-      <div class="button-group">
-        <button class="back-btn" onclick="backToMenu()">← Back to Menu</button>
-        <button class="reset-btn" onclick="resetPlatformerGame()">🔄 Reset Game</button>
-      </div>
-      <h1>🦔 Sonic Run</h1>
-      
-      <div id="platformer-not-started" class="game-not-started">
-        <p>Click the button below to start playing!</p>
-        <button class="start-btn" onclick="startPlatformerGameplay()">▶ Start Game</button>
-      </div>
-
-      <div id="platformer-gameplay" style="display: none;">
-        <p class="controls-info">Arrow Keys/WASD to move, SPACE to jump. Collect rings and avoid enemies!</p>
-        <div class="game-info">
-          <div class="score-display">Rings: <span id="platformerScore">0</span></div>
-          <div class="high-score-display">High Score: <span id="platformerHighScore">0</span></div>
-        </div>
-        <canvas id="platformerCanvas" width="800" height="400"></canvas>
-        <div class="mobile-controls">
-          <button onmousedown="platformerKeys.left=true" onmouseup="platformerKeys.left=false" ontouchstart="platformerKeys.left=true" ontouchend="platformerKeys.left=false">← Left</button>
-          <button onmousedown="jumpPlatformer()" ontouchstart="jumpPlatformer()">↑ Jump</button>
-          <button onmousedown="platformerKeys.right=true" onmouseup="platformerKeys.right=false" ontouchstart="platformerKeys.right=true" ontouchend="platformerKeys.right=false">Right →</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- MakeCode Arcade Game -->
-    <div id="arcade-game" class="game-section">
-      <div class="button-group">
-        <button class="back-btn" onclick="backToMenu()">← Back to Menu</button>
-      </div>
-      <h1>🎯 MakeCode Arcade</h1>
-      <p class="controls-info">Enjoy this game created with Microsoft MakeCode Arcade!</p>
-      <div class="arcade-embed">
-        <iframe 
-          src="https://arcade.makecode.com/S59398-45777-67865-44946" 
-          allowfullscreen="allowfullscreen" 
-          sandbox="allow-popups allow-forms allow-scripts allow-same-origin" 
-          style="width: 100%; height: 600px; border: none;">
-        </iframe>
-      </div>
+      <a class="game-card" href="arcade.html">
+        <h2>🎯 MakeCode Arcade</h2>
+        <p>Play a game made with Microsoft MakeCode.</p>
+      </a>
     </div>
   </div>
-
-  <script>
-    let currentGame = null;
-    let highScores = {
-      snake: parseInt(localStorage.getItem('snakeHighScore')) || 0,
-      flappy: parseInt(localStorage.getItem('flappyHighScore')) || 0,
-      platformer: parseInt(localStorage.getItem('platformerHighScore')) || 0
-    };
-
-    document.getElementById('snakeHighScore').textContent = highScores.snake;
-    document.getElementById('flappyHighScore').textContent = highScores.flappy;
-    document.getElementById('platformerHighScore').textContent = highScores.platformer;
-
-    function saveHighScore(game, score) {
-      localStorage.setItem(game + 'HighScore', score);
-    }
-
-    function startGame(game) {
-      document.getElementById('menu').classList.remove('active');
-      currentGame = game;
-      document.getElementById(game + '-game').classList.add('active');
-    }
-
-    function backToMenu() {
-      document.querySelectorAll('.game-section').forEach(el => el.classList.remove('active'));
-      document.getElementById('menu').classList.add('active');
-      currentGame = null;
-      snakeGame.running = false;
-      flappyGame.running = false;
-      platformerGame.running = false;
-      document.removeEventListener('keydown', snakeKeyHandler);
-      document.removeEventListener('keyup', snakeKeyUpHandler);
-      document.removeEventListener('keydown', flappyKeyHandler);
-      document.removeEventListener('click', flappyFlap);
-      document.removeEventListener('keydown', platformerKeyHandler);
-      document.removeEventListener('keyup', platformerKeyUpHandler);
-      snakeCanvas.removeEventListener('touchstart', snakeTouchStart);
-      snakeCanvas.removeEventListener('touchend', snakeTouchEnd);
-      flappyCanvas.removeEventListener('touchstart', flappyFlap);
-    }
-
-    // ========== SNAKE GAME ==========
-    const snakeCanvas = document.getElementById('snakeCanvas');
-    const snakeCtx = snakeCanvas.getContext('2d');
-    let snakeGame = { snake: [{x: 10, y: 10}], food: {x: 15, y: 15}, direction: {x: 1, y: 0}, nextDirection: {x: 1, y: 0}, score: 0, running: false };
-    let snakeTouchStartX = 0, snakeTouchStartY = 0;
-
-    function snakeTouchStart(e) { snakeTouchStartX = e.touches[0].clientX; snakeTouchStartY = e.touches[0].clientY; }
-    function snakeTouchEnd(e) {
-      if (!snakeGame.running) return;
-      const diffX = e.changedTouches[0].clientX - snakeTouchStartX;
-      const diffY = e.changedTouches[0].clientY - snakeTouchStartY;
-      if (Math.abs(diffX) > Math.abs(diffY)) {
-        if (Math.abs(diffX) > 50 && snakeGame.direction.x === 0) snakeGame.nextDirection = diffX > 0 ? {x: 1, y: 0} : {x: -1, y: 0};
-      } else {
-        if (Math.abs(diffY) > 50 && snakeGame.direction.y === 0) snakeGame.nextDirection = diffY > 0 ? {x: 0, y: 1} : {x: 0, y: -1};
-      }
-    }
-
-    function startSnakeGameplay() {
-      document.getElementById('snake-not-started').style.display = 'none';
-      document.getElementById('snake-gameplay').style.display = 'block';
-      snakeGame = { snake: [{x: 10, y: 10}], food: {x: 15, y: 15}, direction: {x: 1, y: 0}, nextDirection: {x: 1, y: 0}, score: 0, running: true };
-      document.addEventListener('keydown', snakeKeyHandler);
-      snakeCanvas.addEventListener('touchstart', snakeTouchStart);
-      snakeCanvas.addEventListener('touchend', snakeTouchEnd);
-      snakeGameLoop();
-    }
-
-    function resetSnakeGame() {
-      if (snakeGame.running) snakeGame.running = false;
-      startSnakeGameplay();
-    }
-
-    function snakeKeyHandler(e) {
-      if (!snakeGame.running) return;
-      const key = e.key.toLowerCase();
-      if (['arrowup', 'w'].includes(key) && snakeGame.direction.y === 0) snakeGame.nextDirection = {x: 0, y: -1};
-      if (['arrowdown', 's'].includes(key) && snakeGame.direction.y === 0) snakeGame.nextDirection = {x: 0, y: 1};
-      if (['arrowleft', 'a'].includes(key) && snakeGame.direction.x === 0) snakeGame.nextDirection = {x: -1, y: 0};
-      if (['arrowright', 'd'].includes(key) && snakeGame.direction.x === 0) snakeGame.nextDirection = {x: 1, y: 0};
-    }
-
-    function snakeKeyUpHandler(e) {}
-
-    function snakeGameLoop() {
-      if (!snakeGame.running) return;
-      snakeGame.direction = snakeGame.nextDirection;
-      let head = {x: snakeGame.snake[0].x + snakeGame.direction.x, y: snakeGame.snake[0].y + snakeGame.direction.y};
-      
-      if (head.x < 0 || head.x >= 20 || head.y < 0 || head.y >= 20 || snakeGame.snake.some(s => s.x === head.x && s.y === head.y)) {
-        snakeGame.running = false;
-        alert('Game Over! Score: ' + snakeGame.score);
-        return;
-      }
-      
-      snakeGame.snake.unshift(head);
-      if (head.x === snakeGame.food.x && head.y === snakeGame.food.y) {
-        snakeGame.score += 10;
-        if (snakeGame.score > highScores.snake) {
-          highScores.snake = snakeGame.score;
-          saveHighScore('snake', snakeGame.score);
-          document.getElementById('snakeHighScore').textContent = snakeGame.score;
-        }
-        snakeGame.food = {x: Math.floor(Math.random() * 20), y: Math.floor(Math.random() * 20)};
-      } else {
-        snakeGame.snake.pop();
-      }
-      
-      snakeCtx.fillStyle = '#000';
-      snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
-      snakeCtx.fillStyle = '#00ff00';
-      snakeGame.snake.forEach(s => snakeCtx.fillRect(s.x * 20, s.y * 20, 20, 20));
-      snakeCtx.fillStyle = '#ff0000';
-      snakeCtx.fillRect(snakeGame.food.x * 20, snakeGame.food.y * 20, 20, 20);
-      document.getElementById('snakeScore').textContent = snakeGame.score;
-      setTimeout(snakeGameLoop, 100);
-    }
-
-    // ========== FLAPPY BIRD ==========
-    const flappyCanvas = document.getElementById('flappyCanvas');
-    const flappyCtx = flappyCanvas.getContext('2d');
-    let flappyGame = { bird: {x: 50, y: 300, width: 30, height: 30, velocity: 0}, pipes: [], score: 0, running: false, gravity: 0.5, flapPower: -12 };
-
-    function startFlappyGameplay() {
-      document.getElementById('flappy-not-started').style.display = 'none';
-      document.getElementById('flappy-gameplay').style.display = 'block';
-      flappyGame = { bird: {x: 50, y: 300, width: 30, height: 30, velocity: 0}, pipes: [], score: 0, running: true, gravity: 0.5, flapPower: -12 };
-      document.addEventListener('keydown', flappyKeyHandler);
-      document.addEventListener('click', flappyFlap);
-      flappyCanvas.addEventListener('click', flappyFlap);
-      flappyCanvas.addEventListener('touchstart', flappyFlap);
-      flappyGameLoop();
-    }
-
-    function resetFlappyGame() {
-      if (flappyGame.running) flappyGame.running = false;
-      startFlappyGameplay();
-    }
-
-    function flappyFlap() { if (flappyGame.running) flappyGame.bird.velocity = flappyGame.flapPower; }
-
-    function flappyKeyHandler(e) { if (e.key === ' ') { e.preventDefault(); flappyFlap(); } }
-
-    function flappyGameLoop() {
-      if (!flappyGame.running) return;
-      flappyGame.bird.velocity += flappyGame.gravity;
-      flappyGame.bird.y += flappyGame.bird.velocity;
-      
-      if (flappyGame.bird.y + flappyGame.bird.height > flappyCanvas.height || flappyGame.bird.y < 0) {
-        flappyGame.running = false;
-        alert('Game Over! Score: ' + flappyGame.score);
-        return;
-      }
-      
-      if (flappyGame.pipes.length === 0 || flappyGame.pipes[flappyGame.pipes.length - 1].x < 150) {
-        flappyGame.pipes.push({x: flappyCanvas.width, gap: Math.random() * 200 + 100, scored: false});
-      }
-      
-      for (let i = 0; i < flappyGame.pipes.length; i++) {
-        flappyGame.pipes[i].x -= 5;
-        if (flappyGame.pipes[i].x + 50 < flappyGame.bird.x && !flappyGame.pipes[i].scored) {
-          flappyGame.score += 1;
-          if (flappyGame.score > highScores.flappy) {
-            highScores.flappy = flappyGame.score;
-            saveHighScore('flappy', flappyGame.score);
-            document.getElementById('flappyHighScore').textContent = flappyGame.score;
-          }
-          flappyGame.pipes[i].scored = true;
-        }
-        if (flappyGame.pipes[i].x < flappyGame.bird.x + flappyGame.bird.width && flappyGame.pipes[i].x + 50 > flappyGame.bird.x) {
-          if (flappyGame.bird.y < flappyGame.pipes[i].gap || flappyGame.bird.y + flappyGame.bird.height > flappyGame.pipes[i].gap + 150) {
-            flappyGame.running = false;
-            alert('Game Over! Score: ' + flappyGame.score);
-            return;
-          }
-        }
-        if (flappyGame.pipes[i].x < -50) flappyGame.pipes.splice(i, 1);
-      }
-      
-      flappyCtx.fillStyle = '#87CEEB';
-      flappyCtx.fillRect(0, 0, flappyCanvas.width, flappyCanvas.height);
-      flappyCtx.fillStyle = '#FFD700';
-      flappyCtx.beginPath();
-      flappyCtx.arc(flappyGame.bird.x + 15, flappyGame.bird.y + 15, 15, 0, Math.PI * 2);
-      flappyCtx.fill();
-      flappyCtx.fillStyle = '#228B22';
-      flappyGame.pipes.forEach(p => {
-        flappyCtx.fillRect(p.x, 0, 50, p.gap);
-        flappyCtx.fillRect(p.x, p.gap + 150, 50, flappyCanvas.height - p.gap - 150);
-      });
-      document.getElementById('flappyScore').textContent = flappyGame.score;
-      setTimeout(flappyGameLoop, 30);
-    }
-
-    // ========== PLATFORMER GAME ==========
-    const platformerCanvas = document.getElementById('platformerCanvas');
-    const platformerCtx = platformerCanvas.getContext('2d');
-    let platformerKeys = { left: false, right: false };
-    let platformerGame = {
-      player: {x: 50, y: 300, width: 30, height: 40, velocityY: 0, velocityX: 0, jumping: false},
-      platforms: [
-        {x: 0, y: 380, width: 800, height: 20},
-        {x: 200, y: 320, width: 200, height: 20},
-        {x: 550, y: 260, width: 200, height: 20},
-        {x: 100, y: 200, width: 150, height: 20}
-      ],
-      rings: [
-        {x: 280, y: 280}, {x: 400, y: 200}, {x: 630, y: 180}, {x: 200, y: 150}
-      ],
-      enemies: [{x: 300, y: 340, width: 30, height: 30, dir: 1}],
-      score: 0,
-      running: false,
-      gravity: 0.6
-    };
-
-    function startPlatformerGameplay() {
-      document.getElementById('platformer-not-started').style.display = 'none';
-      document.getElementById('platformer-gameplay').style.display = 'block';
-      platformerGame = {
-        player: {x: 50, y: 300, width: 30, height: 40, velocityY: 0, velocityX: 0, jumping: false},
-        platforms: [
-          {x: 0, y: 380, width: 800, height: 20},
-          {x: 200, y: 320, width: 200, height: 20},
-          {x: 550, y: 260, width: 200, height: 20},
-          {x: 100, y: 200, width: 150, height: 20}
-        ],
-        rings: [
-          {x: 280, y: 280}, {x: 400, y: 200}, {x: 630, y: 180}, {x: 200, y: 150}
-        ],
-        enemies: [{x: 300, y: 340, width: 30, height: 30, dir: 1}],
-        score: 0,
-        running: true,
-        gravity: 0.6
-      };
-      platformerKeys = { left: false, right: false };
-      document.addEventListener('keydown', platformerKeyHandler);
-      document.addEventListener('keyup', platformerKeyUpHandler);
-      platformerGameLoop();
-    }
-
-    function resetPlatformerGame() {
-      if (platformerGame.running) platformerGame.running = false;
-      startPlatformerGameplay();
-    }
-
-    function platformerKeyHandler(e) {
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') platformerKeys.left = true;
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') platformerKeys.right = true;
-      if (e.key === ' ') { e.preventDefault(); jumpPlatformer(); }
-    }
-
-    function platformerKeyUpHandler(e) {
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') platformerKeys.left = false;
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') platformerKeys.right = false;
-    }
-
-    function jumpPlatformer() { 
-      if (!platformerGame.player.jumping && platformerGame.running) { 
-        platformerGame.player.velocityY = -12; 
-        platformerGame.player.jumping = true; 
-      } 
-    }
-
-    function platformerGameLoop() {
-      if (!platformerGame.running) return;
-
-      let p = platformerGame.player;
-      if (platformerKeys.left) p.velocityX = -5;
-      else if (platformerKeys.right) p.velocityX = 5;
-      else p.velocityX *= 0.8;
-
-      p.velocityY += platformerGame.gravity;
-      p.x += p.velocityX;
-      p.y += p.velocityY;
-
-      if (p.x < 0) p.x = 0;
-      if (p.x + p.width > platformerCanvas.width) p.x = platformerCanvas.width - p.width;
-
-      let onGround = false;
-      platformerGame.platforms.forEach(plat => {
-        if (p.velocityY >= 0 && p.y + p.height >= plat.y && p.y + p.height <= plat.y + 30 && p.x + p.width > plat.x && p.x < plat.x + plat.width) {
-          p.velocityY = 0;
-          p.y = plat.y - p.height;
-          onGround = true;
-          p.jumping = false;
-        }
-      });
-
-      if (!onGround && p.velocityY > 0) p.jumping = true;
-
-      platformerGame.rings = platformerGame.rings.filter(ring => {
-        if (p.x < ring.x + 20 && p.x + p.width > ring.x && p.y < ring.y + 20 && p.y + p.height > ring.y) {
-          platformerGame.score += 10;
-          if (platformerGame.score > highScores.platformer) {
-            highScores.platformer = platformerGame.score;
-            saveHighScore('platformer', platformerGame.score);
-            document.getElementById('platformerHighScore').textContent = platformerGame.score;
-          }
-          return false;
-        }
-        return true;
-      });
-
-      platformerGame.enemies.forEach(enemy => {
-        enemy.x += enemy.dir * 2;
-        if (enemy.x < 200 || enemy.x > 600) enemy.dir *= -1;
-        if (p.x < enemy.x + enemy.width && p.x + p.width > enemy.x && p.y < enemy.y + enemy.height && p.y + p.height > enemy.y) {
-          platformerGame.running = false;
-          alert('Game Over! Rings: ' + platformerGame.score);
-          return;
-        }
-      });
-
-      if (p.y > platformerCanvas.height) {
-        platformerGame.running = false;
-        alert('Game Over! Rings: ' + platformerGame.score);
-        return;
-      }
-
-      platformerCtx.fillStyle = '#87CEEB';
-      platformerCtx.fillRect(0, 0, platformerCanvas.width, platformerCanvas.height);
-
-      platformerCtx.fillStyle = '#8B4513';
-      platformerGame.platforms.forEach(plat => platformerCtx.fillRect(plat.x, plat.y, plat.width, plat.height));
-
-      platformerCtx.fillStyle = '#FFD700';
-      platformerCtx.lineWidth = 3;
-      platformerGame.rings.forEach(ring => {
-        platformerCtx.beginPath();
-        platformerCtx.arc(ring.x + 10, ring.y + 10, 10, 0, Math.PI * 2);
-        platformerCtx.stroke();
-      });
-
-      platformerCtx.fillStyle = '#FF0000';
-      platformerGame.enemies.forEach(enemy => platformerCtx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height));
-
-      platformerCtx.fillStyle = '#0066FF';
-      platformerCtx.fillRect(p.x, p.y, p.width, p.height);
-
-      document.getElementById('platformerScore').textContent = platformerGame.score;
-      setTimeout(platformerGameLoop, 30);
-    }
-  </script>
 </body>
 </html>

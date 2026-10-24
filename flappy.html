@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flappy Bird</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    nav {
+      background: #111827;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 40px auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 14px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 12px 0 20px;
+    }
+
+    .back-btn, .reset-btn, .start-btn {
+      background: #475569;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .back-btn:hover, .reset-btn:hover, .start-btn:hover {
+      background: #64748b;
+    }
+
+    .reset-btn {
+      background: #ef4444;
+    }
+
+    .reset-btn:hover {
+      background: #f87171;
+    }
+
+    .start-btn {
+      background: #22c55e;
+      font-size: 18px;
+      padding: 12px 30px;
+    }
+
+    .start-btn:hover {
+      background: #4ade80;
+    }
+
+    .game-info {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin: 18px 0;
+      font-size: 18px;
+      font-weight: bold;
+      flex-wrap: wrap;
+    }
+
+    .score-display, .high-score-display {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 10px 18px;
+    }
+
+    .high-score-display {
+      border-color: #facc15;
+      color: #facc15;
+    }
+
+    .game-not-started {
+      padding: 40px 20px;
+      font-size: 18px;
+      color: #e2e8f0;
+    }
+
+    .controls-info {
+      color: #cbd5e1;
+      margin: 10px 0 20px;
+    }
+
+    canvas {
+      border: 2px solid #fff;
+      display: block;
+      margin: 20px auto;
+      background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+      touch-action: none;
+      max-width: 100%;
+      height: auto;
+    }
+
+    @media (max-width: 600px) {
+      .game-info {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li class="visitor-counter">
+        <img src="https://visitor-badge.laobi.icu/badge?page_id=arjunmtamoria-jpg.github.io" alt="Visitor Count">
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <div class="button-group">
+      <a class="back-btn" href="games.html">← Back to Games</a>
+      <button class="reset-btn" onclick="resetFlappyGame()">🔄 Reset Game</button>
+    </div>
+
+    <h1>🐦 Flappy Bird</h1>
+
+    <div id="flappy-not-started" class="game-not-started">
+      <p>Click the button below to start playing!</p>
+      <button class="start-btn" onclick="startFlappyGameplay()">▶ Start Game</button>
+    </div>
+
+    <div id="flappy-gameplay" style="display: none;">
+      <p class="controls-info">Click or Press Space to fly. On mobile, tap to fly!</p>
+      <div class="game-info">
+        <div class="score-display">Score: <span id="flappyScore">0</span></div>
+        <div class="high-score-display">High Score: <span id="flappyHighScore">0</span></div>
+      </div>
+      <canvas id="flappyCanvas" width="400" height="600"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const flappyCanvas = document.getElementById('flappyCanvas');
+    const flappyCtx = flappyCanvas.getContext('2d');
+    let highScores = { flappy: parseInt(localStorage.getItem('flappyHighScore')) || 0 };
+    document.getElementById('flappyHighScore').textContent = highScores.flappy;
+
+    let flappyGame = { bird: {x: 50, y: 300, width: 30, height: 30, velocity: 0}, pipes: [], score: 0, running: false, gravity: 0.5, flapPower: -12 };
+
+    function saveHighScore(game, score) {
+      localStorage.setItem(game + 'HighScore', score);
+    }
+
+    function startFlappyGameplay() {
+      document.getElementById('flappy-not-started').style.display = 'none';
+      document.getElementById('flappy-gameplay').style.display = 'block';
+      flappyGame = { bird: {x: 50, y: 300, width: 30, height: 30, velocity: 0}, pipes: [], score: 0, running: true, gravity: 0.5, flapPower: -12 };
+      document.addEventListener('keydown', flappyKeyHandler);
+      document.addEventListener('click', flappyFlap);
+      flappyCanvas.addEventListener('click', flappyFlap);
+      flappyCanvas.addEventListener('touchstart', flappyFlap);
+      flappyGameLoop();
+    }
+
+    function resetFlappyGame() {
+      if (flappyGame.running) flappyGame.running = false;
+      startFlappyGameplay();
+    }
+
+    function flappyFlap() {
+      if (flappyGame.running) flappyGame.bird.velocity = flappyGame.flapPower;
+    }
+
+    function flappyKeyHandler(e) {
+      if (e.key === ' ') {
+        e.preventDefault();
+        flappyFlap();
+      }
+    }
+
+    function flappyGameLoop() {
+      if (!flappyGame.running) return;
+      flappyGame.bird.velocity += flappyGame.gravity;
+      flappyGame.bird.y += flappyGame.bird.velocity;
+
+      if (flappyGame.bird.y + flappyGame.bird.height > flappyCanvas.height || flappyGame.bird.y < 0) {
+        flappyGame.running = false;
+        alert('Game Over! Score: ' + flappyGame.score);
+        return;
+      }
+
+      if (flappyGame.pipes.length === 0 || flappyGame.pipes[flappyGame.pipes.length - 1].x < 150) {
+        flappyGame.pipes.push({x: flappyCanvas.width, gap: Math.random() * 200 + 100, scored: false});
+      }
+
+      for (let i = 0; i < flappyGame.pipes.length; i++) {
+        flappyGame.pipes[i].x -= 5;
+        if (flappyGame.pipes[i].x + 50 < flappyGame.bird.x && !flappyGame.pipes[i].scored) {
+          flappyGame.score += 1;
+          if (flappyGame.score > highScores.flappy) {
+            highScores.flappy = flappyGame.score;
+            saveHighScore('flappy', flappyGame.score);
+            document.getElementById('flappyHighScore').textContent = flappyGame.score;
+          }
+          flappyGame.pipes[i].scored = true;
+        }
+
+        if (flappyGame.pipes[i].x < flappyGame.bird.x + flappyGame.bird.width && flappyGame.pipes[i].x + 50 > flappyGame.bird.x) {
+          if (flappyGame.bird.y < flappyGame.pipes[i].gap || flappyGame.bird.y + flappyGame.bird.height > flappyGame.pipes[i].gap + 150) {
+            flappyGame.running = false;
+            alert('Game Over! Score: ' + flappyGame.score);
+            return;
+          }
+        }
+
+        if (flappyGame.pipes[i].x < -50) flappyGame.pipes.splice(i, 1);
+      }
+
+      flappyCtx.fillStyle = '#87CEEB';
+      flappyCtx.fillRect(0, 0, flappyCanvas.width, flappyCanvas.height);
+      flappyCtx.fillStyle = '#FFD700';
+      flappyCtx.beginPath();
+      flappyCtx.arc(flappyGame.bird.x + 15, flappyGame.bird.y + 15, 15, 0, Math.PI * 2);
+      flappyCtx.fill();
+
+      flappyCtx.fillStyle = '#228B22';
+      flappyGame.pipes.forEach(p => {
+        flappyCtx.fillRect(p.x, 0, 50, p.gap);
+        flappyCtx.fillRect(p.x, p.gap + 150, 50, flappyCanvas.height - p.gap - 150);
+      });
+
+      document.getElementById('flappyScore').textContent = flappyGame.score;
+      setTimeout(flappyGameLoop, 30);
+    }
+  </script>
+</body>
+</html>

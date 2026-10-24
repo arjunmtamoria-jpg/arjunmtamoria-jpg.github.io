@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MakeCode Arcade</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    nav {
+      background: #111827;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 40px auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 14px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 12px 0 20px;
+    }
+
+    .back-btn {
+      background: #475569;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .back-btn:hover {
+      background: #64748b;
+    }
+
+    .controls-info {
+      color: #cbd5e1;
+      margin: 16px 0 20px;
+      font-size: 18px;
+    }
+
+    .arcade-embed {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+
+    .arcade-embed iframe {
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      border: none;
+      width: 100%;
+      max-width: 960px;
+      min-height: 620px;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li class="visitor-counter">
+        <img src="https://visitor-badge.laobi.icu/badge?page_id=arjunmtamoria-jpg.github.io" alt="Visitor Count">
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <div class="button-group">
+      <a class="back-btn" href="games.html">← Back to Games</a>
+    </div>
+
+    <h1>🎯 MakeCode Arcade</h1>
+    <p class="controls-info">Enjoy this game created with Microsoft MakeCode Arcade!</p>
+    <div class="arcade-embed">
+      <iframe
+        src="https://arcade.makecode.com/S59398-45777-67865-44946"
+        allowfullscreen="allowfullscreen"
+        sandbox="allow-popups allow-forms allow-scripts allow-same-origin">
+      </iframe>
+    </div>
+  </div>
+</body>
+</html>

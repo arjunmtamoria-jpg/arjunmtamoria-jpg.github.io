@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sonic Run</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    nav {
+      background: #111827;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 40px auto;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 14px;
+      padding: 30px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 12px 0 20px;
+    }
+
+    .back-btn, .reset-btn, .start-btn {
+      background: #475569;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .back-btn:hover, .reset-btn:hover, .start-btn:hover {
+      background: #64748b;
+    }
+
+    .reset-btn {
+      background: #ef4444;
+    }
+
+    .reset-btn:hover {
+      background: #f87171;
+    }
+
+    .start-btn {
+      background: #22c55e;
+      font-size: 18px;
+      padding: 12px 30px;
+    }
+
+    .start-btn:hover {
+      background: #4ade80;
+    }
+
+    .game-info {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin: 18px 0;
+      font-size: 18px;
+      font-weight: bold;
+      flex-wrap: wrap;
+    }
+
+    .score-display, .high-score-display {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      padding: 10px 18px;
+    }
+
+    .high-score-display {
+      border-color: #facc15;
+      color: #facc15;
+    }
+
+    .game-not-started {
+      padding: 40px 20px;
+      font-size: 18px;
+      color: #e2e8f0;
+    }
+
+    .controls-info {
+      color: #cbd5e1;
+      margin: 10px 0 20px;
+    }
+
+    canvas {
+      border: 2px solid #fff;
+      display: block;
+      margin: 20px auto;
+      background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+      touch-action: none;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .mobile-controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .mobile-controls button {
+      background: #4CAF50;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    @media (max-width: 600px) {
+      .game-info {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li class="visitor-counter">
+        <img src="https://visitor-badge.laobi.icu/badge?page_id=arjunmtamoria-jpg.github.io" alt="Visitor Count">
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <div class="button-group">
+      <a class="back-btn" href="games.html">← Back to Games</a>
+      <button class="reset-btn" onclick="resetPlatformerGame()">🔄 Reset Game</button>
+    </div>
+
+    <h1>🦔 Sonic Run</h1>
+
+    <div id="platformer-not-started" class="game-not-started">
+      <p>Click the button below to start playing!</p>
+      <button class="start-btn" onclick="startPlatformerGameplay()">▶ Start Game</button>
+    </div>
+
+    <div id="platformer-gameplay" style="display: none;">
+      <p class="controls-info">Arrow Keys/WASD to move, SPACE to jump. Collect rings and avoid enemies!</p>
+      <div class="game-info">
+        <div class="score-display">Rings: <span id="platformerScore">0</span></div>
+        <div class="high-score-display">High Score: <span id="platformerHighScore">0</span></div>
+      </div>
+      <canvas id="platformerCanvas" width="800" height="400"></canvas>
+      <div class="mobile-controls">
+        <button onmousedown="platformerKeys.left=true" onmouseup="platformerKeys.left=false" ontouchstart="platformerKeys.left=true" ontouchend="platformerKeys.left=false">← Left</button>
+        <button onmousedown="jumpPlatformer()" ontouchstart="jumpPlatformer()">↑ Jump</button>
+        <button onmousedown="platformerKeys.right=true" onmouseup="platformerKeys.right=false" ontouchstart="platformerKeys.right=true" ontouchend="platformerKeys.right=false">Right →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const platformerCanvas = document.getElementById('platformerCanvas');
+    const platformerCtx = platformerCanvas.getContext('2d');
+    let highScores = { platformer: parseInt(localStorage.getItem('platformerHighScore')) || 0 };
+    document.getElementById('platformerHighScore').textContent = highScores.platformer;
+
+    let platformerKeys = { left: false, right: false };
+    let platformerGame = {
+      player: {x: 50, y: 300, width: 30, height: 40, velocityY: 0, velocityX: 0, jumping: false},
+      platforms: [
+        {x: 0, y: 380, width: 800, height: 20},
+        {x: 200, y: 320, width: 200, height: 20},
+        {x: 550, y: 260, width: 200, height: 20},
+        {x: 100, y: 200, width: 150, height: 20}
+      ],
+      rings: [
+        {x: 280, y: 280}, {x: 400, y: 200}, {x: 630, y: 180}, {x: 200, y: 150}
+      ],
+      enemies: [{x: 300, y: 340, width: 30, height: 30, dir: 1}],
+      score: 0,
+      running: false,
+      gravity: 0.6
+    };
+
+    function saveHighScore(game, score) {
+      localStorage.setItem(game + 'HighScore', score);
+    }
+
+    function startPlatformerGameplay() {
+      document.getElementById('platformer-not-started').style.display = 'none';
+      document.getElementById('platformer-gameplay').style.display = 'block';
+      platformerGame = {
+        player: {x: 50, y: 300, width: 30, height: 40, velocityY: 0, velocityX: 0, jumping: false},
+        platforms: [
+          {x: 0, y: 380, width: 800, height: 20},
+          {x: 200, y: 320, width: 200, height: 20},
+          {x: 550, y: 260, width: 200, height: 20},
+          {x: 100, y: 200, width: 150, height: 20}
+        ],
+        rings: [
+          {x: 280, y: 280}, {x: 400, y: 200}, {x: 630, y: 180}, {x: 200, y: 150}
+        ],
+        enemies: [{x: 300, y: 340, width: 30, height: 30, dir: 1}],
+        score: 0,
+        running: true,
+        gravity: 0.6
+      };
+      platformerKeys = { left: false, right: false };
+      document.addEventListener('keydown', platformerKeyHandler);
+      document.addEventListener('keyup', platformerKeyUpHandler);
+      platformerGameLoop();
+    }
+
+    function resetPlatformerGame() {
+      if (platformerGame.running) platformerGame.running = false;
+      startPlatformerGameplay();
+    }
+
+    function platformerKeyHandler(e) {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') platformerKeys.left = true;
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') platformerKeys.right = true;
+      if (e.key === ' ') { e.preventDefault(); jumpPlatformer(); }
+    }
+
+    function platformerKeyUpHandler(e) {
+      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') platformerKeys.left = false;
+      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') platformerKeys.right = false;
+    }
+
+    function jumpPlatformer() {
+      if (!platformerGame.player.jumping && platformerGame.running) {
+        platformerGame.player.velocityY = -12;
+        platformerGame.player.jumping = true;
+      }
+    }
+
+    function platformerGameLoop() {
+      if (!platformerGame.running) return;
+
+      let p = platformerGame.player;
+      if (platformerKeys.left) p.velocityX = -5;
+      else if (platformerKeys.right) p.velocityX = 5;
+      else p.velocityX *= 0.8;
+
+      p.velocityY += platformerGame.gravity;
+      p.x += p.velocityX;
+      p.y += p.velocityY;
+
+      if (p.x < 0) p.x = 0;
+      if (p.x + p.width > platformerCanvas.width) p.x = platformerCanvas.width - p.width;
+
+      let onGround = false;
+      platformerGame.platforms.forEach(plat => {
+        if (p.velocityY >= 0 && p.y + p.height >= plat.y && p.y + p.height <= plat.y + 30 && p.x + p.width > plat.x && p.x < plat.x + plat.width) {
+          p.velocityY = 0;
+          p.y = plat.y - p.height;
+          onGround = true;
+          p.jumping = false;
+        }
+      });
+
+      if (!onGround && p.velocityY > 0) p.jumping = true;
+
+      platformerGame.rings = platformerGame.rings.filter(ring => {
+        if (p.x < ring.x + 20 && p.x + p.width > ring.x && p.y < ring.y + 20 && p.y + p.height > ring.y) {
+          platformerGame.score += 10;
+          if (platformerGame.score > highScores.platformer) {
+            highScores.platformer = platformerGame.score;
+            saveHighScore('platformer', platformerGame.score);
+            document.getElementById('platformerHighScore').textContent = platformerGame.score;
+          }
+          return false;
+        }
+        return true;
+      });
+
+      platformerGame.enemies.forEach(enemy => {
+        enemy.x += enemy.dir * 2;
+        if (enemy.x < 200 || enemy.x > 600) enemy.dir *= -1;
+        if (p.x < enemy.x + enemy.width && p.x + p.width > enemy.x && p.y < enemy.y + enemy.height && p.y + p.height > enemy.y) {
+          platformerGame.running = false;
+          alert('Game Over! Rings: ' + platformerGame.score);
+          return;
+        }
+      });
+
+      if (p.y > platformerCanvas.height) {
+        platformerGame.running = false;
+        alert('Game Over! Rings: ' + platformerGame.score);
+        return;
+      }
+
+      platformerCtx.fillStyle = '#87CEEB';
+      platformerCtx.fillRect(0, 0, platformerCanvas.width, platformerCanvas.height);
+
+      platformerCtx.fillStyle = '#8B4513';
+      platformerGame.platforms.forEach(plat => platformerCtx.fillRect(plat.x, plat.y, plat.width, plat.height));
+
+      platformerCtx.fillStyle = '#FFD700';
+      platformerCtx.lineWidth = 3;
+      platformerGame.rings.forEach(ring => {
+        platformerCtx.beginPath();
+        platformerCtx.arc(ring.x + 10, ring.y + 10, 10, 0, Math.PI * 2);
+        platformerCtx.stroke();
+      });
+
+      platformerCtx.fillStyle = '#FF0000';
+      platformerGame.enemies.forEach(enemy => platformerCtx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height));
+
+      platformerCtx.fillStyle = '#0066FF';
+      platformerCtx.fillRect(p.x, p.y, p.width, p.height);
+
+      document.getElementById('platformerScore').textContent = platformerGame.score;
+      setTimeout(platformerGameLoop, 30);
+    }
+  </script>
+</body>
+</html>
