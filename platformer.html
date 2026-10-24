@@ -216,7 +216,9 @@
         name: 'Green Hill',
         width: 2200,
         startX: 50,
+        signX: 2040,
         goal: { x: 2100, y: 180, width: 26, height: 100 },
+        boss: null,
         platforms: [
           { x: 0, y: 380, width: 520, height: 20 },
           { x: 620, y: 330, width: 220, height: 20 },
@@ -239,7 +241,9 @@
         name: 'Skyline Rush',
         width: 2600,
         startX: 60,
-        goal: { x: 2480, y: 160, width: 26, height: 100 },
+        signX: 2480,
+        goal: { x: 2520, y: 160, width: 26, height: 100 },
+        boss: null,
         platforms: [
           { x: 0, y: 380, width: 420, height: 20 },
           { x: 520, y: 340, width: 140, height: 20 },
@@ -264,9 +268,19 @@
       },
       {
         name: 'Crystal Cave',
-        width: 3000,
+        width: 3200,
         startX: 70,
-        goal: { x: 2865, y: 140, width: 26, height: 100 },
+        signX: 3000,
+        goal: { x: 3050, y: 140, width: 26, height: 100 },
+        boss: {
+          x: 2700,
+          y: 300,
+          width: 80,
+          height: 80,
+          dir: -1,
+          speed: 2,
+          health: 3
+        },
         platforms: [
           { x: 0, y: 380, width: 390, height: 20 },
           { x: 470, y: 320, width: 160, height: 20 },
@@ -278,12 +292,13 @@
           { x: 1920, y: 160, width: 180, height: 20 },
           { x: 2160, y: 240, width: 160, height: 20 },
           { x: 2390, y: 310, width: 180, height: 20 },
-          { x: 2650, y: 380, width: 350, height: 20 }
+          { x: 2630, y: 380, width: 250, height: 20 },
+          { x: 2920, y: 380, width: 260, height: 20 }
         ],
         rings: [
           { x: 180, y: 330 }, { x: 540, y: 270 }, { x: 770, y: 210 }, { x: 1050, y: 150 },
           { x: 1260, y: 200 }, { x: 1500, y: 250 }, { x: 1735, y: 160 }, { x: 1980, y: 110 },
-          { x: 2210, y: 190 }, { x: 2460, y: 260 }, { x: 2730, y: 330 }
+          { x: 2210, y: 190 }, { x: 2460, y: 260 }, { x: 2730, y: 330 }, { x: 2980, y: 330 }
         ],
         enemies: [
           { x: 570, y: 350, width: 30, height: 30, dir: 1 },
@@ -297,12 +312,12 @@
     let platformerKeys = { left: false, right: false };
     let levelIndex = 0;
     let cameraX = 0;
-    let levelCleared = false;
 
     function buildLevel(levelData) {
       return {
         name: levelData.name,
         width: levelData.width,
+        sign: { x: levelData.signX, y: 290, angle: 0 },
         goal: { ...levelData.goal },
         player: {
           x: levelData.startX,
@@ -316,6 +331,7 @@
         platforms: levelData.platforms.map(p => ({ ...p })),
         rings: levelData.rings.map(r => ({ ...r })),
         enemies: levelData.enemies.map(e => ({ ...e })),
+        boss: levelData.boss ? { ...levelData.boss } : null,
         score: 0,
         running: true,
         gravity: 0.6
@@ -336,7 +352,6 @@
       document.getElementById('platformer-not-started').style.display = 'none';
       document.getElementById('platformer-gameplay').style.display = 'block';
       levelIndex = 0;
-      levelCleared = false;
       cameraX = 0;
       platformerGame = buildLevel(LEVELS[levelIndex]);
       updateLevelLabel();
@@ -373,13 +388,12 @@
       if (levelIndex < LEVELS.length - 1) {
         levelIndex += 1;
         cameraX = 0;
-        levelCleared = false;
         platformerGame = buildLevel(LEVELS[levelIndex]);
         updateLevelLabel();
         platformerGameLoop();
       } else {
         platformerGame.running = false;
-        alert('You beat all levels! Final rings: ' + platformerGame.score);
+        alert('You beat all levels and defeated Eggman! Final rings: ' + platformerGame.score);
       }
     }
 
@@ -411,6 +425,7 @@
       if (!onGround && p.velocityY > 0) p.jumping = true;
 
       cameraX = Math.max(0, Math.min(platformerGame.width - platformerCanvas.width, p.x - 250));
+      platformerGame.sign.angle += 0.08;
 
       platformerGame.rings = platformerGame.rings.filter(ring => {
         if (p.x < ring.x + 20 && p.x + p.width > ring.x && p.y < ring.y + 20 && p.y + p.height > ring.y) {
@@ -424,6 +439,28 @@
         }
         return true;
       });
+
+      if (platformerGame.boss) {
+        const boss = platformerGame.boss;
+        boss.x += boss.dir * boss.speed;
+        if (boss.x < 2200 || boss.x > platformerGame.width - 200) boss.dir *= -1;
+
+        if (p.x < boss.x + boss.width && p.x + p.width > boss.x && p.y < boss.y + boss.height && p.y + p.height > boss.y) {
+          if (p.velocityY > 0 && p.y + p.height - boss.y < 20) {
+            boss.health -= 1;
+            p.velocityY = -9;
+            if (boss.health <= 0) {
+              platformerGame.running = false;
+              alert('Eggman defeated! You win! Final rings: ' + platformerGame.score);
+              return;
+            }
+          } else {
+            platformerGame.running = false;
+            alert('Eggman got you! Rings: ' + platformerGame.score);
+            return;
+          }
+        }
+      }
 
       platformerGame.enemies.forEach(enemy => {
         enemy.x += enemy.dir * 2;
@@ -472,6 +509,37 @@
         const drawX = enemy.x - cameraX;
         platformerCtx.fillRect(drawX, enemy.y, enemy.width, enemy.height);
       });
+
+      if (platformerGame.boss) {
+        const boss = platformerGame.boss;
+        const bossX = boss.x - cameraX;
+        platformerCtx.fillStyle = '#1f2937';
+        platformerCtx.fillRect(bossX, boss.y, boss.width, boss.height);
+        platformerCtx.fillStyle = '#f8fafc';
+        platformerCtx.fillRect(bossX + 15, boss.y + 20, 15, 12);
+        platformerCtx.fillRect(bossX + 48, boss.y + 20, 15, 12);
+        platformerCtx.fillRect(bossX + 22, boss.y + 52, 35, 10);
+        platformerCtx.fillStyle = '#facc15';
+        platformerCtx.fillText('HP: ' + boss.health, bossX, boss.y - 10);
+      }
+
+      const sign = platformerGame.sign;
+      const signX = sign.x - cameraX;
+      platformerCtx.save();
+      platformerCtx.translate(signX, 300);
+      platformerCtx.rotate(sign.angle);
+      platformerCtx.fillStyle = '#7c2d12';
+      platformerCtx.fillRect(-8, 0, 16, 80);
+      platformerCtx.fillStyle = '#f8fafc';
+      platformerCtx.fillRect(-28, 14, 56, 26);
+      platformerCtx.fillStyle = '#0ea5e9';
+      platformerCtx.beginPath();
+      platformerCtx.moveTo(-18, 20);
+      platformerCtx.lineTo(18, 20);
+      platformerCtx.lineTo(0, -10);
+      platformerCtx.closePath();
+      platformerCtx.fill();
+      platformerCtx.restore();
 
       platformerCtx.fillStyle = '#22c55e';
       const goalX = goal.x - cameraX;
