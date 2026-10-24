@@ -180,7 +180,7 @@
     let highScores = { flappy: parseInt(localStorage.getItem('flappyHighScore')) || 0 };
     document.getElementById('flappyHighScore').textContent = highScores.flappy;
 
-    let flappyGame = { bird: {x: 50, y: 300, width: 30, height: 30, velocity: 0}, pipes: [], score: 0, running: false, gravity: 0.5, flapPower: -12 };
+    let flappyGame = { bird: {x: 50, y: 300, width: 30, height: 30, velocity: 0}, pipes: [], score: 0, running: false, gravity: 0.35, flapPower: -10 };
 
     function saveHighScore(game, score) {
       localStorage.setItem(game + 'HighScore', score);
@@ -189,7 +189,7 @@
     function startFlappyGameplay() {
       document.getElementById('flappy-not-started').style.display = 'none';
       document.getElementById('flappy-gameplay').style.display = 'block';
-      flappyGame = { bird: {x: 50, y: 300, width: 30, height: 30, velocity: 0}, pipes: [], score: 0, running: true, gravity: 0.5, flapPower: -12 };
+      flappyGame = { bird: {x: 50, y: 300, width: 30, height: 30, velocity: 0}, pipes: [], score: 0, running: true, gravity: 0.35, flapPower: -10 };
       document.addEventListener('keydown', flappyKeyHandler);
       document.addEventListener('click', flappyFlap);
       flappyCanvas.addEventListener('click', flappyFlap);
@@ -225,11 +225,11 @@
       }
 
       if (flappyGame.pipes.length === 0 || flappyGame.pipes[flappyGame.pipes.length - 1].x < 150) {
-        flappyGame.pipes.push({x: flappyCanvas.width, gap: Math.random() * 200 + 100, scored: false});
+        flappyGame.pipes.push({x: flappyCanvas.width, gap: Math.random() * 180 + 120, scored: false});
       }
 
       for (let i = 0; i < flappyGame.pipes.length; i++) {
-        flappyGame.pipes[i].x -= 5;
+        flappyGame.pipes[i].x -= 3;
         if (flappyGame.pipes[i].x + 50 < flappyGame.bird.x && !flappyGame.pipes[i].scored) {
           flappyGame.score += 1;
           if (flappyGame.score > highScores.flappy) {
@@ -241,7 +241,7 @@
         }
 
         if (flappyGame.pipes[i].x < flappyGame.bird.x + flappyGame.bird.width && flappyGame.pipes[i].x + 50 > flappyGame.bird.x) {
-          if (flappyGame.bird.y < flappyGame.pipes[i].gap || flappyGame.bird.y + flappyGame.bird.height > flappyGame.pipes[i].gap + 150) {
+          if (flappyGame.bird.y < flappyGame.pipes[i].gap || flappyGame.bird.y + flappyGame.bird.height > flappyGame.pipes[i].gap + 170) {
             flappyGame.running = false;
             alert('Game Over! Score: ' + flappyGame.score);
             return;
@@ -261,7 +261,7 @@
       flappyCtx.fillStyle = '#228B22';
       flappyGame.pipes.forEach(p => {
         flappyCtx.fillRect(p.x, 0, 50, p.gap);
-        flappyCtx.fillRect(p.x, p.gap + 150, 50, flappyCanvas.height - p.gap - 150);
+        flappyCtx.fillRect(p.x, p.gap + 170, 50, flappyCanvas.height - p.gap - 170);
       });
 
       document.getElementById('flappyScore').textContent = flappyGame.score;
