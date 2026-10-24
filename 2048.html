@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2048</title>
+  <style>
+    :root {
+      --bg: #020817;
+      --panel: rgba(15, 23, 42, 0.96);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --button: #334155;
+      --button-hover: #475569;
+      --accent: #38bdf8;
+      --tile-empty: #1e293b;
+      --tile-2: #dbeafe;
+      --tile-4: #bfdbfe;
+      --tile-8: #93c5fd;
+      --tile-16: #60a5fa;
+      --tile-32: #38bdf8;
+      --tile-64: #0ea5e9;
+      --tile-128: #facc15;
+      --tile-256: #f59e0b;
+      --tile-512: #f97316;
+      --tile-1024: #ef4444;
+      --tile-2048: #22c55e;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 60%);
+      color: var(--text);
+    }
+
+    nav {
+      background: #020b16;
+      border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+    }
+
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    nav ul li {
+      margin: 0;
+    }
+
+    nav ul li a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 15px 20px;
+      transition: background-color 0.3s;
+    }
+
+    nav ul li a:hover {
+      background-color: #1e293b;
+    }
+
+    .visitor-counter {
+      margin-left: auto;
+      padding-right: 20px;
+    }
+
+    .visitor-counter img { height: 20px; }
+
+    .container {
+      max-width: 620px;
+      margin: 40px auto;
+      padding: 24px;
+      background: var(--panel);
+      border: 1px solid rgba(96, 165, 250, 0.2);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(14, 165, 233, 0.12);
+      text-align: center;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2.1rem;
+    }
+
+    .score-box {
+      background: #111827;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 10px;
+      padding: 8px 14px;
+      min-width: 120px;
+      text-align: center;
+    }
+
+    .score-label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .score-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--text);
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      background: #0f172a;
+      padding: 12px;
+      border-radius: 16px;
+      margin: 18px auto 16px;
+    }
+
+    .cell {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      background: var(--tile-empty);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      color: #fff;
+      transition: transform 0.15s ease;
+    }
+
+    .cell.empty {
+      color: transparent;
+      background: #1e293b;
+    }
+
+    .cell[data-value='2'] { background: var(--tile-2); color: #0f172a; }
+    .cell[data-value='4'] { background: var(--tile-4); color: #0f172a; }
+    .cell[data-value='8'] { background: var(--tile-8); color: #0f172a; }
+    .cell[data-value='16'] { background: var(--tile-16); color: #fff; }
+    .cell[data-value='32'] { background: var(--tile-32); color: #fff; }
+    .cell[data-value='64'] { background: var(--tile-64); color: #fff; }
+    .cell[data-value='128'] { background: var(--tile-128); color: #0f172a; }
+    .cell[data-value='256'] { background: var(--tile-256); color: #0f172a; }
+    .cell[data-value='512'] { background: var(--tile-512); color: #fff; }
+    .cell[data-value='1024'] { background: var(--tile-1024); color: #fff; font-size: clamp(1rem, 2.1vw, 1.6rem); }
+    .cell[data-value='2048'] { background: var(--tile-2048); color: #fff; font-size: clamp(1rem, 2.1vw, 1.6rem); }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      background: var(--button);
+      color: #fff;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .button:hover { background: var(--button-hover); }
+
+    .button.danger {
+      background: var(--danger);
+    }
+
+    .button.danger:hover { background: #f87171; }
+
+    .status {
+      margin-top: 14px;
+      color: var(--muted);
+      min-height: 24px;
+      font-weight: 600;
+    }
+
+    @media (max-width: 500px) {
+      .container { padding: 16px; }
+      .topbar { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li class="visitor-counter">
+        <img src="https://visitor-badge.laobi.icu/badge?page_id=arjunmtamoria-jpg.github.io" alt="Visitor Count">
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <div class="topbar">
+      <h1>🔢 2048</h1>
+      <div class="score-box">
+        <span class="score-label">Score</span>
+        <span class="score-value" id="score">0</span>
+      </div>
+    </div>
+
+    <div class="board" id="board"></div>
+
+    <div class="controls">
+      <a class="button" href="games.html">← Back to Games</a>
+      <button class="button danger" onclick="resetGame()">Reset</button>
+    </div>
+
+    <div class="status" id="status">Use arrow keys to play.</div>
+  </div>
+
+  <script>
+    const size = 4;
+    let board = [];
+    let score = 0;
+    let won = false;
+    const boardEl = document.getElementById('board');
+    const scoreEl = document.getElementById('score');
+    const statusEl = document.getElementById('status');
+
+    function createEmptyBoard() {
+      return Array.from({ length: size }, () => Array(size).fill(0));
+    }
+
+    function getEmptyCells() {
+      const cells = [];
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          if (board[r][c] === 0) cells.push({ r, c });
+        }
+      }
+      return cells;
+    }
+
+    function addRandomTile() {
+      const empty = getEmptyCells();
+      if (!empty.length) return;
+      const { r, c } = empty[Math.floor(Math.random() * empty.length)];
+      board[r][c] = Math.random() < 0.9 ? 2 : 4;
+    }
+
+    function resetGame() {
+      board = createEmptyBoard();
+      score = 0;
+      won = false;
+      scoreEl.textContent = score;
+      statusEl.textContent = 'Use arrow keys to play.';
+      addRandomTile();
+      addRandomTile();
+      render();
+    }
+
+    function render() {
+      const cells = [];
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const value = board[r][c];
+          const cell = document.createElement('div');
+          cell.className = 'cell' + (value === 0 ? ' empty' : '');
+          cell.dataset.value = value || 0;
+          cell.textContent = value === 0 ? '' : value;
+          cells.push(cell);
+        }
+      }
+      boardEl.innerHTML = '';
+      cells.forEach(cell => boardEl.appendChild(cell));
+      scoreEl.textContent = score;
+    }
+
+    function slideAndMerge(line) {
+      const filtered = line.filter(v => v !== 0);
+      const merged = [];
+      for (let i = 0; i < filtered.length; i++) {
+        if (filtered[i] === filtered[i + 1]) {
+          const mergedValue = filtered[i] * 2;
+          merged.push(mergedValue);
+          score += mergedValue;
+          i++;
+        } else {
+          merged.push(filtered[i]);
+        }
+      }
+      while (merged.length < size) merged.push(0);
+      return merged;
+    }
+
+    function move(direction) {
+      const oldBoard = JSON.stringify(board);
+      const newBoard = createEmptyBoard();
+
+      if (direction === 'left' || direction === 'right') {
+        for (let r = 0; r < size; r++) {
+          let line = [...board[r]];
+          if (direction === 'right') line.reverse();
+          const merged = slideAndMerge(line);
+          if (direction === 'right') merged.reverse();
+          newBoard[r] = merged;
+        }
+      } else {
+        for (let c = 0; c < size; c++) {
+          let line = [];
+          for (let r = 0; r < size; r++) line.push(board[r][c]);
+          if (direction === 'down') line.reverse();
+          const merged = slideAndMerge(line);
+          if (direction === 'down') merged.reverse();
+          for (let r = 0; r < size; r++) newBoard[r][c] = merged[r];
+        }
+      }
+
+      board = newBoard;
+
+      if (JSON.stringify(board) !== oldBoard) {
+        addRandomTile();
+      }
+
+      if (board.flat().includes(2048) && !won) {
+        won = true;
+        statusEl.textContent = 'You reached 2048! Keep playing!';
+      } else if (getEmptyCells().length === 0 && !hasPossibleMoves()) {
+        statusEl.textContent = 'Game over! Press Reset to play again.';
+      } else {
+        statusEl.textContent = 'Use arrow keys to play.';
+      }
+
+      render();
+    }
+
+    function hasPossibleMoves() {
+      for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+          const value = board[r][c];
+          if (value === 0) return true;
+          if (r < size - 1 && board[r + 1][c] === value) return true;
+          if (c < size - 1 && board[r][c + 1] === value) return true;
+        }
+      }
+      return false;
+    }
+
+    document.addEventListener('keydown', event => {
+      const key = event.key;
+      if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(key)) {
+        event.preventDefault();
+      }
+
+      if (key === 'ArrowLeft') move('left');
+      if (key === 'ArrowRight') move('right');
+      if (key === 'ArrowUp') move('up');
+      if (key === 'ArrowDown') move('down');
+    });
+
+    resetGame();
+  </script>
+</body>
+</html>

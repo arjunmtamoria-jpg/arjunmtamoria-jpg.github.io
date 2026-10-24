@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chrome Dino</title>
+  <style>
+    :root {
+      --bg: #020817;
+      --panel: rgba(15, 23, 42, 0.96);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --button: #334155;
+      --button-hover: #475569;
+      --success: #22c55e;
+      --success-hover: #4ade80;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 60%);
+      color: var(--text);
+    }
+
+    nav {
+      background: #020b16;
+      border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+    }
+
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    nav ul li {
+      margin: 0;
+    }
+
+    nav ul li a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 15px 20px;
+      transition: background-color 0.3s;
+    }
+
+    nav ul li a:hover {
+      background-color: #1e293b;
+    }
+
+    .visitor-counter {
+      margin-left: auto;
+      padding-right: 20px;
+    }
+
+    .visitor-counter img { height: 20px; }
+
+    .container {
+      max-width: 820px;
+      margin: 40px auto;
+      padding: 24px;
+      background: var(--panel);
+      border: 1px solid rgba(96, 165, 250, 0.2);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(14, 165, 233, 0.12);
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 2.1rem;
+    }
+
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+      margin: 12px auto 18px;
+      max-width: 500px;
+      flex-wrap: wrap;
+    }
+
+    .score-box, .best-box {
+      background: #111827;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 10px;
+      padding: 8px 14px;
+      min-width: 120px;
+    }
+
+    .label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--text);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      border-radius: 12px;
+      border: 2px solid rgba(148, 163, 184, 0.3);
+      background: linear-gradient(to bottom, #dbeafe 0%, #bfdbfe 60%, #a5f3fc 100%);
+    }
+
+    .controls {
+      margin-top: 16px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      background: var(--button);
+      color: #fff;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 8px;
+      padding: 10px 18px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .button:hover { background: var(--button-hover); }
+
+    .button.success {
+      background: var(--success);
+    }
+
+    .button.success:hover { background: var(--success-hover); }
+
+    .status {
+      margin-top: 12px;
+      color: var(--muted);
+      min-height: 24px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="games.html">Games</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li class="visitor-counter">
+        <img src="https://visitor-badge.laobi.icu/badge?page_id=arjunmtamoria-jpg.github.io" alt="Visitor Count">
+      </li>
+    </ul>
+  </nav>
+
+  <div class="container">
+    <h1>🦖 Chrome Dino</h1>
+
+    <div class="hud">
+      <div class="score-box">
+        <span class="label">Score</span>
+        <span class="value" id="score">0</span>
+      </div>
+      <div class="best-box">
+        <span class="label">Best</span>
+        <span class="value" id="best">0</span>
+      </div>
+    </div>
+
+    <canvas id="gameCanvas" width="760" height="240"></canvas>
+
+    <div class="controls">
+      <a class="button" href="games.html">← Back to Games</a>
+      <button class="button success" onclick="startGame()">Start / Restart</button>
+    </div>
+
+    <div class="status" id="status">Press Start or Space to run.</div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const bestEl = document.getElementById('best');
+    const statusEl = document.getElementById('status');
+
+    let score = 0;
+    let best = Number(localStorage.getItem('dinoBest')) || 0;
+    let gameRunning = false;
+    let gameOver = false;
+
+    const dino = {
+      x: 90,
+      y: 170,
+      width: 28,
+      height: 38,
+      vy: 0,
+      gravity: 1.1,
+      jumpPower: 14,
+      grounded: true
+    };
+
+    let obstacles = [];
+    let clouds = [
+      { x: 100, y: 50, w: 28 },
+      { x: 260, y: 70, w: 36 },
+      { x: 520, y: 55, w: 32 }
+    ];
+    let groundX = 0;
+    let spawnTimer = 0;
+
+    function resetGame() {
+      gameRunning = true;
+      gameOver = false;
+      score = 0;
+      obstacles = [];
+      spawnTimer = 0;
+      dino.y = 170;
+      dino.vy = 0;
+      dino.grounded = true;
+      statusEl.textContent = 'Running...';
+      updateScore();
+    }
+
+    function startGame() {
+      resetGame();
+    }
+
+    function updateScore() {
+      scoreEl.textContent = score;
+      bestEl.textContent = best;
+    }
+
+    function jump() {
+      if (!gameRunning || gameOver) return;
+      if (dino.grounded) {
+        dino.vy = -dino.jumpPower;
+        dino.grounded = false;
+      }
+    }
+
+    function addObstacle() {
+      const type = Math.random() < 0.6 ? 'cactus' : 'bird';
+      if (type === 'cactus') {
+        obstacles.push({
+          x: canvas.width + 20,
+          y: 185,
+          w: 18,
+          h: 36,
+          type: 'cactus'
+        });
+      } else {
+        obstacles.push({
+          x: canvas.width + 20,
+          y: 160,
+          w: 20,
+          h: 20,
+          type: 'bird'
+        });
+      }
+    }
+
+    function update() {
+      if (!gameRunning) return;
+
+      dino.vy += dino.gravity;
+      dino.y += dino.vy;
+
+      if (dino.y >= 170) {
+        dino.y = 170;
+        dino.vy = 0;
+        dino.grounded = true;
+      }
+
+      groundX -= 6;
+      if (groundX <= -40) groundX = 0;
+
+      spawnTimer += 1;
+      if (spawnTimer > 70) {
+        addObstacle();
+        spawnTimer = 0;
+      }
+
+      obstacles.forEach(obs => {
+        obs.x -= 6;
+      });
+
+      obstacles = obstacles.filter(obs => obs.x + obs.w > 0);
+      score += 1;
+      if (score > best) {
+        best = score;
+        localStorage.setItem('dinoBest', best);
+      }
+
+      for (const obs of obstacles) {
+        const hit = !(
+          dino.x + dino.width < obs.x ||
+          dino.x > obs.x + obs.w ||
+          dino.y + dino.height < obs.y ||
+          dino.y > obs.y + obs.h
+        );
+
+        if (hit) {
+          gameRunning = false;
+          gameOver = true;
+          statusEl.textContent = 'Game over! Press Start / Restart to play again.';
+          return;
+        }
+      }
+
+      updateScore();
+    }
+
+    function drawGround() {
+      ctx.fillStyle = '#4b5563';
+      ctx.fillRect(0, 210, canvas.width, 30);
+
+      ctx.fillStyle = '#374151';
+      for (let i = -1; i < 30; i++) {
+        const x = i * 20 + groundX;
+        ctx.fillRect(x, 215, 12, 6);
+      }
+    }
+
+    function drawCloud(x, y, w) {
+      ctx.fillStyle = 'rgba(255,255,255,0.8)';
+      ctx.beginPath();
+      ctx.arc(x, y, 16, 0, Math.PI * 2);
+      ctx.arc(x + w * 0.35, y - 10, 16, 0, Math.PI * 2);
+      ctx.arc(x + w, y, 18, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawDino() {
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(dino.x + 8, dino.y + 6, 10, 8);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(dino.x + 20, dino.y + 10, 6, 6);
+    }
+
+    function drawObstacle(obs) {
+      if (obs.type === 'cactus') {
+        ctx.fillStyle = '#15803d';
+        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+        ctx.fillRect(obs.x + 4, obs.y - 10, 10, 10);
+      } else {
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
+        ctx.fillRect(obs.x + 6, obs.y - 8, 8, 8);
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#dbeafe';
+      ctx.fillRect(0, 0, canvas.width, 210);
+
+      clouds.forEach(cloud => {
+        drawCloud(cloud.x, cloud.y, cloud.w);
+      });
+
+      drawGround();
+      drawDino();
+
+      for (const obs of obstacles) drawObstacle(obs);
+
+      if (!gameRunning && !gameOver) {
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+        ctx.fillRect(180, 80, 400, 80);
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = 'bold 30px Arial';
+        ctx.fillText('Press Start to Play', 210, 132);
+      }
+    }
+
+    document.addEventListener('keydown', (event) => {
+      if (event.code === 'Space') {
+        event.preventDefault();
+        if (!gameRunning) {
+          startGame();
+        } else {
+          jump();
+        }
+      }
+      if (event.code === 'ArrowUp') jump();
+    });
+
+    canvas.addEventListener('pointerdown', () => {
+      if (!gameRunning) {
+        startGame();
+      } else {
+        jump();
+      }
+    });
+
+    function gameLoop() {
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    updateScore();
+    draw();
+    requestAnimationFrame(gameLoop);
+  </script>
+</body>
+</html>
