@@ -117,6 +117,7 @@
       border-radius: 12px;
       border: 2px solid rgba(148, 163, 184, 0.3);
       background: linear-gradient(to bottom, #dbeafe 0%, #bfdbfe 60%, #a5f3fc 100%);
+      touch-action: manipulation;
     }
 
     .controls {
@@ -137,6 +138,7 @@
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
+      min-height: 44px;
     }
 
     .button:hover { background: var(--button-hover); }
@@ -152,6 +154,12 @@
       color: var(--muted);
       min-height: 24px;
       font-weight: 600;
+    }
+
+    @media (max-width: 500px) {
+      .container { padding: 16px; }
+      .hud { justify-content: center; }
+      .button { width: 100%; max-width: 220px; }
     }
   </style>
 </head>
@@ -190,7 +198,7 @@
       <button class="button success" onclick="startGame()">Start / Restart</button>
     </div>
 
-    <div class="status" id="status">Press Start or Space to run.</div>
+    <div class="status" id="status">Press Start or tap/click to run.</div>
   </div>
 
   <script>
@@ -412,6 +420,15 @@
       }
     });
 
+    canvas.addEventListener('touchstart', event => {
+      event.preventDefault();
+      if (!gameRunning) {
+        startGame();
+      } else {
+        jump();
+      }
+    }, { passive: false });
+
     function gameLoop() {
       update();
       draw();
@@ -424,4 +441,3 @@
   </script>
 </body>
 </html>
-

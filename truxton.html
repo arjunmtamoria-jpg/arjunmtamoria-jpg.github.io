@@ -117,6 +117,7 @@
       border-radius: 12px;
       border: 2px solid rgba(148, 163, 184, 0.3);
       background: linear-gradient(to bottom, #020817 0%, #0f172a 100%);
+      touch-action: none;
     }
 
     .controls {
@@ -137,6 +138,7 @@
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
+      min-height: 44px;
     }
 
     .button:hover { background: var(--button-hover); }
@@ -147,11 +149,38 @@
 
     .button.success:hover { background: #4ade80; }
 
+    .mobile-controls {
+      display: none;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .mobile-controls button {
+      background: rgba(56, 189, 248, 0.18);
+      color: #e2e8f0;
+      border: 1px solid rgba(96, 165, 250, 0.35);
+      border-radius: 10px;
+      min-width: 86px;
+      min-height: 46px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
     .status {
       margin-top: 12px;
       color: var(--muted);
       min-height: 24px;
       font-weight: 600;
+    }
+
+    @media (max-width: 600px) {
+      .container { padding: 16px; }
+      .controls { flex-direction: column; align-items: stretch; }
+      .button { width: 100%; max-width: 220px; margin: 0 auto; }
+      .mobile-controls { display: flex; }
     }
   </style>
 </head>
@@ -185,12 +214,19 @@
 
     <canvas id="gameCanvas" width="760" height="420"></canvas>
 
+    <div class="mobile-controls">
+      <button data-move="left">◀</button>
+      <button data-move="up">▲</button>
+      <button data-move="right">▶</button>
+      <button data-shoot="true">Fire</button>
+    </div>
+
     <div class="controls">
       <a class="button" href="games.html">← Back to Games</a>
       <button class="button success" onclick="startGame()">Start / Restart</button>
     </div>
 
-    <div class="status" id="status">Press Start or hold Space to launch.</div>
+    <div class="status" id="status">Press Start or use touch controls to launch.</div>
   </div>
 
   <script>
@@ -228,6 +264,50 @@
         r: Math.random() * 2 + 1,
         speed: Math.random() * 1.5 + 0.5
       }));
+    }
+
+    function setControlState(control, isPressed) {
+      if (control === 'left') keys.ArrowLeft = isPressed;
+      if (control === 'right') keys.ArrowRight = isPressed;
+      if (control === 'up') keys.ArrowUp = isPressed;
+      if (control === 'down') keys.ArrowDown = isPressed;
+      if (control === 'shoot') {
+        if (isPressed) keys[' '] = true;
+        else keys[' '] = false;
+      }
+    }
+
+    function bindMobileControls() {
+      document.querySelectorAll('[data-move]').forEach(button => {
+        const direction = button.getAttribute('data-move');
+        const press = (event) => {
+          event.preventDefault();
+          setControlState(direction, true);
+        };
+        const release = (event) => {
+          event.preventDefault();
+          setControlState(direction, false);
+        };
+        button.addEventListener('touchstart', press, { passive: false });
+        button.addEventListener('touchend', release, { passive: false });
+        button.addEventListener('mousedown', press);
+        button.addEventListener('mouseup', release);
+        button.addEventListener('mouseleave', release);
+      });
+
+      const fireButton = document.querySelector('[data-shoot]');
+      if (fireButton) {
+        fireButton.addEventListener('touchstart', (event) => {
+          event.preventDefault();
+          setControlState('shoot', true);
+        }, { passive: false });
+        fireButton.addEventListener('touchend', (event) => {
+          event.preventDefault();
+          setControlState('shoot', false);
+        }, { passive: false });
+        fireButton.addEventListener('mousedown', () => setControlState('shoot', true));
+        fireButton.addEventListener('mouseup', () => setControlState('shoot', false));
+      }
     }
 
     function startGame() {
@@ -508,6 +588,7 @@
       keys[key] = false;
     });
 
+    bindMobileControls();
     resetStars();
     updateHud();
     draw();
