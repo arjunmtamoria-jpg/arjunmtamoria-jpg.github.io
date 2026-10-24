@@ -24,43 +24,62 @@
     h1 {
       margin-top: 0;
       color: #f8fafc;
+      font-size: 2.25rem;
     }
 
     .games-container {
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 20px;
-      justify-content: center;
       margin-top: 30px;
+      align-items: stretch;
     }
 
     .game-card {
-      display: block;
-      width: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 180px;
+      width: 100%;
       background: linear-gradient(145deg, #1f2937, #111827);
       color: #fff;
       padding: 22px 18px;
       border-radius: 12px;
       text-decoration: none;
       border: 1px solid rgba(255,255,255,0.08);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
       box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+      text-align: center;
     }
 
     .game-card:hover {
       transform: translateY(-4px) scale(1.02);
       box-shadow: 0 16px 32px rgba(0,0,0,0.28);
+      border-color: rgba(96, 165, 250, 0.6);
     }
 
     .game-card h2 {
       margin: 0 0 10px;
-      font-size: 1.8rem;
+      font-size: 2rem;
+      line-height: 1.2;
     }
 
     .game-card p {
       margin: 0;
       color: #d1d5db;
       line-height: 1.5;
+      font-size: 0.98rem;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px 16px;
+      }
+
+      .games-container {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -82,22 +101,26 @@
     <h1>🎮 Games</h1>
     <div class="games-container">
       <a class="game-card" href="snake.html">
-        <h2>🐍 Snake</h2>
+        <h2>🐍</h2>
+        <h2>Snake</h2>
         <p>Classic arcade game. Eat food and grow!</p>
       </a>
 
       <a class="game-card" href="flappy.html">
-        <h2>🐦 Flappy Bird</h2>
+        <h2>🐦</h2>
+        <h2>Flappy Bird</h2>
         <p>Tap to fly and avoid the pipes!</p>
       </a>
 
       <a class="game-card" href="platformer.html">
-        <h2>🦔 Sonic Run</h2>
+        <h2>🦔</h2>
+        <h2>Sonic Run</h2>
         <p>Run, jump, collect rings, and dodge danger!</p>
       </a>
 
       <a class="game-card" href="arcade.html">
-        <h2>🎯 MakeCode Arcade</h2>
+        <h2>🎯</h2>
+        <h2>Arcade</h2>
         <p>Play a game made with Microsoft MakeCode.</p>
       </a>
     </div>
