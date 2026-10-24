@@ -6,25 +6,43 @@
   <title>Snake Game</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    :root {
+      --bg: #020817;
+      --bg-2: #0b1220;
+      --panel: rgba(15, 23, 42, 0.95);
+      --panel-2: #111827;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --border: rgba(96, 165, 250, 0.2);
+      --button: #334155;
+      --button-hover: #475569;
+      --danger: #ef4444;
+      --danger-hover: #f87171;
+      --success: #22c55e;
+      --success-hover: #4ade80;
+    }
+
     body {
-      background: #0f172a;
-      color: #f8fafc;
+      background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 55%);
+      color: var(--text);
       margin: 0;
       font-family: Arial, sans-serif;
     }
 
     nav {
-      background: #111827;
+      background: #020b16;
+      border-bottom: 1px solid var(--border);
     }
 
     .container {
       max-width: 900px;
       margin: 40px auto;
-      background: rgba(15, 23, 42, 0.9);
+      background: var(--panel);
+      border: 1px solid var(--border);
       border-radius: 14px;
       padding: 30px;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      box-shadow: 0 10px 30px rgba(14, 165, 233, 0.12);
     }
 
     .button-group {
@@ -36,35 +54,37 @@
     }
 
     .back-btn, .reset-btn, .start-btn {
-      background: #475569;
+      background: var(--button);
       color: #fff;
       padding: 10px 20px;
-      border: none;
+      border: 1px solid rgba(148, 163, 184, 0.2);
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
     }
 
     .back-btn:hover, .reset-btn:hover, .start-btn:hover {
-      background: #64748b;
+      background: var(--button-hover);
     }
 
     .reset-btn {
-      background: #ef4444;
+      background: var(--danger);
     }
 
     .reset-btn:hover {
-      background: #f87171;
+      background: var(--danger-hover);
     }
 
     .start-btn {
-      background: #22c55e;
+      background: var(--success);
       font-size: 18px;
       padding: 12px 30px;
     }
 
     .start-btn:hover {
-      background: #4ade80;
+      background: var(--success-hover);
     }
 
     .game-info {
@@ -78,25 +98,26 @@
     }
 
     .score-display, .high-score-display {
-      background: #1e293b;
-      border: 2px solid #334155;
+      background: rgba(15, 23, 42, 0.85);
+      border: 2px solid rgba(148, 163, 184, 0.3);
       border-radius: 8px;
       padding: 10px 18px;
+      color: var(--text);
     }
 
     .high-score-display {
-      border-color: #facc15;
+      border-color: rgba(250, 204, 21, 0.7);
       color: #facc15;
     }
 
     .game-not-started {
       padding: 40px 20px;
       font-size: 18px;
-      color: #e2e8f0;
+      color: var(--text);
     }
 
     .controls-info {
-      color: #cbd5e1;
+      color: var(--muted);
       margin: 10px 0 20px;
     }
 

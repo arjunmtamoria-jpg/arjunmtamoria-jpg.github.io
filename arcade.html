@@ -6,25 +6,36 @@
   <title>MakeCode Arcade</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    :root {
+      --bg: #020817;
+      --panel: rgba(15, 23, 42, 0.95);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --button: #334155;
+      --button-hover: #475569;
+    }
+
     body {
-      background: #0f172a;
-      color: #f8fafc;
+      background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 55%);
+      color: var(--text);
       margin: 0;
       font-family: Arial, sans-serif;
     }
 
     nav {
-      background: #111827;
+      background: #020b16;
+      border-bottom: 1px solid rgba(96, 165, 250, 0.2);
     }
 
     .container {
       max-width: 1000px;
       margin: 40px auto;
-      background: rgba(15, 23, 42, 0.9);
+      background: var(--panel);
+      border: 1px solid rgba(96, 165, 250, 0.2);
       border-radius: 14px;
       padding: 30px;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      box-shadow: 0 10px 30px rgba(14, 165, 233, 0.12);
     }
 
     .button-group {
@@ -36,10 +47,10 @@
     }
 
     .back-btn {
-      background: #475569;
+      background: var(--button);
       color: #fff;
       padding: 10px 20px;
-      border: none;
+      border: 1px solid rgba(148, 163, 184, 0.2);
       border-radius: 6px;
       font-size: 16px;
       cursor: pointer;
@@ -48,11 +59,11 @@
     }
 
     .back-btn:hover {
-      background: #64748b;
+      background: var(--button-hover);
     }
 
     .controls-info {
-      color: #cbd5e1;
+      color: var(--muted);
       margin: 16px 0 20px;
       font-size: 18px;
     }
@@ -70,6 +81,7 @@
       width: 100%;
       max-width: 960px;
       min-height: 620px;
+      background: #020817;
     }
   </style>
 </head>
