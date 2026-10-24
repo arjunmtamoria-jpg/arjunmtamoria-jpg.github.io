@@ -17,6 +17,7 @@
       --danger: #ef4444;
       --warning: #facc15;
       --bomb: #f472b6;
+      --power: #a78bfa;
     }
 
     * { box-sizing: border-box; }
@@ -26,6 +27,7 @@
       font-family: Arial, sans-serif;
       background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 60%);
       color: var(--text);
+      overscroll-behavior: none;
     }
 
     nav {
@@ -90,12 +92,12 @@
       flex-wrap: wrap;
     }
 
-    .score-box, .lives-box, .bomb-box {
+    .score-box, .lives-box, .bomb-box, .weapon-box {
       background: #111827;
       border: 1px solid rgba(148, 163, 184, 0.2);
       border-radius: 10px;
       padding: 8px 14px;
-      min-width: 120px;
+      min-width: 110px;
     }
 
     .label {
@@ -105,7 +107,7 @@
     }
 
     .value {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: bold;
       color: var(--text);
     }
@@ -119,6 +121,7 @@
       border: 2px solid rgba(148, 163, 184, 0.3);
       background: linear-gradient(to bottom, #020817 0%, #0f172a 100%);
       touch-action: none;
+      user-select: none;
     }
 
     .controls {
@@ -181,6 +184,7 @@
       color: var(--muted);
       min-height: 24px;
       font-weight: 600;
+      line-height: 1.5;
     }
 
     @media (max-width: 600px) {
@@ -221,6 +225,10 @@
         <span class="label">Bombs</span>
         <span class="value" id="bombs">3</span>
       </div>
+      <div class="weapon-box">
+        <span class="label">Weapon</span>
+        <span class="value" id="weapon">Lv1</span>
+      </div>
     </div>
 
     <canvas id="gameCanvas" width="760" height="420"></canvas>
@@ -240,7 +248,7 @@
       <button class="button bomb" onclick="dropBomb()">Drop Bomb</button>
     </div>
 
-    <div class="status" id="status">Move: Arrow keys or WASD • Fire: Hold Space / tap Fire • Bomb: B or Bomb button</div>
+    <div class="status" id="status">Move: Arrow keys/WASD or drag on the screen • Fire: hold Space • Bomb: B or Bomb button</div>
   </div>
 
   <script>
@@ -249,22 +257,25 @@
     const scoreEl = document.getElementById('score');
     const livesEl = document.getElementById('lives');
     const bombsEl = document.getElementById('bombs');
+    const weaponEl = document.getElementById('weapon');
     const statusEl = document.getElementById('status');
 
     const keys = {};
     let score = 0;
     let lives = 3;
-    let bombs = 3;
     let animationId = null;
     let running = false;
     let lastShot = 0;
     let lastEnemySpawn = 0;
+    let lastPowerupSpawn = 0;
+    let lastPlanetSpawn = 0;
     let stars = [];
     let bullets = [];
     let enemyBullets = [];
     let enemies = [];
     let particles = [];
-    let bombParticles = [];
+    let powerups = [];
+    let planets = [];
     let bombFlash = 0;
 
     const player = {
@@ -273,8 +284,15 @@
       width: 30,
       height: 24,
       speed: 5,
-      bombs: 3
+      bombs: 3,
+      bombLimit: 3,
+      rapidFire: 0,
+      spread: 1,
+      shield: 0,
+      touchTarget: null
     };
+
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
     function resetStars() {
       stars = Array.from({ length: 150 }, () => ({
@@ -294,9 +312,7 @@
         keys[' '] = isPressed;
         keys.Space = isPressed;
       }
-      if (control === 'bomb') {
-        if (isPressed) dropBomb();
-      }
+      if (control === 'bomb' && isPressed) dropBomb();
     }
 
     function bindMobileControls() {
@@ -342,21 +358,63 @@
       }
     }
 
+    function bindTouchCanvas() {
+      canvas.addEventListener('pointerdown', (event) => {
+        if (!running) {
+          startGame();
+          return;
+        }
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        player.touchTarget = {
+          x: clamp(x - player.width / 2, 0, canvas.width - player.width),
+          y: clamp(y - player.height / 2, 20, canvas.height - player.height)
+        };
+      });
+
+      canvas.addEventListener('pointermove', (event) => {
+        if (!player.touchTarget) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        player.touchTarget = {
+          x: clamp(x - player.width / 2, 0, canvas.width - player.width),
+          y: clamp(y - player.height / 2, 20, canvas.height - player.height)
+        };
+      });
+
+      canvas.addEventListener('pointerup', () => {
+        player.touchTarget = null;
+      });
+
+      canvas.addEventListener('pointerleave', () => {
+        player.touchTarget = null;
+      });
+    }
+
     function startGame() {
       score = 0;
       lives = 3;
-      bombs = 3;
       bullets = [];
       enemyBullets = [];
       enemies = [];
       particles = [];
-      bombParticles = [];
+      powerups = [];
+      planets = [];
       bombFlash = 0;
       lastShot = 0;
       lastEnemySpawn = 0;
+      lastPowerupSpawn = 0;
+      lastPlanetSpawn = 0;
       player.x = canvas.width / 2;
       player.y = canvas.height - 44;
       player.bombs = 3;
+      player.bombLimit = 3;
+      player.rapidFire = 0;
+      player.spread = 1;
+      player.shield = 0;
+      player.touchTarget = null;
       running = true;
       statusEl.textContent = 'Defend the sector!';
       updateHud();
@@ -369,24 +427,52 @@
       scoreEl.textContent = score;
       livesEl.textContent = lives;
       bombsEl.textContent = player.bombs;
+      weaponEl.textContent = 'Lv' + player.spread + (player.rapidFire > 0 ? ' + Rapid' : '');
     }
 
     function shoot() {
       if (!running) return;
       const now = performance.now();
-      if (now - lastShot < 180) return;
-      bullets.push({
-        x: player.x,
-        y: player.y - 14,
-        w: 4,
-        h: 14,
-        speed: 8
+      const fireRate = player.rapidFire > 0 ? 85 : 180;
+      if (now - lastShot < fireRate) return;
+
+      const baseX = player.x + player.width / 2;
+      const offsets = player.spread > 1 ? [-8, 0, 8] : [0];
+
+      offsets.forEach(offset => {
+        bullets.push({
+          x: baseX + offset,
+          y: player.y - 14,
+          w: 4,
+          h: 14,
+          speed: 8,
+          color: '#38bdf8'
+        });
       });
+
       lastShot = now;
     }
 
     function spawnEnemy() {
-      const enemyType = Math.random() < 0.7 ? 'drone' : 'fighter';
+      const roll = Math.random();
+      let enemyType = 'drone';
+      if (roll > 0.82 && score > 120) enemyType = 'big';
+      else if (roll > 0.6) enemyType = 'fighter';
+
+      if (enemyType === 'big') {
+        enemies.push({
+          x: Math.random() * (canvas.width - 80) + 20,
+          y: -40,
+          w: 42,
+          h: 42,
+          speed: 1.6,
+          hp: 5,
+          type: 'big',
+          shotCooldown: 60
+        });
+        return;
+      }
+
       const size = enemyType === 'drone' ? 22 : 28;
       const hp = enemyType === 'drone' ? 1 : 2;
       enemies.push({
@@ -398,6 +484,28 @@
         hp,
         type: enemyType,
         shotCooldown: Math.random() * 80 + 20
+      });
+    }
+
+    function spawnPowerup() {
+      const types = ['rapid', 'bomb', 'shield', 'spread'];
+      const type = types[Math.floor(Math.random() * types.length)];
+      powerups.push({
+        x: Math.random() * (canvas.width - 30) + 15,
+        y: -20,
+        radius: 12,
+        speed: 1.8,
+        type
+      });
+    }
+
+    function spawnPlanet() {
+      planets.push({
+        x: Math.random() * canvas.width,
+        y: -120,
+        radius: 28 + Math.random() * 56,
+        speed: 0.7 + Math.random() * 1.2,
+        drift: (Math.random() - 0.5) * 0.7
       });
     }
 
@@ -414,33 +522,56 @@
       }
     }
 
+    function activatePowerup(type) {
+      if (type === 'rapid') {
+        player.rapidFire = 500;
+        statusEl.textContent = 'Rapid fire online!';
+      }
+      if (type === 'bomb') {
+        player.bombs = Math.min(player.bombLimit, player.bombs + 1);
+        statusEl.textContent = 'Bomb collected!';
+      }
+      if (type === 'shield') {
+        player.shield = 500;
+        statusEl.textContent = 'Shield activated!';
+      }
+      if (type === 'spread') {
+        player.spread = Math.min(3, player.spread + 1);
+        statusEl.textContent = 'Twin spread upgrade!';
+      }
+      updateHud();
+    }
+
     function dropBomb() {
       if (!running || player.bombs <= 0) return;
       player.bombs -= 1;
-      bombFlash = 14;
+      bombFlash = 18;
       statusEl.textContent = 'Bomb deployed!';
 
       const blastRadius = 170;
+      const centerX = player.x + player.width / 2;
+      const centerY = player.y + player.height / 2;
+
       for (let i = enemies.length - 1; i >= 0; i--) {
         const enemy = enemies[i];
-        const dx = (enemy.x + enemy.w / 2) - (player.x + player.width / 2);
-        const dy = (enemy.y + enemy.h / 2) - (player.y + player.height / 2);
-        const distance = Math.hypot(dx, dy);
+        const enemyCenterX = enemy.x + enemy.w / 2;
+        const enemyCenterY = enemy.y + enemy.h / 2;
+        const distance = Math.hypot(enemyCenterX - centerX, enemyCenterY - centerY);
         if (distance < blastRadius) {
-          score += enemy.type === 'fighter' ? 35 : 15;
-          spawnParticles(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, '#f472b6', 24);
+          score += enemy.type === 'big' ? 65 : enemy.type === 'fighter' ? 35 : 15;
+          spawnParticles(enemyCenterX, enemyCenterY, '#f472b6', 24);
           enemies.splice(i, 1);
         }
       }
 
       for (let i = enemyBullets.length - 1; i >= 0; i--) {
         const bullet = enemyBullets[i];
-        const dx = (bullet.x + bullet.w / 2) - (player.x + player.width / 2);
-        const dy = (bullet.y + bullet.h / 2) - (player.y + player.height / 2);
-        const distance = Math.hypot(dx, dy);
+        const bulletCenterX = bullet.x + bullet.w / 2;
+        const bulletCenterY = bullet.y + bullet.h / 2;
+        const distance = Math.hypot(bulletCenterX - centerX, bulletCenterY - centerY);
         if (distance < blastRadius) {
           enemyBullets.splice(i, 1);
-          spawnParticles(bullet.x, bullet.y, '#f472b6', 10);
+          spawnParticles(bulletCenterX, bulletCenterY, '#f472b6', 10);
         }
       }
 
@@ -450,6 +581,11 @@
     function update() {
       if (!running) return;
 
+      if (player.touchTarget) {
+        player.x = clamp(player.touchTarget.x, 0, canvas.width - player.width);
+        player.y = clamp(player.touchTarget.y, 20, canvas.height - player.height);
+      }
+
       if (keys.ArrowLeft || keys.a) player.x -= player.speed;
       if (keys.ArrowRight || keys.d) player.x += player.speed;
       if (keys.ArrowUp || keys.w) player.y -= player.speed;
@@ -457,8 +593,11 @@
 
       if (keys[' '] || keys.Space) shoot();
 
-      player.x = Math.max(16, Math.min(canvas.width - 16, player.x));
-      player.y = Math.max(20, Math.min(canvas.height - 30, player.y));
+      player.x = clamp(player.x, 0, canvas.width - player.width);
+      player.y = clamp(player.y, 20, canvas.height - player.height);
+
+      if (player.rapidFire > 0) player.rapidFire -= 1;
+      if (player.shield > 0) player.shield -= 1;
 
       stars.forEach(star => {
         star.y += star.speed;
@@ -475,25 +614,51 @@
       bullets = bullets.filter(b => b.y > -20);
 
       const now = performance.now();
-      if (now - lastEnemySpawn > 850) {
+      if (now - lastEnemySpawn > Math.max(320, 900 - score * 0.6)) {
         spawnEnemy();
         lastEnemySpawn = now;
       }
 
+      if (now - lastPowerupSpawn > 9000) {
+        spawnPowerup();
+        lastPowerupSpawn = now;
+      }
+
+      if (now - lastPlanetSpawn > 4500) {
+        spawnPlanet();
+        lastPlanetSpawn = now;
+      }
+
+      planets.forEach(planet => {
+        planet.y += planet.speed;
+        planet.x += planet.drift;
+      });
+      planets = planets.filter(planet => planet.y < canvas.height + 100);
+
+      powerups.forEach(powerup => {
+        powerup.y += powerup.speed;
+      });
+      powerups = powerups.filter(powerup => powerup.y < canvas.height + 50);
+
       enemies.forEach(enemy => {
         enemy.y += enemy.speed;
-        enemy.x += Math.sin((enemy.y + enemy.h) * 0.05) * 1.4;
+        if (enemy.type !== 'big') {
+          enemy.x += Math.sin((enemy.y + enemy.h) * 0.05) * 1.4;
+        }
         enemy.shotCooldown -= 1;
         if (enemy.shotCooldown <= 0) {
-          enemyBullets.push({
-            x: enemy.x + enemy.w / 2,
-            y: enemy.y + enemy.h,
-            w: 4,
-            h: 12,
-            speed: 5,
-            color: '#f97316'
-          });
-          enemy.shotCooldown = Math.random() * 80 + 45;
+          const fireCount = enemy.type === 'big' ? 3 : 1;
+          for (let i = 0; i < fireCount; i++) {
+            enemyBullets.push({
+              x: enemy.x + enemy.w / 2 + (i - (fireCount - 1) / 2) * 8,
+              y: enemy.y + enemy.h,
+              w: 5,
+              h: 12,
+              speed: enemy.type === 'big' ? 4.5 : 5,
+              color: enemy.type === 'big' ? '#f97316' : '#facc15'
+            });
+          }
+          enemy.shotCooldown = enemy.type === 'big' ? 70 : 60;
         }
       });
 
@@ -509,6 +674,19 @@
 
       if (bombFlash > 0) bombFlash -= 1;
 
+      for (let i = powerups.length - 1; i >= 0; i--) {
+        const powerup = powerups[i];
+        const hit = !(player.x + player.width < powerup.x - powerup.radius ||
+          player.x > powerup.x + powerup.radius ||
+          player.y + player.height < powerup.y - powerup.radius ||
+          player.y > powerup.y + powerup.radius);
+
+        if (hit) {
+          activatePowerup(powerup.type);
+          powerups.splice(i, 1);
+        }
+      }
+
       for (let i = bullets.length - 1; i >= 0; i--) {
         const bullet = bullets[i];
         for (let j = enemies.length - 1; j >= 0; j--) {
@@ -520,8 +698,9 @@
             spawnParticles(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, '#38bdf8', 8);
             if (enemy.hp <= 0) {
               enemies.splice(j, 1);
-              score += enemy.type === 'fighter' ? 25 : 10;
+              score += enemy.type === 'big' ? 100 : enemy.type === 'fighter' ? 25 : 10;
               spawnParticles(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, '#facc15', 18);
+              if (Math.random() < 0.2) spawnPowerup();
             }
             break;
           }
@@ -542,9 +721,14 @@
         const hitPlayer = !(bullet.x + bullet.w < player.x || bullet.x > player.x + player.width || bullet.y + bullet.h < player.y || bullet.y > player.y + player.height);
         if (hitPlayer) {
           enemyBullets.splice(i, 1);
-          lives -= 1;
-          spawnParticles(player.x + player.width / 2, player.y + player.height / 2, '#ef4444', 18);
-          statusEl.textContent = 'Direct hit!';
+          if (player.shield > 0) {
+            spawnParticles(player.x + player.width / 2, player.y + player.height / 2, '#a78bfa', 18);
+            statusEl.textContent = 'Shield absorbed the hit!';
+          } else {
+            lives -= 1;
+            spawnParticles(player.x + player.width / 2, player.y + player.height / 2, '#ef4444', 18);
+            statusEl.textContent = 'Direct hit!';
+          }
           if (lives <= 0) {
             running = false;
             statusEl.textContent = 'Game over! Press Start / Restart to try again.';
@@ -556,16 +740,21 @@
         if (particles[i].life <= 0) particles.splice(i, 1);
       }
 
-      if (score > 0 && score % 180 === 0 && player.bombs < 3) {
-        player.bombs += 1;
-        statusEl.textContent = 'Extra bomb awarded!';
+      if (score > 0 && score % 200 === 0 && player.bombs < player.bombLimit) {
+        player.bombs = Math.min(player.bombLimit, player.bombs + 1);
+        statusEl.textContent = 'Bomb capacity increased!';
+      }
+
+      if (score > 0 && score % 300 === 0 && player.spread < 3) {
+        player.spread += 1;
+        statusEl.textContent = 'Weapon upgraded!';
       }
 
       updateHud();
     }
 
     function drawShip(x, y) {
-      ctx.fillStyle = '#38bdf8';
+      ctx.fillStyle = player.shield > 0 ? '#a78bfa' : '#38bdf8';
       ctx.beginPath();
       ctx.moveTo(x, y - 12);
       ctx.lineTo(x + 12, y + 10);
@@ -579,6 +768,15 @@
     }
 
     function drawEnemy(enemy) {
+      if (enemy.type === 'big') {
+        ctx.fillStyle = '#f97316';
+        ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
+        ctx.fillStyle = '#facc15';
+        ctx.fillRect(enemy.x + 8, enemy.y + 10, enemy.w - 16, 6);
+        ctx.fillRect(enemy.x + 12, enemy.y + enemy.h - 12, enemy.w - 24, 6);
+        return;
+      }
+
       if (enemy.type === 'drone') {
         ctx.fillStyle = '#f97316';
         ctx.fillRect(enemy.x, enemy.y, enemy.w, enemy.h);
@@ -598,7 +796,7 @@
 
     function drawBullets() {
       bullets.forEach(b => {
-        ctx.fillStyle = '#38bdf8';
+        ctx.fillStyle = b.color;
         ctx.fillRect(b.x - 2, b.y, b.w, b.h);
       });
 
@@ -612,6 +810,36 @@
       particles.forEach(p => {
         ctx.fillStyle = p.color;
         ctx.fillRect(p.x, p.y, 4, 4);
+      });
+    }
+
+    function drawPowerups() {
+      powerups.forEach(powerup => {
+        ctx.fillStyle = powerup.type === 'rapid' ? '#fbbf24' :
+          powerup.type === 'bomb' ? '#f472b6' :
+          powerup.type === 'shield' ? '#a78bfa' : '#4ade80';
+        ctx.beginPath();
+        ctx.arc(powerup.x, powerup.y, powerup.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+        const letter = powerup.type === 'rapid' ? 'R' : powerup.type === 'bomb' ? 'B' : powerup.type === 'shield' ? 'S' : 'W';
+        ctx.fillText(letter, powerup.x, powerup.y + 4);
+      });
+    }
+
+    function drawPlanets() {
+      planets.forEach(planet => {
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(148, 163, 184, 0.75)';
+        ctx.arc(planet.x, planet.y, planet.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.beginPath();
+        ctx.arc(planet.x - planet.radius * 0.25, planet.y - planet.radius * 0.25, planet.radius * 0.35, 0, Math.PI * 2);
+        ctx.fill();
       });
     }
 
@@ -635,8 +863,10 @@
         ctx.fill();
       });
 
+      drawPlanets();
       drawBullets();
       enemies.forEach(drawEnemy);
+      drawPowerups();
       drawShip(player.x, player.y);
       drawBombFlash();
       drawParticles();
@@ -676,6 +906,7 @@
     });
 
     bindMobileControls();
+    bindTouchCanvas();
     resetStars();
     updateHud();
     draw();
