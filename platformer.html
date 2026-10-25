@@ -489,7 +489,8 @@
           height: 40,
           velocityY: 0,
           velocityX: 0,
-          jumping: false
+          jumping: false,
+          spinAngle: 0
         },
         platforms: levelData.platforms.map(p => ({ ...p })),
         loops: levelData.loops ? levelData.loops.map(loop => ({ ...loop })) : [],
@@ -506,7 +507,8 @@
         respawnX: levelData.startX,
         respawnY: 300,
         clearing: false,
-        clearTimer: 0
+        clearTimer: 0,
+        introTimer: 1800
       };
     }
 
@@ -590,22 +592,32 @@
     }
 
     function drawPlayerSprite(playerX, playerY) {
-      const x = playerX;
-      const y = playerY;
-      const invuln = platformerGame.invulnerable > 0 && Math.floor(platformerGame.invulnerable / 8) % 2 === 0;
+      const p = platformerGame.player;
+      const spinSpeed = p.jumping ? 0.45 : Math.abs(p.velocityX) > 0.5 ? 0.28 : 0.12;
+      p.spinAngle += spinSpeed;
 
+      platformerCtx.save();
+      platformerCtx.translate(playerX + 15, playerY + 20);
+      platformerCtx.rotate(p.spinAngle + (p.velocityX < 0 ? Math.PI : 0));
+
+      const invuln = platformerGame.invulnerable > 0 && Math.floor(platformerGame.invulnerable / 8) % 2 === 0;
       platformerCtx.fillStyle = invuln ? '#f8fafc' : '#0066FF';
-      platformerCtx.fillRect(x + 6, y + 4, 18, 16);
+      platformerCtx.fillRect(-10, -13, 20, 22);
+
       platformerCtx.fillStyle = '#facc15';
-      platformerCtx.fillRect(x + 10, y + 20, 10, 10);
+      platformerCtx.fillRect(-7, 7, 14, 8);
+
       platformerCtx.fillStyle = '#0f172a';
-      platformerCtx.fillRect(x + 8, y + 8, 4, 4);
-      platformerCtx.fillRect(x + 18, y + 8, 4, 4);
+      platformerCtx.fillRect(-7, -10, 4, 4);
+      platformerCtx.fillRect(3, -10, 4, 4);
+
       platformerCtx.fillStyle = '#f59e0b';
-      platformerCtx.fillRect(x + 3, y + 28, 10, 6);
-      platformerCtx.fillRect(x + 18, y + 28, 10, 6);
+      platformerCtx.fillRect(-12, 12, 8, 5);
+      platformerCtx.fillRect(4, 12, 8, 5);
+
       platformerCtx.fillStyle = '#ef4444';
-      platformerCtx.fillRect(x + 9, y + 16, 12, 4);
+      platformerCtx.fillRect(-7, 1, 14, 3);
+      platformerCtx.restore();
     }
 
     function drawEnemySprite(enemyX, enemyY) {
@@ -639,6 +651,36 @@
       }
       platformerCtx.closePath();
       platformerCtx.fill();
+    }
+
+    function drawLevelIntro() {
+      const level = LEVELS[levelIndex];
+      if (!level) return;
+
+      const panelAlpha = Math.max(0, 0.85 - (platformerGame.introTimer / 1800));
+      platformerCtx.fillStyle = `rgba(2, 6, 23, ${panelAlpha})`;
+      platformerCtx.fillRect(0, 0, platformerCanvas.width, platformerCanvas.height);
+
+      platformerCtx.fillStyle = '#facc15';
+      platformerCtx.font = 'bold 26px Arial';
+      platformerCtx.fillText('SONIC', 240, 120);
+
+      platformerCtx.fillStyle = '#e2e8f0';
+      platformerCtx.font = 'bold 18px Arial';
+      platformerCtx.fillText('LEVEL ' + (levelIndex + 1), 290, 155);
+
+      platformerCtx.fillStyle = '#7dd3fc';
+      platformerCtx.font = 'bold 34px Arial';
+      platformerCtx.fillText(level.name.toUpperCase(), 230, 220);
+
+      platformerCtx.fillStyle = '#f8fafc';
+      platformerCtx.font = 'bold 20px Arial';
+      platformerCtx.fillText(level.act.toUpperCase(), 315, 255);
+
+      platformerCtx.fillStyle = '#facc15';
+      platformerCtx.fillRect(120, 272, 560, 12);
+      platformerCtx.fillStyle = '#0f172a';
+      platformerCtx.fillRect(120, 272, 560 * (1 - platformerGame.introTimer / 1800), 12);
     }
 
     function dropRingsFromHit(x, y, count) {
@@ -697,6 +739,14 @@
 
       const p = platformerGame.player;
       if (platformerGame.invulnerable > 0) platformerGame.invulnerable -= 1;
+
+      if (platformerGame.introTimer > 0) {
+        platformerGame.introTimer -= 30;
+        drawBackground();
+        drawLevelIntro();
+        setTimeout(platformerGameLoop, 30);
+        return;
+      }
 
       if (platformerGame.clearing) {
         platformerGame.clearTimer -= 30;
