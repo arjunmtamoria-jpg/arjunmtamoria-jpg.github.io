@@ -96,7 +96,7 @@
       flex-wrap: wrap;
     }
 
-    .score-display, .high-score-display, .level-display {
+    .score-display, .high-score-display, .level-display, .lives-display {
       background: rgba(15, 23, 42, 0.85);
       border: 2px solid rgba(148, 163, 184, 0.3);
       border-radius: 8px;
@@ -112,6 +112,11 @@
     .level-display {
       border-color: rgba(56, 189, 248, 0.7);
       color: #7dd3fc;
+    }
+
+    .lives-display {
+      border-color: rgba(248, 113, 113, 0.75);
+      color: #fca5a5;
     }
 
     .game-not-started {
@@ -190,10 +195,11 @@
     </div>
 
     <div id="platformer-gameplay" style="display: none;">
-      <p class="controls-info">Arrow Keys/WASD to move, SPACE to jump. Collect rings and avoid enemies!</p>
+      <p class="controls-info">Arrow Keys/WASD to move, SPACE to jump. Collect rings and avoid enemies and TV boxes!</p>
       <div class="game-info">
         <div class="score-display">Rings: <span id="platformerScore">0</span></div>
-        <div class="level-display">Level: <span id="platformerLevel">1</span></div>
+        <div class="level-display">Stage: <span id="platformerLevel">Green Hill - Act 1</span></div>
+        <div class="lives-display">Lives: <span id="platformerLives">3</span></div>
         <div class="high-score-display">High Score: <span id="platformerHighScore">0</span></div>
       </div>
       <canvas id="platformerCanvas" width="800" height="400"></canvas>
@@ -214,6 +220,8 @@
     const LEVELS = [
       {
         name: 'Green Hill',
+        act: 'Act 1',
+        theme: { sky: '#87CEEB', skyFade: '#E0F6FF', hill: '#7dd3fc', hill2: '#9ae6b4', ground: '#16a34a', accent: '#15803d' },
         width: 2200,
         startX: 50,
         signX: 2040,
@@ -228,6 +236,10 @@
           { x: 1750, y: 260, width: 220, height: 20 },
           { x: 2000, y: 380, width: 200, height: 20 }
         ],
+        loops: [
+          { x: 640, y: 330, radius: 72 },
+          { x: 1450, y: 270, radius: 84 }
+        ],
         rings: [
           { x: 220, y: 320 }, { x: 310, y: 260 }, { x: 700, y: 280 }, { x: 1020, y: 220 },
           { x: 1340, y: 180 }, { x: 1600, y: 250 }, { x: 1800, y: 210 }, { x: 2060, y: 330 }
@@ -235,10 +247,16 @@
         enemies: [
           { x: 700, y: 350, width: 30, height: 30, dir: 1 },
           { x: 1460, y: 350, width: 30, height: 30, dir: -1 }
+        ],
+        tvBoxes: [
+          { x: 1120, y: 345, width: 34, height: 35 },
+          { x: 1880, y: 345, width: 34, height: 35 }
         ]
       },
       {
-        name: 'Skyline Rush',
+        name: 'Green Hill',
+        act: 'Act 2',
+        theme: { sky: '#8ecae6', skyFade: '#dff3ff', hill: '#90cdf4', hill2: '#86efac', ground: '#22c55e', accent: '#14532d' },
         width: 2600,
         startX: 60,
         signX: 2480,
@@ -255,6 +273,11 @@
           { x: 2020, y: 170, width: 170, height: 20 },
           { x: 2280, y: 380, width: 320, height: 20 }
         ],
+        loops: [
+          { x: 470, y: 330, radius: 70 },
+          { x: 1280, y: 220, radius: 90 },
+          { x: 2050, y: 170, radius: 78 }
+        ],
         rings: [
           { x: 180, y: 330 }, { x: 580, y: 290 }, { x: 780, y: 250 }, { x: 1040, y: 200 },
           { x: 1330, y: 170 }, { x: 1560, y: 220 }, { x: 1840, y: 160 }, { x: 2080, y: 120 },
@@ -264,16 +287,23 @@
           { x: 540, y: 350, width: 30, height: 30, dir: 1 },
           { x: 1580, y: 350, width: 30, height: 30, dir: -1 },
           { x: 2140, y: 350, width: 30, height: 30, dir: 1 }
+        ],
+        tvBoxes: [
+          { x: 915, y: 345, width: 34, height: 35 },
+          { x: 1680, y: 345, width: 34, height: 35 },
+          { x: 2410, y: 345, width: 34, height: 35 }
         ]
       },
       {
-        name: 'Crystal Cave',
-        width: 3200,
+        name: 'Sky Sanctuary',
+        act: 'Act 1',
+        theme: { sky: '#1e1b4b', skyFade: '#a5b4fc', hill: '#4f46e5', hill2: '#c4b5fd', ground: '#312e81', accent: '#c4b5fd' },
+        width: 3000,
         startX: 70,
-        signX: 3000,
-        goal: { x: 3050, y: 140, width: 26, height: 100 },
+        signX: 2860,
+        goal: { x: 2900, y: 150, width: 26, height: 100 },
         boss: {
-          x: 2700,
+          x: 2550,
           y: 300,
           width: 80,
           height: 80,
@@ -282,29 +312,138 @@
           health: 3
         },
         platforms: [
-          { x: 0, y: 380, width: 390, height: 20 },
-          { x: 470, y: 320, width: 160, height: 20 },
-          { x: 710, y: 260, width: 180, height: 20 },
-          { x: 980, y: 200, width: 150, height: 20 },
-          { x: 1200, y: 250, width: 180, height: 20 },
-          { x: 1440, y: 300, width: 170, height: 20 },
-          { x: 1685, y: 210, width: 180, height: 20 },
-          { x: 1920, y: 160, width: 180, height: 20 },
-          { x: 2160, y: 240, width: 160, height: 20 },
-          { x: 2390, y: 310, width: 180, height: 20 },
-          { x: 2630, y: 380, width: 250, height: 20 },
-          { x: 2920, y: 380, width: 260, height: 20 }
+          { x: 0, y: 380, width: 360, height: 20 },
+          { x: 450, y: 320, width: 150, height: 20 },
+          { x: 700, y: 260, width: 180, height: 20 },
+          { x: 970, y: 200, width: 150, height: 20 },
+          { x: 1230, y: 260, width: 180, height: 20 },
+          { x: 1470, y: 310, width: 170, height: 20 },
+          { x: 1750, y: 230, width: 180, height: 20 },
+          { x: 1980, y: 180, width: 170, height: 20 },
+          { x: 2200, y: 240, width: 160, height: 20 },
+          { x: 2440, y: 310, width: 170, height: 20 },
+          { x: 2660, y: 380, width: 340, height: 20 }
+        ],
+        loops: [
+          { x: 620, y: 320, radius: 88 },
+          { x: 1520, y: 310, radius: 92 },
+          { x: 2360, y: 300, radius: 85 }
         ],
         rings: [
-          { x: 180, y: 330 }, { x: 540, y: 270 }, { x: 770, y: 210 }, { x: 1050, y: 150 },
-          { x: 1260, y: 200 }, { x: 1500, y: 250 }, { x: 1735, y: 160 }, { x: 1980, y: 110 },
-          { x: 2210, y: 190 }, { x: 2460, y: 260 }, { x: 2730, y: 330 }, { x: 2980, y: 330 }
+          { x: 180, y: 330 }, { x: 520, y: 270 }, { x: 760, y: 210 }, { x: 1030, y: 150 },
+          { x: 1260, y: 210 }, { x: 1510, y: 260 }, { x: 1770, y: 180 }, { x: 2030, y: 130 },
+          { x: 2250, y: 190 }, { x: 2500, y: 260 }, { x: 2730, y: 330 }
         ],
         enemies: [
-          { x: 570, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 560, y: 350, width: 30, height: 30, dir: 1 },
           { x: 1260, y: 350, width: 30, height: 30, dir: -1 },
           { x: 1750, y: 350, width: 30, height: 30, dir: 1 },
           { x: 2430, y: 350, width: 30, height: 30, dir: -1 }
+        ],
+        tvBoxes: [
+          { x: 905, y: 345, width: 34, height: 35 },
+          { x: 1655, y: 345, width: 34, height: 35 },
+          { x: 2160, y: 345, width: 34, height: 35 }
+        ]
+      },
+      {
+        name: 'Marble Zone',
+        act: 'Act 1',
+        theme: { sky: '#e2e8f0', skyFade: '#f8fafc', hill: '#cbd5e1', hill2: '#94a3b8', ground: '#475569', accent: '#f8fafc' },
+        width: 3200,
+        startX: 60,
+        signX: 3080,
+        goal: { x: 3120, y: 170, width: 26, height: 100 },
+        boss: null,
+        platforms: [
+          { x: 0, y: 380, width: 450, height: 20 },
+          { x: 540, y: 330, width: 160, height: 20 },
+          { x: 780, y: 280, width: 170, height: 20 },
+          { x: 1060, y: 220, width: 170, height: 20 },
+          { x: 1310, y: 180, width: 170, height: 20 },
+          { x: 1565, y: 250, width: 180, height: 20 },
+          { x: 1810, y: 300, width: 180, height: 20 },
+          { x: 2060, y: 220, width: 170, height: 20 },
+          { x: 2320, y: 180, width: 170, height: 20 },
+          { x: 2590, y: 260, width: 200, height: 20 },
+          { x: 2875, y: 380, width: 325, height: 20 }
+        ],
+        loops: [
+          { x: 570, y: 330, radius: 70 },
+          { x: 1370, y: 180, radius: 90 },
+          { x: 2335, y: 180, radius: 86 },
+          { x: 2700, y: 260, radius: 75 }
+        ],
+        rings: [
+          { x: 200, y: 330 }, { x: 600, y: 280 }, { x: 860, y: 230 }, { x: 1130, y: 170 },
+          { x: 1365, y: 140 }, { x: 1620, y: 210 }, { x: 1875, y: 260 }, { x: 2140, y: 170 },
+          { x: 2380, y: 130 }, { x: 2660, y: 210 }, { x: 2940, y: 330 }
+        ],
+        enemies: [
+          { x: 610, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 1590, y: 350, width: 30, height: 30, dir: -1 },
+          { x: 2070, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 2650, y: 350, width: 30, height: 30, dir: -1 }
+        ],
+        tvBoxes: [
+          { x: 980, y: 345, width: 34, height: 35 },
+          { x: 1920, y: 345, width: 34, height: 35 },
+          { x: 2820, y: 345, width: 34, height: 35 }
+        ]
+      },
+      {
+        name: 'Crystal Cave',
+        act: 'Act 1',
+        theme: { sky: '#0f172a', skyFade: '#dbeafe', hill: '#60a5fa', hill2: '#38bdf8', ground: '#0f766e', accent: '#67e8f9' },
+        width: 3400,
+        startX: 70,
+        signX: 3260,
+        goal: { x: 3320, y: 150, width: 26, height: 100 },
+        boss: {
+          x: 2880,
+          y: 300,
+          width: 80,
+          height: 80,
+          dir: -1,
+          speed: 2.5,
+          health: 4
+        },
+        platforms: [
+          { x: 0, y: 380, width: 400, height: 20 },
+          { x: 480, y: 310, width: 180, height: 20 },
+          { x: 760, y: 250, width: 170, height: 20 },
+          { x: 1040, y: 200, width: 170, height: 20 },
+          { x: 1280, y: 250, width: 170, height: 20 },
+          { x: 1520, y: 300, width: 200, height: 20 },
+          { x: 1800, y: 220, width: 170, height: 20 },
+          { x: 2050, y: 170, width: 170, height: 20 },
+          { x: 2320, y: 230, width: 180, height: 20 },
+          { x: 2580, y: 300, width: 200, height: 20 },
+          { x: 2860, y: 380, width: 250, height: 20 },
+          { x: 3160, y: 380, width: 240, height: 20 }
+        ],
+        loops: [
+          { x: 650, y: 300, radius: 90 },
+          { x: 1270, y: 250, radius: 88 },
+          { x: 2120, y: 170, radius: 82 },
+          { x: 2850, y: 300, radius: 78 }
+        ],
+        rings: [
+          { x: 170, y: 330 }, { x: 540, y: 260 }, { x: 820, y: 200 }, { x: 1100, y: 150 },
+          { x: 1330, y: 200 }, { x: 1575, y: 250 }, { x: 1835, y: 170 }, { x: 2100, y: 120 },
+          { x: 2370, y: 180 }, { x: 2640, y: 250 }, { x: 2910, y: 330 }, { x: 3200, y: 330 }
+        ],
+        enemies: [
+          { x: 540, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 1280, y: 350, width: 30, height: 30, dir: -1 },
+          { x: 1800, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 2600, y: 350, width: 30, height: 30, dir: -1 }
+        ],
+        tvBoxes: [
+          { x: 935, y: 345, width: 34, height: 35 },
+          { x: 1710, y: 345, width: 34, height: 35 },
+          { x: 2430, y: 345, width: 34, height: 35 },
+          { x: 3050, y: 345, width: 34, height: 35 }
         ]
       }
     ];
@@ -316,6 +455,7 @@
     function buildLevel(levelData) {
       return {
         name: levelData.name,
+        act: levelData.act,
         width: levelData.width,
         sign: { x: levelData.signX, y: 290, angle: 0 },
         goal: { ...levelData.goal },
@@ -329,12 +469,17 @@
           jumping: false
         },
         platforms: levelData.platforms.map(p => ({ ...p })),
+        loops: levelData.loops ? levelData.loops.map(loop => ({ ...loop })) : [],
         rings: levelData.rings.map(r => ({ ...r })),
         enemies: levelData.enemies.map(e => ({ ...e })),
+        tvBoxes: levelData.tvBoxes ? levelData.tvBoxes.map(tv => ({ ...tv })) : [],
         boss: levelData.boss ? { ...levelData.boss } : null,
         score: 0,
+        lives: 3,
         running: true,
-        gravity: 0.6
+        gravity: 0.6,
+        droppedRings: [],
+        invulnerable: 0
       };
     }
 
@@ -344,8 +489,12 @@
       localStorage.setItem(game + 'HighScore', score);
     }
 
-    function updateLevelLabel() {
-      document.getElementById('platformerLevel').textContent = (levelIndex + 1) + ' / ' + LEVELS.length;
+    function updateHUD() {
+      const stageName = LEVELS[levelIndex] ? `${LEVELS[levelIndex].name} - ${LEVELS[levelIndex].act}` : 'Stage';
+      document.getElementById('platformerLevel').textContent = stageName;
+      document.getElementById('platformerScore').textContent = platformerGame.score;
+      document.getElementById('platformerLives').textContent = platformerGame.lives;
+      document.getElementById('platformerHighScore').textContent = highScores.platformer;
     }
 
     function startPlatformerGameplay() {
@@ -354,7 +503,7 @@
       levelIndex = 0;
       cameraX = 0;
       platformerGame = buildLevel(LEVELS[levelIndex]);
-      updateLevelLabel();
+      updateHUD();
       platformerKeys = { left: false, right: false };
       document.addEventListener('keydown', platformerKeyHandler);
       document.addEventListener('keyup', platformerKeyUpHandler);
@@ -389,18 +538,87 @@
         levelIndex += 1;
         cameraX = 0;
         platformerGame = buildLevel(LEVELS[levelIndex]);
-        updateLevelLabel();
+        updateHUD();
         platformerGameLoop();
       } else {
         platformerGame.running = false;
-        alert('You beat all levels and defeated Eggman! Final rings: ' + platformerGame.score);
+        alert('You beat all stages and defeated Eggman! Final rings: ' + platformerGame.score);
       }
+    }
+
+    function drawRing(x, y, radius) {
+      platformerCtx.beginPath();
+      platformerCtx.arc(x, y, radius, 0, Math.PI * 2);
+      platformerCtx.fillStyle = '#facc15';
+      platformerCtx.fill();
+      platformerCtx.strokeStyle = '#ca8a04';
+      platformerCtx.lineWidth = 2;
+      platformerCtx.stroke();
+
+      platformerCtx.beginPath();
+      platformerCtx.arc(x, y, radius * 0.55, 0, Math.PI * 2);
+      platformerCtx.fillStyle = '#fff7d6';
+      platformerCtx.fill();
+      platformerCtx.closePath();
+    }
+
+    function dropRingsFromHit(x, y, count) {
+      for (let i = 0; i < count; i += 1) {
+        const angle = (i / Math.max(1, count)) * Math.PI * 2;
+        platformerGame.droppedRings.push({
+          x: x + 15 + Math.cos(angle) * 18,
+          y: y + 10 + Math.sin(angle) * 18,
+          radius: 8,
+          velocityX: Math.cos(angle) * 2.2,
+          velocityY: -4.8 - (i * 0.2),
+          gravity: 0.18
+        });
+      }
+    }
+
+    function takeHit() {
+      if (!platformerGame.running || platformerGame.invulnerable > 0) return;
+
+      const p = platformerGame.player;
+      platformerGame.invulnerable = 75;
+
+      if (platformerGame.score > 0) {
+        const lostRings = Math.min(platformerGame.score, 10);
+        platformerGame.score = Math.max(0, platformerGame.score - lostRings);
+        dropRingsFromHit(p.x, p.y, lostRings / 2);
+        updateHUD();
+        return;
+      }
+
+      platformerGame.lives -= 1;
+      updateHUD();
+
+      if (platformerGame.lives <= 0) {
+        platformerGame.running = false;
+        alert('Game Over! Final rings: ' + platformerGame.score);
+        return;
+      }
+
+      p.x = LEVELS[levelIndex].startX;
+      p.y = 300;
+      p.velocityX = 0;
+      p.velocityY = 0;
+      p.jumping = false;
+    }
+
+    function collides(a, b) {
+      return a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y;
     }
 
     function platformerGameLoop() {
       if (!platformerGame.running) return;
 
-      let p = platformerGame.player;
+      const p = platformerGame.player;
+      if (platformerGame.invulnerable > 0) platformerGame.invulnerable -= 1;
+
       if (platformerKeys.left) p.velocityX = -5;
       else if (platformerKeys.right) p.velocityX = 5;
       else p.velocityX *= 0.8;
@@ -433,11 +651,35 @@
           if (platformerGame.score > highScores.platformer) {
             highScores.platformer = platformerGame.score;
             saveHighScore('platformer', platformerGame.score);
-            document.getElementById('platformerHighScore').textContent = platformerGame.score;
           }
+          updateHUD();
           return false;
         }
         return true;
+      });
+
+      platformerGame.droppedRings = platformerGame.droppedRings.filter(ring => {
+        ring.x += ring.velocityX;
+        ring.y += ring.velocityY;
+        ring.velocityY += ring.gravity;
+
+        if (ring.y + ring.radius > 400) {
+          ring.y = 400 - ring.radius;
+          ring.velocityY *= -0.25;
+          ring.velocityX *= 0.8;
+        }
+
+        if (p.x < ring.x + ring.radius && p.x + p.width > ring.x - ring.radius && p.y < ring.y + ring.radius && p.y + p.height > ring.y - ring.radius) {
+          platformerGame.score += 10;
+          if (platformerGame.score > highScores.platformer) {
+            highScores.platformer = platformerGame.score;
+            saveHighScore('platformer', platformerGame.score);
+          }
+          updateHUD();
+          return false;
+        }
+
+        return ring.y < platformerCanvas.height + 40;
       });
 
       if (platformerGame.boss) {
@@ -455,22 +697,26 @@
               return;
             }
           } else {
-            platformerGame.running = false;
-            alert('Eggman got you! Rings: ' + platformerGame.score);
-            return;
+            takeHit();
           }
         }
       }
 
-      platformerGame.enemies.forEach(enemy => {
+      for (const enemy of platformerGame.enemies) {
         enemy.x += enemy.dir * 2;
         if (enemy.x < 200 || enemy.x > platformerGame.width - 200) enemy.dir *= -1;
         if (p.x < enemy.x + enemy.width && p.x + p.width > enemy.x && p.y < enemy.y + enemy.height && p.y + p.height > enemy.y) {
-          platformerGame.running = false;
-          alert('Game Over! Rings: ' + platformerGame.score);
-          return;
+          takeHit();
+          break;
         }
-      });
+      }
+
+      for (const tv of platformerGame.tvBoxes) {
+        if (p.x < tv.x + tv.width && p.x + p.width > tv.x && p.y < tv.y + tv.height && p.y + p.height > tv.y) {
+          takeHit();
+          break;
+        }
+      }
 
       if (p.y > platformerCanvas.height + 100) {
         platformerGame.running = false;
@@ -492,22 +738,48 @@
         platformerCtx.fillRect(drawX, plat.y, plat.width, plat.height);
       });
 
+      platformerGame.loops.forEach(loop => {
+        const drawX = loop.x - cameraX;
+        platformerCtx.strokeStyle = '#f8fafc';
+        platformerCtx.lineWidth = 10;
+        platformerCtx.beginPath();
+        platformerCtx.arc(drawX, loop.y, loop.radius, 0, Math.PI * 2);
+        platformerCtx.stroke();
+        platformerCtx.strokeStyle = '#0f172a';
+        platformerCtx.lineWidth = 4;
+        platformerCtx.beginPath();
+        platformerCtx.arc(drawX, loop.y, loop.radius - 15, 0, Math.PI * 2);
+        platformerCtx.stroke();
+      });
+
       platformerCtx.fillStyle = '#facc15';
       platformerGame.rings.forEach(ring => {
         const drawX = ring.x - cameraX;
-        const drawY = ring.y;
-        platformerCtx.beginPath();
-        platformerCtx.arc(drawX + 10, drawY + 10, 10, 0, Math.PI * 2);
-        platformerCtx.fill();
-        platformerCtx.lineWidth = 2;
-        platformerCtx.strokeStyle = '#ca8a04';
-        platformerCtx.stroke();
+        drawRing(drawX + 10, ring.y + 10, 10);
+      });
+
+      platformerGame.droppedRings.forEach(ring => {
+        const drawX = ring.x - cameraX;
+        drawRing(drawX, ring.y, ring.radius);
       });
 
       platformerCtx.fillStyle = '#FF0000';
       platformerGame.enemies.forEach(enemy => {
         const drawX = enemy.x - cameraX;
         platformerCtx.fillRect(drawX, enemy.y, enemy.width, enemy.height);
+      });
+
+      platformerGame.tvBoxes.forEach(tv => {
+        const drawX = tv.x - cameraX;
+        platformerCtx.fillStyle = '#1f2937';
+        platformerCtx.fillRect(drawX, tv.y, tv.width, tv.height);
+        platformerCtx.fillStyle = '#7dd3fc';
+        platformerCtx.fillRect(drawX + 4, tv.y + 4, tv.width - 8, tv.height - 8);
+        platformerCtx.strokeStyle = '#f8fafc';
+        platformerCtx.beginPath();
+        platformerCtx.moveTo(drawX + tv.width / 2, tv.y - 6);
+        platformerCtx.lineTo(drawX + tv.width / 2, tv.y - 18);
+        platformerCtx.stroke();
       });
 
       if (platformerGame.boss) {
@@ -545,20 +817,21 @@
       const goalX = goal.x - cameraX;
       platformerCtx.fillRect(goalX, goal.y, goal.width, goal.height);
 
-      platformerCtx.fillStyle = '#0066FF';
+      platformerCtx.fillStyle = platformerGame.invulnerable > 0 && Math.floor(platformerGame.invulnerable / 8) % 2 === 0 ? '#f8fafc' : '#0066FF';
       const drawPlayerX = p.x - cameraX;
       platformerCtx.fillRect(drawPlayerX, p.y, p.width, p.height);
 
-      document.getElementById('platformerScore').textContent = platformerGame.score;
+      updateHUD();
       setTimeout(platformerGameLoop, 30);
     }
 
     function drawBackground() {
+      const theme = LEVELS[levelIndex].theme;
       platformerCtx.clearRect(0, 0, platformerCanvas.width, platformerCanvas.height);
-      platformerCtx.fillStyle = '#87CEEB';
+      platformerCtx.fillStyle = theme.sky;
       platformerCtx.fillRect(0, 0, platformerCanvas.width, platformerCanvas.height);
 
-      platformerCtx.fillStyle = '#dbeafe';
+      platformerCtx.fillStyle = '#ffffff';
       for (let i = 0; i < 7; i++) {
         const x = ((i * 180) - (cameraX * 0.3)) % (platformerCanvas.width + 200);
         platformerCtx.beginPath();
@@ -568,7 +841,7 @@
         platformerCtx.fill();
       }
 
-      platformerCtx.fillStyle = '#7dd3fc';
+      platformerCtx.fillStyle = theme.hill;
       for (let i = 0; i < 6; i++) {
         const hillX = ((i * 220) - (cameraX * 0.5)) % (platformerCanvas.width + 250);
         platformerCtx.beginPath();
@@ -576,6 +849,18 @@
         platformerCtx.quadraticCurveTo(hillX + 60, 260, hillX + 120, 400);
         platformerCtx.fill();
       }
+
+      platformerCtx.fillStyle = theme.hill2;
+      for (let i = 0; i < 5; i++) {
+        const hillX = ((i * 250) - (cameraX * 0.65)) % (platformerCanvas.width + 300);
+        platformerCtx.beginPath();
+        platformerCtx.moveTo(hillX, 400);
+        platformerCtx.quadraticCurveTo(hillX + 80, 300, hillX + 160, 400);
+        platformerCtx.fill();
+      }
+
+      platformerCtx.fillStyle = theme.ground;
+      platformerCtx.fillRect(0, 380, platformerCanvas.width, 20);
     }
   </script>
 </body>
