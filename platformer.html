@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sonic Run</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <style>
     :root {
       --bg: #020817;
@@ -21,16 +21,36 @@
       --ring-dark: #ca8a04;
     }
 
+    * { box-sizing: border-box; }
+
     body {
-      background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 55%);
-      color: var(--text);
       margin: 0;
+      color: var(--text);
+      background: radial-gradient(circle at top, #0f172a 0%, var(--bg) 55%);
       font-family: Arial, sans-serif;
     }
 
     nav {
       background: #020b16;
       border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+    }
+
+    nav ul {
+      margin: 0;
+      padding: 0 16px;
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+      min-height: 56px;
+    }
+
+    nav a {
+      color: #e2e8f0;
+      text-decoration: none;
+      font-weight: 700;
     }
 
     .container {
@@ -64,27 +84,16 @@
       display: inline-block;
     }
 
-    .back-btn:hover, .reset-btn:hover, .start-btn:hover {
-      background: var(--button-hover);
-    }
-
-    .reset-btn {
-      background: var(--danger);
-    }
-
-    .reset-btn:hover {
-      background: var(--danger-hover);
-    }
-
+    .back-btn:hover, .reset-btn:hover, .start-btn:hover { background: var(--button-hover); }
+    .reset-btn { background: var(--danger); }
+    .reset-btn:hover { background: var(--danger-hover); }
     .start-btn {
       background: var(--success);
       font-size: 18px;
       padding: 12px 30px;
     }
 
-    .start-btn:hover {
-      background: var(--success-hover);
-    }
+    .start-btn:hover { background: var(--success-hover); }
 
     .game-info {
       display: flex;
@@ -104,20 +113,9 @@
       color: var(--text);
     }
 
-    .high-score-display {
-      border-color: rgba(250, 204, 21, 0.7);
-      color: #facc15;
-    }
-
-    .level-display {
-      border-color: rgba(56, 189, 248, 0.7);
-      color: #7dd3fc;
-    }
-
-    .lives-display {
-      border-color: rgba(248, 113, 113, 0.75);
-      color: #fca5a5;
-    }
+    .high-score-display { border-color: rgba(250, 204, 21, 0.7); color: #facc15; }
+    .level-display { border-color: rgba(56, 189, 248, 0.7); color: #7dd3fc; }
+    .lives-display { border-color: rgba(248, 113, 113, 0.75); color: #fca5a5; }
 
     .game-not-started {
       padding: 40px 20px;
@@ -160,10 +158,7 @@
     }
 
     @media (max-width: 600px) {
-      .game-info {
-        flex-direction: column;
-        gap: 12px;
-      }
+      .game-info { flex-direction: column; gap: 12px; }
     }
   </style>
 </head>
@@ -176,7 +171,7 @@
       <li><a href="games.html">Games</a></li>
       <li><a href="#contact">Contact</a></li>
       <li class="visitor-counter">
-        <img src="https://visitor-badge.laobi.icu/badge?page_id=arjunmtamoria-jpg.github.io" alt="Visitor Count">
+        <img src="https://visitor-badge.laobi.icu/badge?page_id=arjunmtamoria-jpg.github.io" alt="Visitor Count" />
       </li>
     </ul>
   </nav>
@@ -195,7 +190,7 @@
     </div>
 
     <div id="platformer-gameplay" style="display: none;">
-      <p class="controls-info">Arrow Keys/WASD to move, SPACE to jump. Collect rings, hit star posts, and avoid enemies and TV boxes!</p>
+      <p class="controls-info">Arrow Keys/WASD to move, SPACE to jump. Collect rings, dodge enemies, and defeat the boss at the end of each stage.</p>
       <div class="game-info">
         <div class="score-display">Rings: <span id="platformerScore">0</span></div>
         <div class="level-display">Stage: <span id="platformerLevel">Green Hill - Act 1</span></div>
@@ -225,12 +220,12 @@
         width: 2200,
         startX: 50,
         signX: 2040,
-        goal: { x: 2100, y: 180, width: 26, height: 100 },
+        goal: { x: 2095, y: 170, width: 28, height: 120 },
         checkpoints: [
           { x: 820, y: 285, active: false },
           { x: 1600, y: 250, active: false }
         ],
-        boss: null,
+        boss: { name: 'Scrapbot Mk. I', x: 1700, y: 300, width: 86, height: 86, dir: -1, speed: 1.8, health: 3, color: '#f8fafc', accent: '#ef4444' },
         platforms: [
           { x: 0, y: 380, width: 520, height: 20 },
           { x: 620, y: 330, width: 220, height: 20 },
@@ -264,12 +259,12 @@
         width: 2600,
         startX: 60,
         signX: 2480,
-        goal: { x: 2520, y: 160, width: 26, height: 100 },
+        goal: { x: 2520, y: 160, width: 28, height: 120 },
         checkpoints: [
           { x: 620, y: 300, active: false },
           { x: 1760, y: 160, active: false }
         ],
-        boss: null,
+        boss: { name: 'Scrapbot Mk. II', x: 2050, y: 280, width: 88, height: 90, dir: -1, speed: 1.9, health: 4, color: '#dbeafe', accent: '#facc15' },
         platforms: [
           { x: 0, y: 380, width: 420, height: 20 },
           { x: 520, y: 340, width: 140, height: 20 },
@@ -309,20 +304,12 @@
         width: 3000,
         startX: 70,
         signX: 2860,
-        goal: { x: 2900, y: 150, width: 26, height: 100 },
+        goal: { x: 2895, y: 150, width: 28, height: 120 },
         checkpoints: [
           { x: 620, y: 290, active: false },
           { x: 1780, y: 180, active: false }
         ],
-        boss: {
-          x: 2550,
-          y: 300,
-          width: 80,
-          height: 80,
-          dir: -1,
-          speed: 2,
-          health: 3
-        },
+        boss: { name: 'Sky Mech', x: 2500, y: 290, width: 92, height: 90, dir: -1, speed: 2.1, health: 4, color: '#bfdbfe', accent: '#f8fafc' },
         platforms: [
           { x: 0, y: 380, width: 360, height: 20 },
           { x: 450, y: 320, width: 150, height: 20 },
@@ -365,12 +352,12 @@
         width: 3200,
         startX: 60,
         signX: 3080,
-        goal: { x: 3120, y: 170, width: 26, height: 100 },
+        goal: { x: 3120, y: 170, width: 28, height: 120 },
         checkpoints: [
           { x: 760, y: 250, active: false },
           { x: 2060, y: 180, active: false }
         ],
-        boss: null,
+        boss: { name: 'Stone Titan', x: 2550, y: 270, width: 96, height: 96, dir: -1, speed: 1.7, health: 5, color: '#cbd5e1', accent: '#facc15' },
         platforms: [
           { x: 0, y: 380, width: 450, height: 20 },
           { x: 540, y: 330, width: 160, height: 20 },
@@ -414,21 +401,13 @@
         width: 3400,
         startX: 70,
         signX: 3260,
-        goal: { x: 3320, y: 150, width: 26, height: 100 },
+        goal: { x: 3320, y: 150, width: 28, height: 120 },
         checkpoints: [
           { x: 860, y: 230, active: false },
           { x: 2140, y: 140, active: false },
           { x: 2920, y: 285, active: false }
         ],
-        boss: {
-          x: 2880,
-          y: 300,
-          width: 80,
-          height: 80,
-          dir: -1,
-          speed: 2.5,
-          health: 4
-        },
+        boss: { name: 'Crystal Driller', x: 2870, y: 290, width: 94, height: 94, dir: -1, speed: 2.2, health: 5, color: '#93c5fd', accent: '#67e8f9' },
         platforms: [
           { x: 0, y: 380, width: 400, height: 20 },
           { x: 480, y: 310, width: 180, height: 20 },
@@ -478,10 +457,9 @@
         name: levelData.name,
         act: levelData.act,
         width: levelData.width,
-        sign: { x: levelData.signX, y: 290, angle: 0 },
+        sign: { x: levelData.signX, y: 290, angle: 0, wobble: 0 },
         goal: { ...levelData.goal },
         checkpoints: levelData.checkpoints.map(cp => ({ ...cp })),
-        checkpointIndex: 0,
         player: {
           x: levelData.startX,
           y: 300,
@@ -490,7 +468,8 @@
           velocityY: 0,
           velocityX: 0,
           jumping: false,
-          spinAngle: 0
+          spinAngle: 0,
+          direction: 1
         },
         platforms: levelData.platforms.map(p => ({ ...p })),
         loops: levelData.loops ? levelData.loops.map(loop => ({ ...loop })) : [],
@@ -545,21 +524,23 @@
     }
 
     function platformerKeyHandler(e) {
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') platformerKeys.left = true;
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') platformerKeys.right = true;
-      if (e.key === ' ') { e.preventDefault(); jumpPlatformer(); }
+      const key = e.key.toLowerCase();
+      if (e.key === 'ArrowLeft' || key === 'a') platformerKeys.left = true;
+      if (e.key === 'ArrowRight' || key === 'd') platformerKeys.right = true;
+      if (e.code === 'Space') { e.preventDefault(); jumpPlatformer(); }
     }
 
     function platformerKeyUpHandler(e) {
-      if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') platformerKeys.left = false;
-      if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') platformerKeys.right = false;
+      const key = e.key.toLowerCase();
+      if (e.key === 'ArrowLeft' || key === 'a') platformerKeys.left = false;
+      if (e.key === 'ArrowRight' || key === 'd') platformerKeys.right = false;
     }
 
     function jumpPlatformer() {
-      if (!platformerGame.player.jumping && platformerGame.running) {
-        platformerGame.player.velocityY = -12;
-        platformerGame.player.jumping = true;
-      }
+      const p = platformerGame.player;
+      if (!platformerGame.running || !p || p.jumping) return;
+      p.velocityY = -12;
+      p.jumping = true;
     }
 
     function nextLevel() {
@@ -591,32 +572,94 @@
       platformerCtx.closePath();
     }
 
+    function drawSonicTitleSprite(x, y, scale = 2) {
+      const px = x;
+      const py = y;
+      const s = scale;
+
+      platformerCtx.save();
+      platformerCtx.translate(px, py);
+
+      platformerCtx.fillStyle = '#f8fafc';
+      platformerCtx.fillRect(0, -18 * s, 16 * s, 14 * s);
+      platformerCtx.fillStyle = '#1d4ed8';
+      platformerCtx.fillRect(-6 * s, -4 * s, 28 * s, 20 * s);
+
+      platformerCtx.fillStyle = '#f8fafc';
+      platformerCtx.fillRect(2 * s, -12 * s, 12 * s, 10 * s);
+      platformerCtx.fillStyle = '#0f172a';
+      platformerCtx.fillRect(2 * s, -15 * s, 4 * s, 4 * s);
+      platformerCtx.fillRect(10 * s, -15 * s, 4 * s, 4 * s);
+
+      platformerCtx.fillStyle = '#facc15';
+      platformerCtx.fillRect(-8 * s, 12 * s, 32 * s, 5 * s);
+
+      platformerCtx.fillStyle = '#ef4444';
+      platformerCtx.fillRect(-10 * s, 16 * s, 10 * s, 7 * s);
+      platformerCtx.fillRect(16 * s, 16 * s, 10 * s, 7 * s);
+
+      platformerCtx.fillStyle = '#f8fafc';
+      platformerCtx.fillRect(-15 * s, 0, 6 * s, 7 * s);
+      platformerCtx.fillRect(19 * s, 0, 6 * s, 7 * s);
+
+      platformerCtx.fillStyle = '#facc15';
+      for (let i = 0; i < 4; i++) {
+        const spikeX = -8 * s + i * 8 * s;
+        platformerCtx.beginPath();
+        platformerCtx.moveTo(spikeX, -8 * s);
+        platformerCtx.lineTo(spikeX + 4 * s, -22 * s);
+        platformerCtx.lineTo(spikeX + 8 * s, -8 * s);
+        platformerCtx.fill();
+      }
+
+      platformerCtx.restore();
+    }
+
     function drawPlayerSprite(playerX, playerY) {
       const p = platformerGame.player;
       const spinSpeed = p.jumping ? 0.45 : Math.abs(p.velocityX) > 0.5 ? 0.28 : 0.12;
       p.spinAngle += spinSpeed;
 
+      const invuln = platformerGame.invulnerable > 0 && Math.floor(platformerGame.invulnerable / 8) % 2 === 0;
+
       platformerCtx.save();
       platformerCtx.translate(playerX + 15, playerY + 20);
-      platformerCtx.rotate(p.spinAngle + (p.velocityX < 0 ? Math.PI : 0));
+      if (p.velocityX < 0) platformerCtx.scale(-1, 1);
+      platformerCtx.rotate(p.spinAngle * 0.15);
 
-      const invuln = platformerGame.invulnerable > 0 && Math.floor(platformerGame.invulnerable / 8) % 2 === 0;
-      platformerCtx.fillStyle = invuln ? '#f8fafc' : '#0066FF';
-      platformerCtx.fillRect(-10, -13, 20, 22);
+      platformerCtx.fillStyle = invuln ? '#f8fafc' : '#f8fafc';
+      platformerCtx.fillRect(-8, -18, 16, 14);
+
+      platformerCtx.fillStyle = invuln ? '#bfdbfe' : '#2563eb';
+      platformerCtx.fillRect(-12, -4, 24, 20);
+
+      platformerCtx.fillStyle = '#f8fafc';
+      platformerCtx.fillRect(-3, -12, 8, 8);
+      platformerCtx.fillStyle = '#0f172a';
+      platformerCtx.fillRect(-6, -14, 3, 3);
+      platformerCtx.fillRect(3, -14, 3, 3);
 
       platformerCtx.fillStyle = '#facc15';
-      platformerCtx.fillRect(-7, 7, 14, 8);
-
-      platformerCtx.fillStyle = '#0f172a';
-      platformerCtx.fillRect(-7, -10, 4, 4);
-      platformerCtx.fillRect(3, -10, 4, 4);
-
-      platformerCtx.fillStyle = '#f59e0b';
-      platformerCtx.fillRect(-12, 12, 8, 5);
-      platformerCtx.fillRect(4, 12, 8, 5);
+      platformerCtx.fillRect(-10, 8, 20, 4);
 
       platformerCtx.fillStyle = '#ef4444';
-      platformerCtx.fillRect(-7, 1, 14, 3);
+      platformerCtx.fillRect(-11, 14, 10, 7);
+      platformerCtx.fillRect(1, 14, 10, 7);
+
+      platformerCtx.fillStyle = '#f8fafc';
+      platformerCtx.fillRect(-15, 0, 6, 7);
+      platformerCtx.fillRect(9, 0, 6, 7);
+
+      platformerCtx.fillStyle = '#facc15';
+      for (let i = 0; i < 4; i++) {
+        const qX = -8 + i * 6;
+        platformerCtx.beginPath();
+        platformerCtx.moveTo(qX, -8);
+        platformerCtx.lineTo(qX + 3, -18);
+        platformerCtx.lineTo(qX + 6, -8);
+        platformerCtx.fill();
+      }
+
       platformerCtx.restore();
     }
 
@@ -661,26 +704,28 @@
       platformerCtx.fillStyle = `rgba(2, 6, 23, ${panelAlpha})`;
       platformerCtx.fillRect(0, 0, platformerCanvas.width, platformerCanvas.height);
 
+      drawSonicTitleSprite(225, 200, 2.4);
+
       platformerCtx.fillStyle = '#facc15';
-      platformerCtx.font = 'bold 26px Arial';
-      platformerCtx.fillText('SONIC', 240, 120);
+      platformerCtx.font = 'bold 32px Arial';
+      platformerCtx.fillText('SONIC RUN', 215, 120);
 
       platformerCtx.fillStyle = '#e2e8f0';
       platformerCtx.font = 'bold 18px Arial';
-      platformerCtx.fillText('LEVEL ' + (levelIndex + 1), 290, 155);
+      platformerCtx.fillText('LEVEL ' + (levelIndex + 1), 325, 150);
 
       platformerCtx.fillStyle = '#7dd3fc';
       platformerCtx.font = 'bold 34px Arial';
-      platformerCtx.fillText(level.name.toUpperCase(), 230, 220);
+      platformerCtx.fillText(level.name.toUpperCase(), 210, 235);
 
       platformerCtx.fillStyle = '#f8fafc';
       platformerCtx.font = 'bold 20px Arial';
-      platformerCtx.fillText(level.act.toUpperCase(), 315, 255);
+      platformerCtx.fillText(level.act.toUpperCase(), 315, 270);
 
       platformerCtx.fillStyle = '#facc15';
-      platformerCtx.fillRect(120, 272, 560, 12);
+      platformerCtx.fillRect(120, 290, 560, 12);
       platformerCtx.fillStyle = '#0f172a';
-      platformerCtx.fillRect(120, 272, 560 * (1 - platformerGame.introTimer / 1800), 12);
+      platformerCtx.fillRect(120, 290, 560 * (1 - platformerGame.introTimer / 1800), 12);
     }
 
     function dropRingsFromHit(x, y, count) {
@@ -701,7 +746,7 @@
       if (!platformerGame.running || platformerGame.invulnerable > 0) return;
 
       const p = platformerGame.player;
-      platformerGame.invulnerable = 75;
+      platformerGame.invulnerable = 90;
 
       if (platformerGame.score > 0) {
         const lostRings = Math.min(platformerGame.score, 10);
@@ -727,11 +772,48 @@
       p.jumping = false;
     }
 
-    function collides(a, b) {
-      return a.x < b.x + b.width &&
-        a.x + a.width > b.x &&
-        a.y < b.y + b.height &&
-        a.y + a.height > b.y;
+    function drawBoss(boss, bossX) {
+      if (!boss) return;
+      const bodyColor = boss.color || '#1f2937';
+      const accent = boss.accent || '#facc15';
+      const w = boss.width;
+      const h = boss.height;
+
+      platformerCtx.fillStyle = bodyColor;
+      platformerCtx.fillRect(bossX, boss.y, w, h);
+
+      platformerCtx.fillStyle = '#0f172a';
+      platformerCtx.fillRect(bossX + 15, boss.y + 18, 16, 14);
+      platformerCtx.fillRect(bossX + w - 31, boss.y + 18, 16, 14);
+
+      platformerCtx.fillStyle = accent;
+      platformerCtx.fillRect(bossX + 10, boss.y + 42, w - 20, 12);
+      platformerCtx.fillRect(bossX + 18, boss.y + 60, w - 36, 10);
+
+      platformerCtx.fillStyle = '#f8fafc';
+      platformerCtx.font = 'bold 12px Arial';
+      platformerCtx.fillText(boss.name, bossX, boss.y - 8);
+      platformerCtx.fillStyle = '#facc15';
+      platformerCtx.fillText('HP: ' + boss.health, bossX, boss.y - 20);
+    }
+
+    function drawSign(s) {
+      const signX = s.x - cameraX;
+      platformerCtx.save();
+      platformerCtx.translate(signX, 300);
+      platformerCtx.rotate(s.angle);
+      platformerCtx.fillStyle = '#7c2d12';
+      platformerCtx.fillRect(-8, 0, 16, 80);
+      platformerCtx.fillStyle = '#f8fafc';
+      platformerCtx.fillRect(-28, 12, 56, 26);
+      platformerCtx.fillStyle = '#0ea5e9';
+      platformerCtx.beginPath();
+      platformerCtx.moveTo(-18, 18);
+      platformerCtx.lineTo(18, 18);
+      platformerCtx.lineTo(0, -10);
+      platformerCtx.closePath();
+      platformerCtx.fill();
+      platformerCtx.restore();
     }
 
     function platformerGameLoop() {
@@ -750,7 +832,7 @@
 
       if (platformerGame.clearing) {
         platformerGame.clearTimer -= 30;
-        platformerGame.sign.angle += 0.45;
+        platformerGame.sign.angle += 0.12;
         if (platformerGame.clearTimer <= 0) {
           nextLevel();
           return;
@@ -792,7 +874,8 @@
       }
 
       cameraX = Math.max(0, Math.min(platformerGame.width - platformerCanvas.width, p.x - 250));
-      platformerGame.sign.angle += platformerGame.clearing ? 0.45 : 0.08;
+      platformerGame.sign.angle += platformerGame.clearing ? 0.18 : Math.sin(p.x / 60) * 0.03;
+      platformerGame.sign.wobble += 0.08;
 
       if (!platformerGame.clearing) {
         platformerGame.rings = platformerGame.rings.filter(ring => {
@@ -835,15 +918,16 @@
         if (platformerGame.boss) {
           const boss = platformerGame.boss;
           boss.x += boss.dir * boss.speed;
-          if (boss.x < 2200 || boss.x > platformerGame.width - 200) boss.dir *= -1;
+          if (boss.x < 1800 || boss.x > platformerGame.width - 200) boss.dir *= -1;
 
           if (p.x < boss.x + boss.width && p.x + p.width > boss.x && p.y < boss.y + boss.height && p.y + p.height > boss.y) {
             if (p.velocityY > 0 && p.y + p.height - boss.y < 20) {
               boss.health -= 1;
               p.velocityY = -9;
               if (boss.health <= 0) {
+                platformerGame.score += 100;
                 platformerGame.running = false;
-                alert('Eggman defeated! You win! Final rings: ' + platformerGame.score);
+                alert('Boss defeated! ' + boss.name + ' down. Final rings: ' + platformerGame.score);
                 return;
               }
             } else {
@@ -942,33 +1026,10 @@
       if (platformerGame.boss) {
         const boss = platformerGame.boss;
         const bossX = boss.x - cameraX;
-        platformerCtx.fillStyle = '#1f2937';
-        platformerCtx.fillRect(bossX, boss.y, boss.width, boss.height);
-        platformerCtx.fillStyle = '#f8fafc';
-        platformerCtx.fillRect(bossX + 15, boss.y + 20, 15, 12);
-        platformerCtx.fillRect(bossX + 48, boss.y + 20, 15, 12);
-        platformerCtx.fillRect(bossX + 22, boss.y + 52, 35, 10);
-        platformerCtx.fillStyle = '#facc15';
-        platformerCtx.fillText('HP: ' + boss.health, bossX, boss.y - 10);
+        drawBoss(boss, bossX);
       }
 
-      const sign = platformerGame.sign;
-      const signX = sign.x - cameraX;
-      platformerCtx.save();
-      platformerCtx.translate(signX, 300);
-      platformerCtx.rotate(sign.angle);
-      platformerCtx.fillStyle = '#7c2d12';
-      platformerCtx.fillRect(-8, 0, 16, 80);
-      platformerCtx.fillStyle = '#f8fafc';
-      platformerCtx.fillRect(-28, 14, 56, 26);
-      platformerCtx.fillStyle = '#0ea5e9';
-      platformerCtx.beginPath();
-      platformerCtx.moveTo(-18, 20);
-      platformerCtx.lineTo(18, 20);
-      platformerCtx.lineTo(0, -10);
-      platformerCtx.closePath();
-      platformerCtx.fill();
-      platformerCtx.restore();
+      drawSign(platformerGame.sign);
 
       if (platformerGame.clearing) {
         platformerCtx.fillStyle = '#facc15';
@@ -998,31 +1059,36 @@
         const x = ((i * 180) - (cameraX * 0.3)) % (platformerCanvas.width + 200);
         platformerCtx.beginPath();
         platformerCtx.arc(x, 80, 28, 0, Math.PI * 2);
-        platformerCtx.arc(x + 30, 60, 26, 0, Math.PI * 2);
-        platformerCtx.arc(x + 60, 80, 28, 0, Math.PI * 2);
         platformerCtx.fill();
       }
 
       platformerCtx.fillStyle = theme.hill;
-      for (let i = 0; i < 6; i++) {
-        const hillX = ((i * 220) - (cameraX * 0.5)) % (platformerCanvas.width + 250);
-        platformerCtx.beginPath();
-        platformerCtx.moveTo(hillX, 400);
-        platformerCtx.quadraticCurveTo(hillX + 60, 260, hillX + 120, 400);
-        platformerCtx.fill();
-      }
+      platformerCtx.beginPath();
+      platformerCtx.moveTo(0, 330);
+      platformerCtx.quadraticCurveTo(150, 180, 300, 330);
+      platformerCtx.quadraticCurveTo(500, 160, 700, 330);
+      platformerCtx.quadraticCurveTo(820, 150, 980, 330);
+      platformerCtx.quadraticCurveTo(1180, 170, 1380, 330);
+      platformerCtx.quadraticCurveTo(1600, 180, 1820, 330);
+      platformerCtx.lineTo(800, 400);
+      platformerCtx.lineTo(0, 400);
+      platformerCtx.closePath();
+      platformerCtx.fill();
 
       platformerCtx.fillStyle = theme.hill2;
-      for (let i = 0; i < 5; i++) {
-        const hillX = ((i * 250) - (cameraX * 0.65)) % (platformerCanvas.width + 300);
-        platformerCtx.beginPath();
-        platformerCtx.moveTo(hillX, 400);
-        platformerCtx.quadraticCurveTo(hillX + 80, 300, hillX + 160, 400);
-        platformerCtx.fill();
-      }
+      platformerCtx.beginPath();
+      platformerCtx.moveTo(0, 360);
+      platformerCtx.quadraticCurveTo(260, 220, 440, 360);
+      platformerCtx.quadraticCurveTo(660, 230, 900, 360);
+      platformerCtx.quadraticCurveTo(1160, 220, 1400, 360);
+      platformerCtx.quadraticCurveTo(1550, 230, 1800, 360);
+      platformerCtx.lineTo(800, 400);
+      platformerCtx.lineTo(0, 400);
+      platformerCtx.closePath();
+      platformerCtx.fill();
 
       platformerCtx.fillStyle = theme.ground;
-      platformerCtx.fillRect(0, 380, platformerCanvas.width, 20);
+      platformerCtx.fillRect(0, 380, platformerCanvas.width, 30);
     }
   </script>
 </body>
