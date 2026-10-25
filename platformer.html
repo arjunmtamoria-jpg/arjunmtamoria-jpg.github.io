@@ -504,7 +504,9 @@
         droppedRings: [],
         invulnerable: 0,
         respawnX: levelData.startX,
-        respawnY: 300
+        respawnY: 300,
+        clearing: false,
+        clearTimer: 0
       };
     }
 
@@ -593,9 +595,9 @@
       const invuln = platformerGame.invulnerable > 0 && Math.floor(platformerGame.invulnerable / 8) % 2 === 0;
 
       platformerCtx.fillStyle = invuln ? '#f8fafc' : '#0066FF';
-      platformerCtx.fillRect(x + 6, y + 4, 18, 16); // head
+      platformerCtx.fillRect(x + 6, y + 4, 18, 16);
       platformerCtx.fillStyle = '#facc15';
-      platformerCtx.fillRect(x + 10, y + 20, 10, 10); // belly
+      platformerCtx.fillRect(x + 10, y + 20, 10, 10);
       platformerCtx.fillStyle = '#0f172a';
       platformerCtx.fillRect(x + 8, y + 8, 4, 4);
       platformerCtx.fillRect(x + 18, y + 8, 4, 4);
@@ -696,124 +698,139 @@
       const p = platformerGame.player;
       if (platformerGame.invulnerable > 0) platformerGame.invulnerable -= 1;
 
-      platformerGame.checkpoints.forEach(cp => {
-        const reached = p.x + p.width > cp.x && p.x < cp.x + 20 && p.y + p.height > 200 && p.y < 400;
-        if (reached && !cp.active) {
-          cp.active = true;
-          platformerGame.respawnX = cp.x;
-          platformerGame.respawnY = 300;
+      if (platformerGame.clearing) {
+        platformerGame.clearTimer -= 30;
+        platformerGame.sign.angle += 0.45;
+        if (platformerGame.clearTimer <= 0) {
+          nextLevel();
+          return;
         }
-      });
+      }
 
-      if (platformerKeys.left) p.velocityX = -5;
-      else if (platformerKeys.right) p.velocityX = 5;
-      else p.velocityX *= 0.8;
+      if (!platformerGame.clearing) {
+        platformerGame.checkpoints.forEach(cp => {
+          const reached = p.x + p.width > cp.x && p.x < cp.x + 20 && p.y + p.height > 200 && p.y < 400;
+          if (reached && !cp.active) {
+            cp.active = true;
+            platformerGame.respawnX = cp.x;
+            platformerGame.respawnY = 300;
+          }
+        });
 
-      p.velocityY += platformerGame.gravity;
-      p.x += p.velocityX;
-      p.y += p.velocityY;
+        if (platformerKeys.left) p.velocityX = -5;
+        else if (platformerKeys.right) p.velocityX = 5;
+        else p.velocityX *= 0.8;
 
-      if (p.x < 0) p.x = 0;
-      if (p.x + p.width > platformerGame.width) p.x = platformerGame.width - p.width;
+        p.velocityY += platformerGame.gravity;
+        p.x += p.velocityX;
+        p.y += p.velocityY;
 
-      let onGround = false;
-      platformerGame.platforms.forEach(plat => {
-        if (p.velocityY >= 0 && p.y + p.height >= plat.y && p.y + p.height <= plat.y + 30 && p.x + p.width > plat.x && p.x < plat.x + plat.width) {
-          p.velocityY = 0;
-          p.y = plat.y - p.height;
-          onGround = true;
-          p.jumping = false;
-        }
-      });
+        if (p.x < 0) p.x = 0;
+        if (p.x + p.width > platformerGame.width) p.x = platformerGame.width - p.width;
 
-      if (!onGround && p.velocityY > 0) p.jumping = true;
+        let onGround = false;
+        platformerGame.platforms.forEach(plat => {
+          if (p.velocityY >= 0 && p.y + p.height >= plat.y && p.y + p.height <= plat.y + 30 && p.x + p.width > plat.x && p.x < plat.x + plat.width) {
+            p.velocityY = 0;
+            p.y = plat.y - p.height;
+            onGround = true;
+            p.jumping = false;
+          }
+        });
+
+        if (!onGround && p.velocityY > 0) p.jumping = true;
+      }
 
       cameraX = Math.max(0, Math.min(platformerGame.width - platformerCanvas.width, p.x - 250));
-      platformerGame.sign.angle += 0.08;
+      platformerGame.sign.angle += platformerGame.clearing ? 0.45 : 0.08;
 
-      platformerGame.rings = platformerGame.rings.filter(ring => {
-        if (p.x < ring.x + 20 && p.x + p.width > ring.x && p.y < ring.y + 20 && p.y + p.height > ring.y) {
-          platformerGame.score += 10;
-          if (platformerGame.score > highScores.platformer) {
-            highScores.platformer = platformerGame.score;
-            saveHighScore('platformer', platformerGame.score);
-          }
-          updateHUD();
-          return false;
-        }
-        return true;
-      });
-
-      platformerGame.droppedRings = platformerGame.droppedRings.filter(ring => {
-        ring.x += ring.velocityX;
-        ring.y += ring.velocityY;
-        ring.velocityY += ring.gravity;
-
-        if (ring.y + ring.radius > 400) {
-          ring.y = 400 - ring.radius;
-          ring.velocityY *= -0.25;
-          ring.velocityX *= 0.8;
-        }
-
-        if (p.x < ring.x + ring.radius && p.x + p.width > ring.x - ring.radius && p.y < ring.y + ring.radius && p.y + p.height > ring.y - ring.radius) {
-          platformerGame.score += 10;
-          if (platformerGame.score > highScores.platformer) {
-            highScores.platformer = platformerGame.score;
-            saveHighScore('platformer', platformerGame.score);
-          }
-          updateHUD();
-          return false;
-        }
-
-        return ring.y < platformerCanvas.height + 40;
-      });
-
-      if (platformerGame.boss) {
-        const boss = platformerGame.boss;
-        boss.x += boss.dir * boss.speed;
-        if (boss.x < 2200 || boss.x > platformerGame.width - 200) boss.dir *= -1;
-
-        if (p.x < boss.x + boss.width && p.x + p.width > boss.x && p.y < boss.y + boss.height && p.y + p.height > boss.y) {
-          if (p.velocityY > 0 && p.y + p.height - boss.y < 20) {
-            boss.health -= 1;
-            p.velocityY = -9;
-            if (boss.health <= 0) {
-              platformerGame.running = false;
-              alert('Eggman defeated! You win! Final rings: ' + platformerGame.score);
-              return;
+      if (!platformerGame.clearing) {
+        platformerGame.rings = platformerGame.rings.filter(ring => {
+          if (p.x < ring.x + 20 && p.x + p.width > ring.x && p.y < ring.y + 20 && p.y + p.height > ring.y) {
+            platformerGame.score += 10;
+            if (platformerGame.score > highScores.platformer) {
+              highScores.platformer = platformerGame.score;
+              saveHighScore('platformer', platformerGame.score);
             }
-          } else {
-            takeHit();
+            updateHUD();
+            return false;
+          }
+          return true;
+        });
+
+        platformerGame.droppedRings = platformerGame.droppedRings.filter(ring => {
+          ring.x += ring.velocityX;
+          ring.y += ring.velocityY;
+          ring.velocityY += ring.gravity;
+
+          if (ring.y + ring.radius > 400) {
+            ring.y = 400 - ring.radius;
+            ring.velocityY *= -0.25;
+            ring.velocityX *= 0.8;
+          }
+
+          if (p.x < ring.x + ring.radius && p.x + p.width > ring.x - ring.radius && p.y < ring.y + ring.radius && p.y + p.height > ring.y - ring.radius) {
+            platformerGame.score += 10;
+            if (platformerGame.score > highScores.platformer) {
+              highScores.platformer = platformerGame.score;
+              saveHighScore('platformer', platformerGame.score);
+            }
+            updateHUD();
+            return false;
+          }
+
+          return ring.y < platformerCanvas.height + 40;
+        });
+
+        if (platformerGame.boss) {
+          const boss = platformerGame.boss;
+          boss.x += boss.dir * boss.speed;
+          if (boss.x < 2200 || boss.x > platformerGame.width - 200) boss.dir *= -1;
+
+          if (p.x < boss.x + boss.width && p.x + p.width > boss.x && p.y < boss.y + boss.height && p.y + p.height > boss.y) {
+            if (p.velocityY > 0 && p.y + p.height - boss.y < 20) {
+              boss.health -= 1;
+              p.velocityY = -9;
+              if (boss.health <= 0) {
+                platformerGame.running = false;
+                alert('Eggman defeated! You win! Final rings: ' + platformerGame.score);
+                return;
+              }
+            } else {
+              takeHit();
+            }
           }
         }
-      }
 
-      for (const enemy of platformerGame.enemies) {
-        enemy.x += enemy.dir * 2;
-        if (enemy.x < 200 || enemy.x > platformerGame.width - 200) enemy.dir *= -1;
-        if (p.x < enemy.x + enemy.width && p.x + p.width > enemy.x && p.y < enemy.y + enemy.height && p.y + p.height > enemy.y) {
-          takeHit();
-          break;
+        for (const enemy of platformerGame.enemies) {
+          enemy.x += enemy.dir * 2;
+          if (enemy.x < 200 || enemy.x > platformerGame.width - 200) enemy.dir *= -1;
+          if (p.x < enemy.x + enemy.width && p.x + p.width > enemy.x && p.y < enemy.y + enemy.height && p.y + p.height > enemy.y) {
+            takeHit();
+            break;
+          }
         }
-      }
 
-      for (const tv of platformerGame.tvBoxes) {
-        if (p.x < tv.x + tv.width && p.x + p.width > tv.x && p.y < tv.y + tv.height && p.y + p.height > tv.y) {
-          takeHit();
-          break;
+        for (const tv of platformerGame.tvBoxes) {
+          if (p.x < tv.x + tv.width && p.x + p.width > tv.x && p.y < tv.y + tv.height && p.y + p.height > tv.y) {
+            takeHit();
+            break;
+          }
         }
-      }
 
-      if (p.y > platformerCanvas.height + 100) {
-        platformerGame.running = false;
-        alert('Game Over! Rings: ' + platformerGame.score);
-        return;
+        if (p.y > platformerCanvas.height + 100) {
+          platformerGame.running = false;
+          alert('Game Over! Rings: ' + platformerGame.score);
+          return;
+        }
       }
 
       const goal = platformerGame.goal;
-      if (p.x + p.width > goal.x && p.y + p.height > goal.y && p.y < goal.y + goal.height) {
-        setTimeout(nextLevel, 200);
-        return;
+      if (!platformerGame.clearing && p.x + p.width > goal.x && p.y + p.height > goal.y && p.y < goal.y + goal.height) {
+        platformerGame.clearing = true;
+        platformerGame.clearTimer = 550;
+        p.velocityX = 0;
+        p.velocityY = 0;
       }
 
       drawBackground();
@@ -902,6 +919,12 @@
       platformerCtx.closePath();
       platformerCtx.fill();
       platformerCtx.restore();
+
+      if (platformerGame.clearing) {
+        platformerCtx.fillStyle = '#facc15';
+        platformerCtx.font = 'bold 18px Arial';
+        platformerCtx.fillText('STAGE CLEAR!', 290, 70);
+      }
 
       platformerCtx.fillStyle = '#22c55e';
       const goalX = goal.x - cameraX;
