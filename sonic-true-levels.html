@@ -19,6 +19,7 @@
       --text: #e2e8f0;
       --ring-box: #000000;
       --ring-box-frame: #a8b1bc;
+      --glass: rgba(15, 23, 42, 0.72);
     }
 
     * { box-sizing: border-box; }
@@ -93,6 +94,13 @@
       box-shadow: 0 0 0 2px rgba(0,0,0,0.25);
     }
 
+    .game-shell {
+      position: relative;
+      width: min(800px, 100%);
+      margin: 0 auto;
+      display: block;
+    }
+
     canvas {
       display: block;
       width: 100%;
@@ -103,6 +111,52 @@
       background: linear-gradient(to bottom, var(--sky-top), var(--sky-bottom));
       image-rendering: auto;
       touch-action: none;
+    }
+
+    .game-hud {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .game-hud .panel {
+      background: rgba(15, 23, 42, 0.72);
+      border: 2px solid rgba(226,232,240,0.5);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: #f8fafc;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+    }
+
+    .game-hud .mini-ring {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid #d1a82d;
+      background: radial-gradient(circle at center, #fff7d6 0 30%, #ffe27d 31% 100%);
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .game-hud .mini-life {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      background: linear-gradient(#fbbf24, #f97316);
+      border-radius: 50%;
+      border: 2px solid #fef3c7;
+      margin-right: 6px;
+      vertical-align: middle;
     }
 
     .controls {
@@ -126,8 +180,15 @@
       <div class="hud-box">Lives: <span id="lives">3</span></div>
     </div>
 
-    <canvas id="game" width="800" height="400"></canvas>
-    <div class="controls">Arrow keys / A-D to move, Space to jump. Dirt ground, no grassy platforms, loop-de-loops included.</div>
+    <div class="game-shell">
+      <div class="game-hud">
+        <div class="panel"><span class="mini-ring"></span><span id="hud-rings">0</span></div>
+        <div class="panel">SCORE <span id="hud-score">0</span></div>
+        <div class="panel"><span class="mini-life"></span><span id="hud-lives">3</span></div>
+      </div>
+      <canvas id="game" width="800" height="400"></canvas>
+    </div>
+    <div class="controls">Arrow keys / A-D to move, Space to jump. Dirt ground, loop-de-loops, secret zones, and hidden bonus boxes included.</div>
   </div>
 
   <script>
@@ -137,6 +198,9 @@
     const scoreEl = document.getElementById('score');
     const stageEl = document.getElementById('stage');
     const livesEl = document.getElementById('lives');
+    const hudRingsEl = document.getElementById('hud-rings');
+    const hudScoreEl = document.getElementById('hud-score');
+    const hudLivesEl = document.getElementById('hud-lives');
 
     const keys = { left: false, right: false };
 
@@ -173,6 +237,10 @@
           { x: 700, y: 350, w: 30, h: 28, dir: 1 },
           { x: 1460, y: 350, w: 30, h: 28, dir: -1 },
           { x: 2110, y: 350, w: 30, h: 28, dir: 1 }
+        ],
+        secretAreas: [
+          { x: 1040, y: 200, w: 120, h: 90, rewardType: 'life', rewardX: 1098, rewardY: 250, claimed: false },
+          { x: 1740, y: 180, w: 120, h: 90, rewardType: 'ring', rewardX: 1805, rewardY: 240, claimed: false }
         ]
       },
       {
@@ -207,6 +275,10 @@
           { x: 720, y: 350, w: 30, h: 28, dir: 1 },
           { x: 1500, y: 350, w: 30, h: 28, dir: -1 },
           { x: 2130, y: 350, w: 30, h: 28, dir: 1 }
+        ],
+        secretAreas: [
+          { x: 1180, y: 210, w: 130, h: 90, rewardType: 'ring', rewardX: 1250, rewardY: 260, claimed: false },
+          { x: 1845, y: 150, w: 150, h: 95, rewardType: 'life', rewardX: 1918, rewardY: 200, claimed: false }
         ]
       },
       {
@@ -242,6 +314,10 @@
           { x: 700, y: 345, w: 30, h: 28, dir: 1 },
           { x: 1520, y: 345, w: 30, h: 28, dir: -1 },
           { x: 2160, y: 345, w: 30, h: 28, dir: 1 }
+        ],
+        secretAreas: [
+          { x: 1310, y: 160, w: 120, h: 100, rewardType: 'ring', rewardX: 1368, rewardY: 220, claimed: false },
+          { x: 1865, y: 120, w: 140, h: 110, rewardType: 'life', rewardX: 1930, rewardY: 190, claimed: false }
         ]
       }
     ];
@@ -258,18 +334,23 @@
       vy: 0,
       onGround: false,
       score: 0,
+      ringCount: 0,
       lives: 3,
       cameraX: 0,
       invuln: 0,
       animTime: 0,
       rings: [],
-      enemies: []
+      enemies: [],
+      secretItems: []
     };
 
     function updateHUD() {
-      scoreEl.textContent = gameState.score;
+      scoreEl.textContent = gameState.ringCount;
       stageEl.textContent = level.name;
       livesEl.textContent = gameState.lives;
+      hudRingsEl.textContent = gameState.ringCount;
+      hudScoreEl.textContent = gameState.score;
+      hudLivesEl.textContent = gameState.lives;
     }
 
     function drawRing(x, y, radius = 10) {
@@ -312,6 +393,43 @@
       ctx.arc(16, 0, 13, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
+    }
+
+    function drawBonusBox(item) {
+      const x = item.x - gameState.cameraX;
+      const y = item.y;
+      const boxW = 18;
+      const boxH = 18;
+      const isLife = item.type === 'life';
+
+      ctx.fillStyle = '#000';
+      ctx.fillRect(x - boxW / 2, y - boxH / 2, boxW, boxH);
+      ctx.strokeStyle = '#dfe7ef';
+      ctx.strokeRect(x - boxW / 2, y - boxH / 2, boxW, boxH);
+
+      if (isLife) {
+        ctx.fillStyle = '#fbbf24';
+        ctx.fillRect(x - 5, y - 2, 10, 4);
+        ctx.fillRect(x - 2, y - 5, 4, 10);
+      } else {
+        ctx.fillStyle = '#ffd84d';
+        ctx.beginPath();
+        ctx.arc(x, y, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff5bd';
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function drawSecretArea(zone) {
+      const x = zone.x - gameState.cameraX;
+      if (zone.claimed) return;
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.fillRect(x, zone.y, zone.w, zone.h);
+      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+      ctx.strokeRect(x, zone.y, zone.w, zone.h);
     }
 
     function drawEnemy(enemy) {
@@ -524,6 +642,10 @@
         drawBush(bushX + 18, 364, 0.9);
       }
 
+      for (const zone of level.secretAreas) {
+        drawSecretArea(zone);
+      }
+
       drawGround();
       drawPlatforms();
 
@@ -533,6 +655,10 @@
         if (ring.collected) continue;
         const x = ring.x - gameState.cameraX;
         drawRing(x, ring.y, 10);
+      }
+
+      for (const box of gameState.secretItems) {
+        if (!box.collected) drawBonusBox(box);
       }
 
       for (const enemy of gameState.enemies) {
@@ -553,6 +679,8 @@
       gameState.cameraX = 0;
       gameState.rings = level.rings.map(r => ({ ...r, collected: false }));
       gameState.enemies = level.enemies.map(e => ({ ...e }));
+      gameState.secretItems = [];
+      level.secretAreas.forEach((zone) => { zone.claimed = false; });
       gameState.animTime = 0;
       updateHUD();
       drawScene();
@@ -565,17 +693,21 @@
       gameState.vy = 0;
       gameState.cameraX = 0;
       gameState.score = 0;
+      gameState.ringCount = 0;
       gameState.lives = 3;
       gameState.rings = level.rings.map(r => ({ ...r, collected: false }));
       gameState.enemies = level.enemies.map(e => ({ ...e }));
+      gameState.secretItems = [];
+      level.secretAreas.forEach((zone) => { zone.claimed = false; });
       gameState.animTime = 0;
       updateHUD();
     }
 
     function hitPlayer() {
       if (gameState.invuln > 0) return;
-      if (gameState.score > 0) {
-        gameState.score = Math.max(0, gameState.score - 10);
+      if (gameState.ringCount > 0) {
+        gameState.ringCount = Math.max(0, gameState.ringCount - 5);
+        gameState.score = Math.max(0, gameState.score - 25);
         gameState.invuln = 60;
         updateHUD();
         return;
@@ -583,7 +715,7 @@
 
       gameState.lives -= 1;
       if (gameState.lives <= 0) {
-        alert('Game over! Final rings: ' + gameState.score);
+        alert('Game over! Final rings: ' + gameState.ringCount + ' | Score: ' + gameState.score);
         resetLevel();
         return;
       }
@@ -601,10 +733,33 @@
       gameState.onGround = false;
     }
 
-    function collectRingBurst(x, y) {
+    function collectRingBurst(x, y, text = '+15') {
       ctx.fillStyle = '#fef08a';
       ctx.font = 'bold 16px Arial';
-      ctx.fillText('+15', x - gameState.cameraX, y - 24);
+      ctx.fillText(text, x - gameState.cameraX, y - 24);
+    }
+
+    function maybeSpawnSecret() {
+      for (const zone of level.secretAreas) {
+        if (zone.claimed) continue;
+        if (
+          gameState.x + gameState.w > zone.x &&
+          gameState.x < zone.x + zone.w &&
+          gameState.y + gameState.h > zone.y &&
+          gameState.y < zone.y + zone.h
+        ) {
+          zone.claimed = true;
+          const box = {
+            x: zone.rewardX,
+            y: zone.rewardY,
+            type: zone.rewardType,
+            collected: false,
+            reward: zone.rewardType === 'life' ? 1 : 25
+          };
+          gameState.secretItems.push(box);
+          collectRingBurst(zone.rewardX, zone.rewardY, zone.rewardType === 'life' ? '+1 life' : '+25 rings');
+        }
+      }
     }
 
     function update() {
@@ -648,11 +803,35 @@
           gameState.y + gameState.h > ring.y - 14
         ) {
           ring.collected = true;
+          gameState.ringCount += 1;
           gameState.score += 15;
-          collectRingBurst(ring.x, ring.y);
+          collectRingBurst(ring.x, ring.y, '+15');
           updateHUD();
         }
       }
+
+      for (const box of gameState.secretItems) {
+        if (box.collected) continue;
+        if (
+          gameState.x < box.x + 18 &&
+          gameState.x + gameState.w > box.x - 18 &&
+          gameState.y < box.y + 18 &&
+          gameState.y + gameState.h > box.y - 18
+        ) {
+          box.collected = true;
+          if (box.type === 'life') {
+            gameState.lives += 1;
+            collectRingBurst(box.x, box.y, '+1 life');
+          } else {
+            gameState.ringCount += box.reward;
+            gameState.score += box.reward * 10;
+            collectRingBurst(box.x, box.y, '+25 rings');
+          }
+          updateHUD();
+        }
+      }
+
+      maybeSpawnSecret();
 
       for (const enemy of gameState.enemies) {
         enemy.x += enemy.dir * 2;
