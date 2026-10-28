@@ -68,13 +68,8 @@
       background: var(--button-hover);
     }
 
-    .reset-btn {
-      background: var(--danger);
-    }
-
-    .reset-btn:hover {
-      background: var(--danger-hover);
-    }
+    .reset-btn { background: var(--danger); }
+    .reset-btn:hover { background: var(--danger-hover); }
 
     .start-btn {
       background: var(--success);
@@ -82,9 +77,7 @@
       padding: 12px 30px;
     }
 
-    .start-btn:hover {
-      background: var(--success-hover);
-    }
+    .start-btn:hover { background: var(--success-hover); }
 
     .game-info {
       display: flex;
@@ -221,7 +214,14 @@
       {
         name: 'Green Hill',
         act: 'Act 1',
-        theme: { sky: '#87CEEB', skyFade: '#E0F6FF', hill: '#7dd3fc', hill2: '#9ae6b4', ground: '#16a34a', accent: '#15803d' },
+        theme: {
+          sky: '#87CEEB',
+          skyFade: '#E0F6FF',
+          hill: '#7dd3fc',
+          hill2: '#9ae6b4',
+          ground: '#5b3418',
+          accent: '#2a7f3b'
+        },
         width: 2200,
         startX: 50,
         signX: 2040,
@@ -233,24 +233,25 @@
         boss: null,
         platforms: [
           { x: 0, y: 380, width: 520, height: 20 },
-          { x: 620, y: 330, width: 220, height: 20 },
-          { x: 930, y: 270, width: 220, height: 20 },
-          { x: 1260, y: 230, width: 180, height: 20 },
-          { x: 1520, y: 300, width: 180, height: 20 },
-          { x: 1750, y: 260, width: 220, height: 20 },
-          { x: 2000, y: 380, width: 200, height: 20 }
+          { x: 620, y: 380, width: 260, height: 20 },
+          { x: 920, y: 380, width: 300, height: 20 },
+          { x: 1280, y: 380, width: 240, height: 20 },
+          { x: 1580, y: 380, width: 280, height: 20 },
+          { x: 1900, y: 380, width: 300, height: 20 }
         ],
         loops: [
-          { x: 640, y: 330, radius: 72 },
-          { x: 1450, y: 270, radius: 84 }
+          { x: 620, y: 320, radius: 72 },
+          { x: 1450, y: 270, radius: 84 },
+          { x: 1820, y: 300, radius: 70 }
         ],
         rings: [
           { x: 220, y: 320 }, { x: 310, y: 260 }, { x: 700, y: 280 }, { x: 1020, y: 220 },
           { x: 1340, y: 180 }, { x: 1600, y: 250 }, { x: 1800, y: 210 }, { x: 2060, y: 330 }
         ],
         enemies: [
-          { x: 700, y: 350, width: 30, height: 30, dir: 1 },
-          { x: 1460, y: 350, width: 30, height: 30, dir: -1 }
+          { x: 720, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 1450, y: 350, width: 30, height: 30, dir: -1 },
+          { x: 1960, y: 350, width: 30, height: 30, dir: 1 }
         ],
         tvBoxes: [
           { x: 1120, y: 345, width: 34, height: 35 },
@@ -258,142 +259,97 @@
         ]
       },
       {
-        name: 'Green Hill',
-        act: 'Act 2',
-        theme: { sky: '#8ecae6', skyFade: '#dff3ff', hill: '#90cdf4', hill2: '#86efac', ground: '#22c55e', accent: '#14532d' },
+        name: 'Sky Sanctuary',
+        act: 'Act 1',
+        theme: {
+          sky: '#1e1b4b',
+          skyFade: '#a5b4fc',
+          hill: '#4f46e5',
+          hill2: '#c4b5fd',
+          ground: '#422f17',
+          accent: '#e9d5ff'
+        },
         width: 2600,
         startX: 60,
-        signX: 2480,
-        goal: { x: 2520, y: 160, width: 26, height: 100 },
+        signX: 2440,
+        goal: { x: 2500, y: 170, width: 26, height: 100 },
         checkpoints: [
-          { x: 620, y: 300, active: false },
-          { x: 1760, y: 160, active: false }
+          { x: 700, y: 285, active: false },
+          { x: 1700, y: 200, active: false }
         ],
         boss: null,
         platforms: [
-          { x: 0, y: 380, width: 420, height: 20 },
-          { x: 520, y: 340, width: 140, height: 20 },
-          { x: 720, y: 300, width: 150, height: 20 },
-          { x: 980, y: 250, width: 180, height: 20 },
-          { x: 1270, y: 220, width: 170, height: 20 },
-          { x: 1510, y: 270, width: 200, height: 20 },
-          { x: 1780, y: 210, width: 190, height: 20 },
-          { x: 2020, y: 170, width: 170, height: 20 },
-          { x: 2280, y: 380, width: 320, height: 20 }
+          { x: 0, y: 380, width: 430, height: 20 },
+          { x: 520, y: 380, width: 280, height: 20 },
+          { x: 900, y: 380, width: 260, height: 20 },
+          { x: 1260, y: 380, width: 220, height: 20 },
+          { x: 1600, y: 380, width: 260, height: 20 },
+          { x: 1950, y: 380, width: 250, height: 20 },
+          { x: 2240, y: 380, width: 360, height: 20 }
         ],
         loops: [
-          { x: 470, y: 330, radius: 70 },
-          { x: 1280, y: 220, radius: 90 },
-          { x: 2050, y: 170, radius: 78 }
-        ],
-        rings: [
-          { x: 180, y: 330 }, { x: 580, y: 290 }, { x: 780, y: 250 }, { x: 1040, y: 200 },
-          { x: 1330, y: 170 }, { x: 1560, y: 220 }, { x: 1840, y: 160 }, { x: 2080, y: 120 },
-          { x: 2330, y: 330 }
-        ],
-        enemies: [
-          { x: 540, y: 350, width: 30, height: 30, dir: 1 },
-          { x: 1580, y: 350, width: 30, height: 30, dir: -1 },
-          { x: 2140, y: 350, width: 30, height: 30, dir: 1 }
-        ],
-        tvBoxes: [
-          { x: 915, y: 345, width: 34, height: 35 },
-          { x: 1680, y: 345, width: 34, height: 35 },
-          { x: 2410, y: 345, width: 34, height: 35 }
-        ]
-      },
-      {
-        name: 'Sky Sanctuary',
-        act: 'Act 1',
-        theme: { sky: '#1e1b4b', skyFade: '#a5b4fc', hill: '#4f46e5', hill2: '#c4b5fd', ground: '#312e81', accent: '#c4b5fd' },
-        width: 3000,
-        startX: 70,
-        signX: 2860,
-        goal: { x: 2900, y: 150, width: 26, height: 100 },
-        checkpoints: [
-          { x: 620, y: 290, active: false },
-          { x: 1780, y: 180, active: false }
-        ],
-        boss: {
-          x: 2550,
-          y: 300,
-          width: 80,
-          height: 80,
-          dir: -1,
-          speed: 2,
-          health: 3
-        },
-        platforms: [
-          { x: 0, y: 380, width: 360, height: 20 },
-          { x: 450, y: 320, width: 150, height: 20 },
-          { x: 700, y: 260, width: 180, height: 20 },
-          { x: 970, y: 200, width: 150, height: 20 },
-          { x: 1230, y: 260, width: 180, height: 20 },
-          { x: 1470, y: 310, width: 170, height: 20 },
-          { x: 1750, y: 230, width: 180, height: 20 },
-          { x: 1980, y: 180, width: 170, height: 20 },
-          { x: 2200, y: 240, width: 160, height: 20 },
-          { x: 2440, y: 310, width: 170, height: 20 },
-          { x: 2660, y: 380, width: 340, height: 20 }
-        ],
-        loops: [
-          { x: 620, y: 320, radius: 88 },
-          { x: 1520, y: 310, radius: 92 },
-          { x: 2360, y: 300, radius: 85 }
+          { x: 650, y: 320, radius: 88 },
+          { x: 1360, y: 280, radius: 90 },
+          { x: 2050, y: 280, radius: 78 }
         ],
         rings: [
           { x: 180, y: 330 }, { x: 520, y: 270 }, { x: 760, y: 210 }, { x: 1030, y: 150 },
           { x: 1260, y: 210 }, { x: 1510, y: 260 }, { x: 1770, y: 180 }, { x: 2030, y: 130 },
-          { x: 2250, y: 190 }, { x: 2500, y: 260 }, { x: 2730, y: 330 }
+          { x: 2250, y: 190 }, { x: 2460, y: 270 }
         ],
         enemies: [
-          { x: 560, y: 350, width: 30, height: 30, dir: 1 },
-          { x: 1260, y: 350, width: 30, height: 30, dir: -1 },
+          { x: 540, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 1280, y: 350, width: 30, height: 30, dir: -1 },
           { x: 1750, y: 350, width: 30, height: 30, dir: 1 },
-          { x: 2430, y: 350, width: 30, height: 30, dir: -1 }
+          { x: 2360, y: 350, width: 30, height: 30, dir: -1 }
         ],
         tvBoxes: [
           { x: 905, y: 345, width: 34, height: 35 },
           { x: 1655, y: 345, width: 34, height: 35 },
-          { x: 2160, y: 345, width: 34, height: 35 }
+          { x: 2150, y: 345, width: 34, height: 35 }
         ]
       },
       {
         name: 'Marble Zone',
         act: 'Act 1',
-        theme: { sky: '#e2e8f0', skyFade: '#f8fafc', hill: '#cbd5e1', hill2: '#94a3b8', ground: '#475569', accent: '#f8fafc' },
-        width: 3200,
+        theme: {
+          sky: '#e2e8f0',
+          skyFade: '#f8fafc',
+          hill: '#cbd5e1',
+          hill2: '#94a3b8',
+          ground: '#473c2d',
+          accent: '#f8fafc'
+        },
+        width: 3000,
         startX: 60,
-        signX: 3080,
-        goal: { x: 3120, y: 170, width: 26, height: 100 },
+        signX: 2860,
+        goal: { x: 2900, y: 170, width: 26, height: 100 },
         checkpoints: [
           { x: 760, y: 250, active: false },
           { x: 2060, y: 180, active: false }
         ],
         boss: null,
         platforms: [
-          { x: 0, y: 380, width: 450, height: 20 },
-          { x: 540, y: 330, width: 160, height: 20 },
-          { x: 780, y: 280, width: 170, height: 20 },
-          { x: 1060, y: 220, width: 170, height: 20 },
-          { x: 1310, y: 180, width: 170, height: 20 },
-          { x: 1565, y: 250, width: 180, height: 20 },
-          { x: 1810, y: 300, width: 180, height: 20 },
-          { x: 2060, y: 220, width: 170, height: 20 },
-          { x: 2320, y: 180, width: 170, height: 20 },
-          { x: 2590, y: 260, width: 200, height: 20 },
-          { x: 2875, y: 380, width: 325, height: 20 }
+          { x: 0, y: 380, width: 480, height: 20 },
+          { x: 560, y: 380, width: 200, height: 20 },
+          { x: 820, y: 380, width: 240, height: 20 },
+          { x: 1120, y: 380, width: 220, height: 20 },
+          { x: 1420, y: 380, width: 200, height: 20 },
+          { x: 1700, y: 380, width: 260, height: 20 },
+          { x: 2040, y: 380, width: 260, height: 20 },
+          { x: 2380, y: 380, width: 240, height: 20 },
+          { x: 2680, y: 380, width: 320, height: 20 }
         ],
         loops: [
-          { x: 570, y: 330, radius: 70 },
-          { x: 1370, y: 180, radius: 90 },
-          { x: 2335, y: 180, radius: 86 },
+          { x: 600, y: 330, radius: 70 },
+          { x: 1450, y: 210, radius: 90 },
+          { x: 2370, y: 190, radius: 86 },
           { x: 2700, y: 260, radius: 75 }
         ],
         rings: [
           { x: 200, y: 330 }, { x: 600, y: 280 }, { x: 860, y: 230 }, { x: 1130, y: 170 },
           { x: 1365, y: 140 }, { x: 1620, y: 210 }, { x: 1875, y: 260 }, { x: 2140, y: 170 },
-          { x: 2380, y: 130 }, { x: 2660, y: 210 }, { x: 2940, y: 330 }
+          { x: 2380, y: 130 }, { x: 2660, y: 210 }, { x: 2860, y: 330 }
         ],
         enemies: [
           { x: 610, y: 350, width: 30, height: 30, dir: 1 },
@@ -405,66 +361,6 @@
           { x: 980, y: 345, width: 34, height: 35 },
           { x: 1920, y: 345, width: 34, height: 35 },
           { x: 2820, y: 345, width: 34, height: 35 }
-        ]
-      },
-      {
-        name: 'Crystal Cave',
-        act: 'Act 1',
-        theme: { sky: '#0f172a', skyFade: '#dbeafe', hill: '#60a5fa', hill2: '#38bdf8', ground: '#0f766e', accent: '#67e8f9' },
-        width: 3400,
-        startX: 70,
-        signX: 3260,
-        goal: { x: 3320, y: 150, width: 26, height: 100 },
-        checkpoints: [
-          { x: 860, y: 230, active: false },
-          { x: 2140, y: 140, active: false },
-          { x: 2920, y: 285, active: false }
-        ],
-        boss: {
-          x: 2880,
-          y: 300,
-          width: 80,
-          height: 80,
-          dir: -1,
-          speed: 2.5,
-          health: 4
-        },
-        platforms: [
-          { x: 0, y: 380, width: 400, height: 20 },
-          { x: 480, y: 310, width: 180, height: 20 },
-          { x: 760, y: 250, width: 170, height: 20 },
-          { x: 1040, y: 200, width: 170, height: 20 },
-          { x: 1280, y: 250, width: 170, height: 20 },
-          { x: 1520, y: 300, width: 200, height: 20 },
-          { x: 1800, y: 220, width: 170, height: 20 },
-          { x: 2050, y: 170, width: 170, height: 20 },
-          { x: 2320, y: 230, width: 180, height: 20 },
-          { x: 2580, y: 300, width: 200, height: 20 },
-          { x: 2860, y: 380, width: 250, height: 20 },
-          { x: 3160, y: 380, width: 240, height: 20 }
-        ],
-        loops: [
-          { x: 650, y: 300, radius: 90 },
-          { x: 1270, y: 250, radius: 88 },
-          { x: 2120, y: 170, radius: 82 },
-          { x: 2850, y: 300, radius: 78 }
-        ],
-        rings: [
-          { x: 170, y: 330 }, { x: 540, y: 260 }, { x: 820, y: 200 }, { x: 1100, y: 150 },
-          { x: 1330, y: 200 }, { x: 1575, y: 250 }, { x: 1835, y: 170 }, { x: 2100, y: 120 },
-          { x: 2370, y: 180 }, { x: 2640, y: 250 }, { x: 2910, y: 330 }, { x: 3200, y: 330 }
-        ],
-        enemies: [
-          { x: 540, y: 350, width: 30, height: 30, dir: 1 },
-          { x: 1280, y: 350, width: 30, height: 30, dir: -1 },
-          { x: 1800, y: 350, width: 30, height: 30, dir: 1 },
-          { x: 2600, y: 350, width: 30, height: 30, dir: -1 }
-        ],
-        tvBoxes: [
-          { x: 935, y: 345, width: 34, height: 35 },
-          { x: 1710, y: 345, width: 34, height: 35 },
-          { x: 2430, y: 345, width: 34, height: 35 },
-          { x: 3050, y: 345, width: 34, height: 35 }
         ]
       }
     ];
@@ -888,7 +784,27 @@
       platformerCtx.fillStyle = '#8B4513';
       platformerGame.platforms.forEach(plat => {
         const drawX = plat.x - cameraX;
-        platformerCtx.fillRect(drawX, plat.y, plat.width, plat.height);
+        const dirtH = plat.height;
+        const grassH = 12;
+
+        platformerCtx.fillStyle = '#7a4a25';
+        platformerCtx.fillRect(drawX, plat.y, plat.width, dirtH);
+
+        for (let x = 0; x < plat.width; x += 18) {
+          for (let y = 0; y < dirtH; y += 18) {
+            const checker = ((x / 18 + y / 18) % 2 === 0) ? '#8f532a' : '#734720';
+            platformerCtx.fillStyle = checker;
+            platformerCtx.fillRect(drawX + x, plat.y + y, 18, 18);
+          }
+        }
+
+        platformerCtx.fillStyle = '#39b54a';
+        platformerCtx.fillRect(drawX, plat.y - grassH, plat.width, grassH);
+
+        platformerCtx.fillStyle = '#2f9e44';
+        for (let x = 0; x < plat.width; x += 14) {
+          platformerCtx.fillRect(drawX + x, plat.y - grassH + 4, 8, 4);
+        }
       });
 
       platformerGame.loops.forEach(loop => {
@@ -998,31 +914,31 @@
         const x = ((i * 180) - (cameraX * 0.3)) % (platformerCanvas.width + 200);
         platformerCtx.beginPath();
         platformerCtx.arc(x, 80, 28, 0, Math.PI * 2);
-        platformerCtx.arc(x + 30, 60, 26, 0, Math.PI * 2);
-        platformerCtx.arc(x + 60, 80, 28, 0, Math.PI * 2);
+        platformerCtx.arc(x + 30, 70, 22, 0, Math.PI * 2);
+        platformerCtx.arc(x - 30, 70, 22, 0, Math.PI * 2);
         platformerCtx.fill();
       }
 
       platformerCtx.fillStyle = theme.hill;
       for (let i = 0; i < 6; i++) {
-        const hillX = ((i * 220) - (cameraX * 0.5)) % (platformerCanvas.width + 250);
+        const hillX = ((i * 220) - (cameraX * 0.55)) % (platformerCanvas.width + 300);
         platformerCtx.beginPath();
         platformerCtx.moveTo(hillX, 400);
-        platformerCtx.quadraticCurveTo(hillX + 60, 260, hillX + 120, 400);
+        platformerCtx.quadraticCurveTo(hillX + 90, 220, hillX + 180, 400);
         platformerCtx.fill();
       }
 
       platformerCtx.fillStyle = theme.hill2;
       for (let i = 0; i < 5; i++) {
-        const hillX = ((i * 250) - (cameraX * 0.65)) % (platformerCanvas.width + 300);
+        const hillX = ((i * 250) - (cameraX * 0.65)) % (platformerCanvas.width + 350);
         platformerCtx.beginPath();
         platformerCtx.moveTo(hillX, 400);
-        platformerCtx.quadraticCurveTo(hillX + 80, 300, hillX + 160, 400);
+        platformerCtx.quadraticCurveTo(hillX + 80, 260, hillX + 160, 400);
         platformerCtx.fill();
       }
 
       platformerCtx.fillStyle = theme.ground;
-      platformerCtx.fillRect(0, 380, platformerCanvas.width, 20);
+      platformerCtx.fillRect(0, 380, platformerCanvas.width, 40);
     }
   </script>
 </body>
