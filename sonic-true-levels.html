@@ -6,118 +6,125 @@
   <title>Sonic True Levels</title>
   <style>
     :root {
-      --sky-top: #87d8ff;
-      --sky-bottom: #dff6ff;
-      --dirt-dark: #4c2d16;
-      --dirt-mid: #694625;
-      --dirt-light: #82542d;
-      --grass: #46c26a;
-      --grass-dark: #2a9f4d;
-      --ring: #ffd84d;
-      --ring-core: #fff5bd;
-      --panel: rgba(15, 23, 42, 0.82);
-      --text: #e2e8f0;
-      --ring-box: #000000;
-      --ring-box-frame: #a8b1bc;
-      --glass: rgba(15, 23, 42, 0.72);
+      --sky-top: #7ed8ff;
+      --sky-bottom: #e8f9ff;
+      --grass: #4cc56f;
+      --grass-dark: #2d9e4d;
+      --dirt: #4b2e16;
+      --bridge: #8a5a2b;
+      --bridge-dark: #643b1d;
+      --panel: rgba(15, 23, 42, 0.8);
+      --panel-border: rgba(255,255,255,0.2);
+      --text: #eef6ff;
+      --ring: #ffd553;
+      --ring-core: #fff6c2;
+      --blue: #1b73ff;
+      --blue-dark: #0d4fcf;
+      --red: #d93333;
+      --red-dark: #9b1d1d;
+      --gold: #facc15;
+      --shadow: rgba(0,0,0,0.25);
     }
 
     * { box-sizing: border-box; }
-    body {
+    html, body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
       background: linear-gradient(#06131f, #0b1d2a);
       color: var(--text);
     }
 
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 20px 12px 40px;
+    }
+
     .wrap {
-      width: min(980px, 92vw);
-      margin: 28px auto;
+      width: min(980px, 94vw);
       background: var(--panel);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 20px 45px rgba(0,0,0,.35);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+      padding: 22px 20px 18px;
     }
 
     h1 {
-      margin: 0 0 8px;
+      margin: 0 0 12px;
       text-align: center;
       font-size: clamp(28px, 4vw, 42px);
+      letter-spacing: 1px;
     }
 
     .hud {
       display: flex;
       justify-content: center;
-      gap: 12px;
       flex-wrap: wrap;
-      margin: 12px 0 18px;
-      font-weight: bold;
+      gap: 12px;
+      margin-bottom: 16px;
+      font-weight: 700;
     }
 
     .hud-box {
       background: rgba(15, 23, 42, 0.9);
-      border: 2px solid rgba(148, 163, 184, .35);
+      border: 2px solid rgba(148, 163, 184, 0.38);
       border-radius: 10px;
       padding: 8px 16px;
-      font-size: 18px;
+      font-size: clamp(16px, 2vw, 20px);
+      min-width: 120px;
+      text-align: center;
     }
 
     .ring-display {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 120px;
-      justify-content: center;
-    }
-
-    .ring-tv {
-      width: 30px;
-      height: 30px;
-      background: var(--ring-box);
-      border: 3px solid var(--ring-box-frame);
-      border-radius: 6px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.06);
+      gap: 12px;
+    }
+
+    .ring-tv {
+      display: inline-block;
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      background: #000;
+      border: 3px solid #a5b4c5;
+      position: relative;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.08);
     }
 
     .ring-tv::before {
       content: "";
-      width: 18px;
-      height: 18px;
-      display: inline-block;
+      position: absolute;
+      inset: 5px;
       border-radius: 50%;
-      background: radial-gradient(circle at center, #fff7d6 0 25%, var(--ring-core) 26% 38%, var(--ring) 39% 100%);
-      border: 3px solid #ddb64a;
-      box-shadow: 0 0 0 2px rgba(0,0,0,0.25);
+      background: radial-gradient(circle at center, #fff9d5 0 30%, var(--ring-core) 31% 38%, var(--ring) 39% 100%);
+      border: 2px solid #d7ac3d;
     }
 
     .game-shell {
       position: relative;
       width: min(800px, 100%);
       margin: 0 auto;
-      display: block;
     }
 
     canvas {
       display: block;
       width: 100%;
-      max-width: 800px;
       height: auto;
-      margin: 0 auto;
-      border: 2px solid rgba(255,255,255,.8);
-      background: linear-gradient(to bottom, var(--sky-top), var(--sky-bottom));
-      image-rendering: auto;
+      background: linear-gradient(var(--sky-top), var(--sky-bottom));
+      border: 2px solid rgba(255,255,255,0.8);
+      border-radius: 4px;
       touch-action: none;
     }
 
     .game-hud {
       position: absolute;
-      top: 10px;
       left: 12px;
       right: 12px;
+      top: 10px;
       display: flex;
       justify-content: space-between;
       gap: 8px;
@@ -127,43 +134,75 @@
 
     .game-hud .panel {
       background: rgba(15, 23, 42, 0.72);
-      border: 2px solid rgba(226,232,240,0.5);
+      border: 2px solid rgba(226, 232, 240, 0.4);
       border-radius: 8px;
       padding: 6px 10px;
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 1px;
       color: #f8fafc;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
     }
 
-    .game-hud .mini-ring {
+    .mini-ring {
       display: inline-block;
       width: 12px;
       height: 12px;
       border-radius: 50%;
+      background: radial-gradient(circle at center, #fff7d6 0 28%, #ffe27d 29% 100%);
       border: 2px solid #d1a82d;
-      background: radial-gradient(circle at center, #fff7d6 0 30%, #ffe27d 31% 100%);
       margin-right: 6px;
       vertical-align: middle;
     }
 
-    .game-hud .mini-life {
+    .mini-life {
       display: inline-block;
       width: 12px;
       height: 12px;
-      background: linear-gradient(#fbbf24, #f97316);
       border-radius: 50%;
+      background: linear-gradient(#fbbf24, #f97316);
       border: 2px solid #fef3c7;
       margin-right: 6px;
       vertical-align: middle;
     }
 
     .controls {
-      text-align: center;
       margin-top: 12px;
+      text-align: center;
       color: #dfe7ef;
       font-size: 15px;
+    }
+
+    .touch-bar {
+      display: none;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .touch-btn {
+      user-select: none;
+      background: rgba(255,255,255,0.12);
+      border: 2px solid rgba(255,255,255,0.28);
+      color: white;
+      min-width: 62px;
+      height: 46px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+      touch-action: manipulation;
+    }
+
+    .touch-btn:active, .touch-btn.active {
+      background: rgba(255,255,255,0.24);
+      transform: translateY(1px);
+    }
+
+    @media (pointer: coarse) {
+      .touch-bar { display: flex; }
     }
   </style>
 </head>
@@ -188,7 +227,15 @@
       </div>
       <canvas id="game" width="800" height="400"></canvas>
     </div>
-    <div class="controls">Arrow keys / A-D to move, Space to jump. Shift or S = spin dash, springs and secret zones included.</div>
+
+    <div class="controls">Arrow keys / A-D to move, Space to jump. Shift or S = spin dash. Spin-jump piranhas to destroy them.</div>
+
+    <div class="touch-bar" aria-label="Touch controls">
+      <button class="touch-btn" data-key="left">◀</button>
+      <button class="touch-btn" data-key="right">▶</button>
+      <button class="touch-btn" data-key="jump">JUMP</button>
+      <button class="touch-btn" data-key="spin">SPIN</button>
+    </div>
   </div>
 
   <script>
@@ -202,904 +249,590 @@
     const hudScoreEl = document.getElementById('hud-score');
     const hudLivesEl = document.getElementById('hud-lives');
 
-    const keys = { left: false, right: false, spin: false, down: false };
+    const keys = { left: false, right: false, jump: false, spin: false };
+    const touchButtons = [...document.querySelectorAll('.touch-btn')];
 
-    const levels = [
-      {
-        name: 'Green Hill',
-        width: 2400,
-        startX: 60,
-        goalX: 2280,
-        groundY: 380,
-        skyTop: '#87d8ff',
-        skyBottom: '#dff6ff',
-        grass: '#46c26a',
-        ground: '#4c2d16',
-        loops: [
-          { x: 620, y: 310, radius: 70 },
-          { x: 1460, y: 270, radius: 86 },
-          { x: 1980, y: 290, radius: 74 }
-        ],
-        springs: [
-          { x: 500, y: 360, w: 24, h: 12 },
-          { x: 1350, y: 360, w: 24, h: 12 }
-        ],
-        totems: [
-          { x: 260, y: 320, h: 50 },
-          { x: 620, y: 310, h: 70 },
-          { x: 1660, y: 315, h: 60 }
-        ],
-        platforms: [
-          { x: 0, y: 380, w: 420, h: 20 },
-          { x: 520, y: 380, w: 280, h: 20 },
-          { x: 900, y: 380, w: 260, h: 20 },
-          { x: 1240, y: 380, w: 250, h: 20 },
-          { x: 1560, y: 380, w: 300, h: 20 },
-          { x: 1940, y: 380, w: 420, h: 20 }
-        ],
-        rings: [
-          { x: 180, y: 330 }, { x: 380, y: 300 }, { x: 650, y: 290 },
-          { x: 980, y: 220 }, { x: 1340, y: 190 }, { x: 1600, y: 250 },
-          { x: 1820, y: 210 }, { x: 2060, y: 250 }, { x: 2230, y: 310 }
-        ],
-        enemies: [
-          { x: 700, y: 350, w: 30, h: 28, dir: 1 },
-          { x: 1460, y: 350, w: 30, h: 28, dir: -1 },
-          { x: 2110, y: 350, w: 30, h: 28, dir: 1 }
-        ],
-        secretAreas: [
-          { x: 1080, y: 210, w: 120, h: 90, rewardType: 'life', rewardX: 1140, rewardY: 250, claimed: false },
-          { x: 1755, y: 180, w: 110, h: 80, rewardType: 'ring', rewardX: 1810, rewardY: 235, claimed: false }
-        ]
-      },
-      {
-        name: 'Marble Zone',
-        width: 2450,
-        startX: 60,
-        goalX: 2320,
-        groundY: 380,
-        skyTop: '#8fd3ff',
-        skyBottom: '#d4e6ff',
-        grass: '#7a82b8',
-        ground: '#575f7a',
-        loops: [
-          { x: 640, y: 300, radius: 78 },
-          { x: 1510, y: 250, radius: 92 },
-          { x: 2010, y: 300, radius: 80 }
-        ],
-        springs: [
-          { x: 950, y: 360, w: 24, h: 12 },
-          { x: 1880, y: 360, w: 24, h: 12 }
-        ],
-        totems: [
-          { x: 780, y: 315, h: 60 },
-          { x: 1480, y: 295, h: 70 },
-          { x: 2180, y: 318, h: 52 }
-        ],
-        platforms: [
-          { x: 0, y: 380, w: 430, h: 20 },
-          { x: 540, y: 380, w: 300, h: 20 },
-          { x: 930, y: 380, w: 250, h: 20 },
-          { x: 1280, y: 380, w: 230, h: 20 },
-          { x: 1600, y: 380, w: 320, h: 20 },
-          { x: 1970, y: 380, w: 430, h: 20 }
-        ],
-        rings: [
-          { x: 220, y: 330 }, { x: 420, y: 300 }, { x: 650, y: 265 },
-          { x: 980, y: 235 }, { x: 1385, y: 200 }, { x: 1640, y: 250 },
-          { x: 1860, y: 220 }, { x: 2090, y: 260 }, { x: 2250, y: 310 }
-        ],
-        enemies: [
-          { x: 720, y: 350, w: 30, h: 28, dir: 1 },
-          { x: 1500, y: 350, w: 30, h: 28, dir: -1 },
-          { x: 2130, y: 350, w: 30, h: 28, dir: 1 }
-        ],
-        secretAreas: [
-          { x: 1200, y: 200, w: 130, h: 90, rewardType: 'ring', rewardX: 1270, rewardY: 255, claimed: false },
-          { x: 1850, y: 150, w: 150, h: 95, rewardType: 'life', rewardX: 1920, rewardY: 200, claimed: false }
-        ]
-      },
-      {
-        name: 'Death Egg',
-        width: 2600,
-        startX: 80,
-        goalX: 2450,
-        groundY: 372,
-        skyTop: '#7a7f8e',
-        skyBottom: '#dfe7ef',
-        grass: '#5b6b7a',
-        ground: '#434b61',
-        loops: [
-          { x: 680, y: 300, radius: 76 },
-          { x: 1540, y: 260, radius: 90 },
-          { x: 2090, y: 300, radius: 80 }
-        ],
-        springs: [
-          { x: 820, y: 360, w: 24, h: 12 },
-          { x: 1710, y: 360, w: 24, h: 12 },
-          { x: 2230, y: 360, w: 24, h: 12 }
-        ],
-        totems: [
-          { x: 330, y: 312, h: 58 },
-          { x: 1400, y: 305, h: 60 },
-          { x: 1960, y: 300, h: 62 }
-        ],
-        platforms: [
-          { x: 0, y: 372, w: 420, h: 20 },
-          { x: 550, y: 380, w: 280, h: 20 },
-          { x: 980, y: 350, w: 170, h: 18 },
-          { x: 1260, y: 380, w: 260, h: 20 },
-          { x: 1590, y: 320, w: 180, h: 18 },
-          { x: 1810, y: 380, w: 410, h: 20 },
-          { x: 2285, y: 335, w: 220, h: 18 }
-        ],
-        rings: [
-          { x: 210, y: 320 }, { x: 430, y: 300 }, { x: 700, y: 260 },
-          { x: 990, y: 255 }, { x: 1280, y: 220 }, { x: 1490, y: 200 },
-          { x: 1740, y: 260 }, { x: 1955, y: 230 }, { x: 2255, y: 290 }, { x: 2460, y: 230 }
-        ],
-        enemies: [
-          { x: 760, y: 345, w: 30, h: 28, dir: 1 },
-          { x: 1525, y: 345, w: 30, h: 28, dir: -1 },
-          { x: 2160, y: 345, w: 30, h: 28, dir: 1 }
-        ],
-        secretAreas: [
-          { x: 1160, y: 150, w: 140, h: 100, rewardType: 'ring', rewardX: 1230, rewardY: 220, claimed: false },
-          { x: 2010, y: 120, w: 150, h: 110, rewardType: 'life', rewardX: 2080, rewardY: 190, claimed: false }
-        ]
-      }
-    ];
+    const level = {
+      name: 'Green Hill',
+      width: 2400,
+      groundY: 380,
+      startX: 60,
+      goalX: 2260,
+      bridge: { x: 360, y: 260, w: 260, h: 120 },
+      flowerPositions: [
+        { x: 120, y: 360 }, { x: 210, y: 360 }, { x: 600, y: 360 },
+        { x: 1020, y: 360 }, { x: 1370, y: 360 }, { x: 1880, y: 360 },
+        { x: 2200, y: 360 }
+      ],
+      palms: [
+        { x: 480, y: 312, scale: 1.15 },
+        { x: 1180, y: 318, scale: 1.25 },
+        { x: 1760, y: 312, scale: 1.05 },
+        { x: 2080, y: 324, scale: 1.2 }
+      ]
+    };
 
-    let levelIndex = 0;
-    let level = levels[levelIndex];
-    const gameState = {
-      x: level.startX,
-      y: 300,
-      w: 30,
-      h: 42,
-      vx: 0,
-      vy: 0,
-      onGround: false,
+    const game = {
+      cameraX: 0,
       score: 0,
       ringCount: 0,
       lives: 3,
-      cameraX: 0,
-      invuln: 0,
-      animTime: 0,
-      spinCharge: 0,
-      spinTimer: 0,
-      curling: 0,
-      ending: null,
-      rings: [],
-      enemies: [],
-      secretItems: []
+      anim: 0,
+      ending: false,
+      over: false,
+      message: '',
+      player: {
+        x: level.startX,
+        y: 300,
+        w: 30,
+        h: 42,
+        vx: 0,
+        vy: 0,
+        onGround: false,
+        dir: 1,
+        invuln: 0,
+        spinTime: 0,
+        spinCharge: 0,
+        jumpHeld: false,
+        lookDir: 1
+      },
+      rings: [
+        { x: 160, y: 330, collected: false }, { x: 360, y: 300, collected: false },
+        { x: 520, y: 290, collected: false }, { x: 700, y: 260, collected: false },
+        { x: 980, y: 220, collected: false }, { x: 1320, y: 190, collected: false },
+        { x: 1600, y: 250, collected: false }, { x: 1820, y: 210, collected: false },
+        { x: 2050, y: 250, collected: false }, { x: 2230, y: 310, collected: false }
+      ],
+      piranhas: [
+        { x: 430, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 0, out: false, alive: true },
+        { x: 500, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 20, out: false, alive: true },
+        { x: 585, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 40, out: false, alive: true }
+      ]
     };
 
     function updateHUD() {
-      scoreEl.textContent = gameState.ringCount;
+      scoreEl.textContent = game.ringCount;
       stageEl.textContent = level.name;
-      livesEl.textContent = gameState.lives;
-      hudRingsEl.textContent = gameState.ringCount;
-      hudScoreEl.textContent = gameState.score;
-      hudLivesEl.textContent = gameState.lives;
+      livesEl.textContent = game.lives;
+      hudRingsEl.textContent = game.ringCount;
+      hudScoreEl.textContent = game.score;
+      hudLivesEl.textContent = game.lives;
     }
 
-    function drawRing(x, y, radius = 10) {
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffd84d';
-      ctx.fill();
-      ctx.closePath();
-
-      ctx.beginPath();
-      ctx.arc(x, y, radius * 0.52, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff5bd';
-      ctx.fill();
-      ctx.closePath();
+    function resetGame() {
+      game.player.x = level.startX;
+      game.player.y = 300;
+      game.player.vx = 0;
+      game.player.vy = 0;
+      game.player.onGround = false;
+      game.player.invuln = 0;
+      game.player.spinTime = 0;
+      game.player.spinCharge = 0;
+      game.player.jumpHeld = false;
+      game.cameraX = 0;
+      game.score = 0;
+      game.ringCount = 0;
+      game.lives = 3;
+      game.rings.forEach(r => r.collected = false);
+      game.piranhas.forEach((p, i) => {
+        p.x = 430 + i * 70;
+        p.y = p.baseY;
+        p.out = false;
+        p.alive = true;
+        p.jumpTimer = i * 18;
+      });
+      updateHUD();
     }
 
-    function drawLoop(loop) {
-      const drawX = loop.x - gameState.cameraX;
-      ctx.strokeStyle = '#f8fbff';
-      ctx.lineWidth = 9;
-      ctx.beginPath();
-      ctx.arc(drawX, loop.y, loop.radius, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.strokeStyle = '#152534';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.arc(drawX, loop.y, loop.radius - 14, 0, Math.PI * 2);
-      ctx.stroke();
+    function setKeyState(name, pressed) {
+      if (name in keys) keys[name] = pressed;
+      const btn = document.querySelector(`.touch-btn[data-key="${name}"]`);
+      if (btn) btn.classList.toggle('active', pressed);
     }
 
-    function drawTotem(totem) {
-      const x = totem.x - gameState.cameraX;
-      const baseY = level.groundY;
-      const trunkH = totem.h;
-      const trunkW = 10;
-      ctx.fillStyle = '#6b4c32';
-      ctx.fillRect(x - trunkW / 2, baseY - trunkH, trunkW, trunkH);
-
-      ctx.fillStyle = '#8a5d3a';
-      ctx.fillRect(x - 20, baseY - trunkH - 14, 40, 16);
-      ctx.fillRect(x - 18, baseY - trunkH - 20, 36, 8);
-      ctx.fillStyle = '#f4c95d';
-      ctx.fillRect(x - 8, baseY - trunkH - 12, 16, 6);
-    }
-
-    function drawSpring(spring) {
-      const x = spring.x - gameState.cameraX;
-      const y = spring.y;
-      const w = spring.w;
-      const h = spring.h;
-
-      ctx.fillStyle = '#f8fafc';
-      for (let i = 0; i < 5; i++) {
-        ctx.fillRect(x + 2 + i * 4, y - 2, 2, h + 2);
+    document.addEventListener('keydown', (event) => {
+      const key = event.key.toLowerCase();
+      if (key === 'arrowleft' || key === 'a') setKeyState('left', true);
+      if (key === 'arrowright' || key === 'd') setKeyState('right', true);
+      if (key === ' ' || key === 'arrowup' || key === 'w') {
+        event.preventDefault();
+        setKeyState('jump', true);
       }
-      ctx.fillStyle = '#e2e8f0';
-      ctx.fillRect(x, y, w, 6);
-      ctx.fillStyle = '#94a3b8';
-      ctx.fillRect(x + 4, y + 2, w - 8, 4);
-    }
+      if (key === 'shift' || key === 's') setKeyState('spin', true);
+    });
 
-    function drawBush(x, y, scale = 1) {
+    document.addEventListener('keyup', (event) => {
+      const key = event.key.toLowerCase();
+      if (key === 'arrowleft' || key === 'a') setKeyState('left', false);
+      if (key === 'arrowright' || key === 'd') setKeyState('right', false);
+      if (key === ' ' || key === 'arrowup' || key === 'w') setKeyState('jump', false);
+      if (key === 'shift' || key === 's') setKeyState('spin', false);
+    });
+
+    touchButtons.forEach(btn => {
+      const key = btn.dataset.key;
+      const start = (ev) => {
+        ev.preventDefault();
+        setKeyState(key, true);
+      };
+      const end = (ev) => {
+        ev.preventDefault();
+        setKeyState(key, false);
+      };
+      btn.addEventListener('pointerdown', start);
+      btn.addEventListener('pointerup', end);
+      btn.addEventListener('pointerleave', end);
+      btn.addEventListener('pointercancel', end);
+    });
+
+    function drawSunflower(x, y, scale = 1) {
       ctx.save();
       ctx.translate(x, y);
       ctx.scale(scale, scale);
-      ctx.fillStyle = '#2ba34a';
+      ctx.fillStyle = '#7a3f18';
+      ctx.fillRect(-4, 0, 8, 30);
+      ctx.fillStyle = '#5cc63b';
       ctx.beginPath();
-      ctx.arc(-14, 0, 12, 0, Math.PI * 2);
-      ctx.arc(0, -8, 16, 0, Math.PI * 2);
-      ctx.arc(16, 0, 13, 0, Math.PI * 2);
+      ctx.arc(0, -10, 22, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#f4d35e';
+      for (let i = 0; i < 12; i++) {
+        const ang = (Math.PI * 2 * i) / 12;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(ang) * 18, -18 + Math.sin(ang) * 18);
+        ctx.lineTo(Math.cos(ang) * 8, -8 + Math.sin(ang) * 8);
+        ctx.fill();
+      }
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.arc(0, -10, 10, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
 
-    function drawBonusBox(item) {
-      const x = item.x - gameState.cameraX;
-      const y = item.y;
-      const boxW = 18;
-      const boxH = 18;
-      const isLife = item.type === 'life';
+    function drawPalmTree(x, y, scale = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.strokeStyle = '#7a4e2a';
+      ctx.lineWidth = 10;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(0, -58);
+      ctx.stroke();
 
-      ctx.fillStyle = '#000';
-      ctx.fillRect(x - boxW / 2, y - boxH / 2, boxW, boxH);
-      ctx.strokeStyle = '#dfe7ef';
-      ctx.strokeRect(x - boxW / 2, y - boxH / 2, boxW, boxH);
+      ctx.strokeStyle = '#3dbd52';
+      ctx.lineWidth = 5;
+      for (let i = 0; i < 8; i++) {
+        const a = (-0.8 + i * 0.24);
+        ctx.beginPath();
+        ctx.moveTo(0, -52);
+        ctx.quadraticCurveTo(18 * Math.cos(a), -72, 38 * Math.cos(a), -104 + 15 * Math.sin(a));
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
 
-      if (isLife) {
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillRect(x - 5, y - 2, 10, 4);
-        ctx.fillRect(x - 2, y - 5, 4, 10);
-      } else {
-        ctx.fillStyle = '#ffd84d';
-        ctx.beginPath();
-        ctx.arc(x, y, 6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fff5bd';
-        ctx.beginPath();
-        ctx.arc(x, y, 3, 0, Math.PI * 2);
-        ctx.fill();
+    function drawBridge() {
+      const b = level.bridge;
+      const x = b.x - game.cameraX;
+      ctx.fillStyle = '#8b5a2d';
+      ctx.fillRect(x, b.y, b.w, 18);
+      ctx.fillStyle = '#a56f36';
+      for (let i = 0; i < 5; i++) {
+        ctx.fillRect(x + 22 + i * 52, b.y + 10, 10, 36);
+      }
+      ctx.fillStyle = '#5f391e';
+      for (let i = 0; i < 6; i++) {
+        ctx.fillRect(x + 8 + i * 42, b.y + 18, 6, 90);
+      }
+      ctx.fillStyle = '#402515';
+      ctx.fillRect(x, b.y + 18, b.w, 8);
+    }
+
+    function drawGround() {
+      const baseY = level.groundY;
+      ctx.fillStyle = '#5d3520';
+      ctx.fillRect(0, baseY, canvas.width, canvas.height - baseY);
+      for (let x = -20; x < canvas.width + 40; x += 28) {
+        const shade = ((Math.floor((x + game.cameraX * 0.25) / 28)) % 2 === 0) ? '#6d4327' : '#4d2d17';
+        ctx.fillStyle = shade;
+        ctx.fillRect(x, baseY, 28, 26);
+      }
+      ctx.fillStyle = '#4cc56f';
+      ctx.fillRect(0, baseY - 14, canvas.width, 14);
+      for (let x = 0; x < canvas.width + 20; x += 14) {
+        ctx.fillStyle = '#3db75b';
+        ctx.fillRect(x, baseY - 10, 8, 4);
       }
     }
 
-    function drawSecretArea(zone) {
-      const x = zone.x - gameState.cameraX;
-      if (zone.claimed) return;
-      ctx.fillStyle = 'rgba(255,255,255,0.08)';
-      ctx.fillRect(x, zone.y, zone.w, zone.h);
-      ctx.strokeStyle = 'rgba(255,255,255,0.18)';
-      ctx.strokeRect(x, zone.y, zone.w, zone.h);
+    function drawRing(ring) {
+      if (ring.collected) return;
+      const x = ring.x - game.cameraX;
+      const y = ring.y;
+      ctx.beginPath();
+      ctx.arc(x, y, 10, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffd553';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff6c2';
+      ctx.fill();
     }
 
-    function drawEnemy(enemy) {
-      const x = enemy.x - gameState.cameraX;
-      const bob = Math.sin(gameState.animTime / 10) * 1.5;
-      const bodyX = x + 4;
-      const bodyY = enemy.y + 4 + bob;
+    function drawPiranha(p) {
+      if (!p.alive) return;
+      const x = p.x - game.cameraX;
+      const y = p.y;
+      const bob = Math.sin(game.anim * 0.14 + p.jumpTimer) * 2;
+      const bodyY = y + bob;
 
-      ctx.fillStyle = '#f7f7f7';
-      ctx.fillRect(bodyX + 4, bodyY + 5, enemy.w - 12, 6);
+      ctx.fillStyle = '#3fbf52';
+      ctx.beginPath();
+      ctx.ellipse(x, bodyY, 18, 12, 0, 0, Math.PI * 2);
+      ctx.fill();
 
-      ctx.fillStyle = '#ef4444';
-      ctx.fillRect(bodyX, bodyY + 8, enemy.w - 2, enemy.h - 10);
+      ctx.fillStyle = '#2d8c3d';
+      ctx.beginPath();
+      ctx.moveTo(x + 14, bodyY - 2);
+      ctx.lineTo(x + 24, bodyY + 3);
+      ctx.lineTo(x + 18, bodyY + 9);
+      ctx.closePath();
+      ctx.fill();
 
-      ctx.fillStyle = '#b91c1c';
-      ctx.fillRect(bodyX + 6, bodyY + 2, enemy.w - 16, 9);
+      ctx.fillStyle = '#f4f7fb';
+      ctx.fillRect(x - 6, bodyY - 4, 5, 5);
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(x - 5, bodyY - 3, 2, 2);
 
       ctx.fillStyle = '#f8fafc';
-      ctx.fillRect(bodyX + 8, bodyY + 11, 5, 5);
-      ctx.fillRect(bodyX + 16, bodyY + 11, 5, 5);
-
-      ctx.fillStyle = '#111827';
-      ctx.fillRect(bodyX + 7, bodyY + 18, 4, 7);
-      ctx.fillRect(bodyX + 19, bodyY + 18, 4, 7);
-
+      ctx.fillRect(x - 6, bodyY + 4, 8, 3);
       ctx.fillStyle = '#fca5a5';
-      ctx.fillRect(bodyX + 3, bodyY + 14, 4, 7);
-      ctx.fillRect(bodyX + enemy.w - 7, bodyY + 14, 4, 7);
-
-      ctx.fillStyle = '#111827';
-      ctx.fillRect(bodyX + 2, bodyY + 23, 5, 6);
-      ctx.fillRect(bodyX + enemy.w - 7, bodyY + 23, 5, 6);
-
-      ctx.fillStyle = '#e0f2fe';
-      ctx.fillRect(bodyX + 6, bodyY + 2, 18, 4);
+      ctx.fillRect(x - 15, bodyY - 1, 5, 5);
+      ctx.fillRect(x - 15, bodyY + 7, 5, 3);
+      ctx.fillStyle = '#1d4d1a';
+      ctx.fillRect(x - 3, bodyY + 10, 6, 3);
+      ctx.fillRect(x + 8, bodyY + 5, 4, 3);
     }
 
     function drawPlayer() {
-      const x = gameState.x - gameState.cameraX;
-      const y = gameState.y;
-      const blinking = gameState.invuln > 0 && Math.floor(gameState.invuln / 8) % 2 === 0;
-      const runCycle = gameState.animTime / 5;
-      const moving = Math.abs(gameState.vx) > 0.2;
-      const bob = moving ? Math.sin(runCycle) * 2.5 : 0;
-      const pose = gameState.curling > 0 || gameState.spinTimer > 0 || gameState.spinning;
-      const armSwing = moving ? Math.sin(runCycle) * 18 : 0;
-      const legSwing = moving ? Math.sin(runCycle + Math.PI) * 12 : 0;
+      const p = game.player;
+      const x = p.x - game.cameraX;
+      const y = p.y;
+      const blink = p.invuln > 0 && Math.floor(p.invuln / 8) % 2 === 0;
+      const moving = Math.abs(p.vx) > 0.2;
+      const bob = moving ? Math.sin(game.anim / 5) * 2 : 0;
+      const spinPose = p.spinTime > 0 || Math.abs(p.vx) > 7;
+      const face = p.lookDir;
 
       ctx.save();
       ctx.translate(x + 15, y + 21 + bob);
-      ctx.rotate(Math.atan2(gameState.vy, gameState.vx || 1) * 0.18);
+      ctx.scale(face, 1);
 
-      if (pose) {
-        ctx.fillStyle = blinking ? '#f8fafc' : '#0a66ff';
+      if (spinPose) {
+        ctx.fillStyle = blink ? '#f8fafc' : '#1e74ff';
         ctx.beginPath();
         ctx.arc(0, 0, 15, 0, Math.PI * 2);
         ctx.fill();
 
         ctx.fillStyle = '#fef3c7';
-        ctx.fillRect(-8, -10, 16, 8);
-
+        ctx.fillRect(-10, -10, 20, 8);
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-5, -8, 3, 3);
-        ctx.fillRect(2, -8, 3, 3);
-
+        ctx.fillRect(-4, -6, 3, 3);
+        ctx.fillRect(1, -6, 3, 3);
         ctx.fillStyle = '#fbbf24';
-        ctx.fillRect(-3, 6, 6, 4);
+        ctx.fillRect(-4, 6, 8, 4);
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-8, -2, 4, 8);
-        ctx.fillRect(4, -2, 4, 8);
-
+        ctx.fillRect(-12, -2, 4, 9);
+        ctx.fillRect(8, -2, 4, 9);
       } else {
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-12, 12, 24, 3);
+        ctx.fillRect(-12, 11, 24, 3);
 
-        ctx.fillStyle = blinking ? '#f8fafc' : '#0a66ff';
-        ctx.fillRect(-8, -15, 16, 18);
+        ctx.fillStyle = blink ? '#f8fafc' : '#1c7fff';
+        ctx.fillRect(-9, -14, 18, 18);
 
         ctx.fillStyle = '#dbeafe';
-        ctx.fillRect(-8, -28, 16, 12);
+        ctx.fillRect(-8, -27, 16, 12);
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-4, -28, 3, 3);
-        ctx.fillRect(1, -28, 3, 3);
+        ctx.fillRect(-4, -27, 3, 3);
+        ctx.fillRect(1, -27, 3, 3);
 
         ctx.fillStyle = '#fef3c7';
         ctx.fillRect(-6, -34, 12, 8);
 
-        ctx.fillStyle = '#f8fafc';
-        ctx.fillRect(-8, -7, 4, 12);
-        ctx.fillRect(4, -7, 4, 12);
+        ctx.fillStyle = '#f4d35e';
+        ctx.fillRect(-12, -8, 4, 12);
+        ctx.fillRect(8, -8, 4, 12);
 
-        ctx.fillStyle = '#ff7a18';
-        ctx.fillRect(-10, 6, 7, 5);
-        ctx.fillRect(3, 6, 7, 5);
+        ctx.fillStyle = '#d93333';
+        ctx.fillRect(-10, 7, 7, 5);
+        ctx.fillRect(3, 7, 7, 5);
 
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillRect(-6, 9, 12, 5);
+        ctx.fillStyle = '#f9d87b';
+        ctx.fillRect(-5, 10, 10, 5);
 
         ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-9, 14 + legSwing * 0.4, 5, 10);
-        ctx.fillRect(4, 14 - legSwing * 0.4, 5, 10);
-        ctx.fillRect(-13 + armSwing * 0.3, -9, 5, 11);
-        ctx.fillRect(8 - armSwing * 0.3, -9, 5, 11);
-
-        ctx.fillStyle = '#ffedd5';
-        ctx.fillRect(-10, 24 + legSwing * 0.2, 7, 4);
-        ctx.fillRect(3, 24 - legSwing * 0.2, 7, 4);
-
-        ctx.fillStyle = '#ffbf69';
-        ctx.fillRect(-10, 0, 20, 2);
+        ctx.fillRect(-7, 14, 5, 10);
+        ctx.fillRect(2, 14, 5, 10);
+        ctx.fillRect(-11, -8, 4, 11);
+        ctx.fillRect(7, -8, 4, 11);
       }
       ctx.restore();
-    }
-
-    function drawGround() {
-      const baseY = level.groundY;
-      const groundH = 100;
-
-      ctx.fillStyle = level.ground;
-      ctx.fillRect(0, baseY, canvas.width, groundH);
-
-      for (let x = -20; x < canvas.width + 40; x += 24) {
-        const checker = ((Math.floor((x + gameState.cameraX * 0.25) / 24)) % 2 === 0) ? '#59351a' : '#4b2b14';
-        ctx.fillStyle = checker;
-        ctx.fillRect(x, baseY, 24, 26);
-      }
-
-      ctx.fillStyle = level.grass;
-      ctx.fillRect(0, baseY - 12, canvas.width, 12);
-
-      for (let x = 0; x < canvas.width; x += 14) {
-        ctx.fillStyle = '#2e9e49';
-        ctx.fillRect(x, baseY - 10, 8, 4);
-      }
-    }
-
-    function drawPlatforms() {
-      for (const plat of level.platforms) {
-        const x = plat.x - gameState.cameraX;
-        if (x + plat.w < -40 || x > canvas.width + 40) continue;
-
-        ctx.fillStyle = '#7a4d2a';
-        ctx.fillRect(x, plat.y, plat.w, plat.h);
-
-        for (let px = 0; px < plat.w; px += 18) {
-          for (let py = 0; py < plat.h; py += 18) {
-            const d = ((px / 18) + (py / 18)) % 2 === 0 ? '#8a532d' : '#724521';
-            ctx.fillStyle = d;
-            ctx.fillRect(x + px, plat.y + py, 18, 18);
-          }
-        }
-      }
-    }
-
-    function drawGoal() {
-      const x = level.goalX - gameState.cameraX;
-      const spin = gameState.animTime * 0.08;
-
-      ctx.fillStyle = '#925734';
-      ctx.fillRect(x + 10, 180, 12, 170);
-      ctx.fillStyle = '#7a4627';
-      ctx.fillRect(x - 10, 334, 52, 16);
-
-      ctx.save();
-      ctx.translate(x + 16, 170);
-      ctx.rotate(spin);
-
-      ctx.fillStyle = '#f8fafc';
-      ctx.beginPath();
-      ctx.arc(0, 0, 28, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.strokeStyle = '#d62828';
-      ctx.lineWidth = 5;
-      ctx.stroke();
-
-      ctx.fillStyle = '#d62828';
-      ctx.beginPath();
-      ctx.arc(0, 0, 18, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#f8fafc';
-      ctx.fillRect(-22, -4, 44, 8);
-      ctx.fillRect(-4, -22, 8, 44);
-
-      ctx.beginPath();
-      ctx.moveTo(-3, -18);
-      ctx.lineTo(3, -18);
-      ctx.lineTo(0, -28);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(18, -3);
-      ctx.lineTo(18, 3);
-      ctx.lineTo(28, 0);
-      ctx.closePath();
-      ctx.fill();
-
-      ctx.fillStyle = '#facc15';
-      ctx.beginPath();
-      ctx.arc(0, 0, 8, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.restore();
-    }
-
-    function drawEndingEffect() {
-      if (!gameState.ending) return;
-      const t = gameState.ending.timer;
-      const ex = 620 + (t * 1.8);
-      const ey = 210 - Math.min(t * 0.7, 110);
-      const r = 10 + t * 1.35;
-
-      ctx.fillStyle = 'rgba(255,255,255,0.08)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = 'rgba(255, 209, 102, 0.9)';
-      ctx.beginPath();
-      ctx.arc(ex, ey, r, 0, Math.PI * 2);
-      ctx.fill();
-
-      for (let i = 0; i < 20; i++) {
-        const angle = (Math.PI * 2 * i) / 20 + t * 0.08;
-        const px = ex + Math.cos(angle) * (r + 18 + i * 1.4);
-        const py = ey + Math.sin(angle) * (r + 18 + i * 1.4);
-        ctx.fillStyle = i % 2 ? '#f97316' : '#facc15';
-        ctx.fillRect(px - 3, py - 3, 6, 6);
-      }
-
-      if (t > 36) {
-        ctx.fillStyle = '#f8fafc';
-        ctx.font = 'bold 30px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('THE END', canvas.width / 2, canvas.height / 2 - 10);
-        ctx.font = 'bold 18px Arial';
-        ctx.fillText('Sonic saved the world', canvas.width / 2, canvas.height / 2 + 24);
-      }
     }
 
     function drawScene() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = level.skyTop;
+      ctx.fillStyle = '#8ad8ff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.fillStyle = '#ffffff';
-      for (let i = 0; i < 7; i++) {
-        const x = ((i * 180) - (gameState.cameraX * 0.2)) % (canvas.width + 200);
+      for (let i = 0; i < 8; i++) {
+        const cloudX = ((i * 180) - (game.cameraX * 0.18)) % (canvas.width + 180);
         ctx.beginPath();
-        ctx.arc(x, 80, 26, 0, Math.PI * 2);
+        ctx.arc(cloudX, 72, 24, 0, Math.PI * 2);
+        ctx.arc(cloudX + 26, 66, 28, 0, Math.PI * 2);
+        ctx.arc(cloudX + 58, 72, 22, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      ctx.fillStyle = '#8dd7ff';
-      for (let i = 0; i < 6; i++) {
-        const hillX = ((i * 220) - (gameState.cameraX * 0.55)) % (canvas.width + 300);
+      ctx.fillStyle = '#8cd6ff';
+      for (let i = 0; i < 7; i++) {
+        const hillX = ((i * 220) - (game.cameraX * 0.48)) % (canvas.width + 260);
         ctx.beginPath();
         ctx.moveTo(hillX, 400);
-        ctx.quadraticCurveTo(hillX + 90, 220, hillX + 180, 400);
+        ctx.quadraticCurveTo(hillX + 80, 230, hillX + 180, 400);
         ctx.fill();
       }
 
-      for (let i = 0; i < 10; i++) {
-        const bushX = ((i * 160) - (gameState.cameraX * 0.7)) % (canvas.width + 180);
-        drawBush(bushX + 18, 364, 0.9);
+      for (const flower of level.flowerPositions) {
+        drawSunflower(flower.x - game.cameraX, flower.y, 0.72);
       }
 
-      if (level.totems) {
-        for (const totem of level.totems) drawTotem(totem);
-      }
-
-      for (const zone of level.secretAreas) {
-        drawSecretArea(zone);
+      for (const palm of level.palms) {
+        drawPalmTree(palm.x - game.cameraX, palm.y, palm.scale);
       }
 
       drawGround();
-      drawPlatforms();
-      for (const spring of level.springs) drawSpring(spring);
-      for (const loop of level.loops) drawLoop(loop);
+      drawBridge();
 
-      for (const ring of gameState.rings) {
-        if (ring.collected) continue;
-        const x = ring.x - gameState.cameraX;
-        drawRing(x, ring.y, 10);
-      }
-
-      for (const box of gameState.secretItems) {
-        if (!box.collected) drawBonusBox(box);
-      }
-
-      for (const enemy of gameState.enemies) {
-        drawEnemy(enemy);
-      }
-
-      drawGoal();
+      game.rings.forEach(drawRing);
+      game.piranhas.forEach(drawPiranha);
       drawPlayer();
-      drawEndingEffect();
+
+      if (game.message) {
+        ctx.fillStyle = 'rgba(15,23,42,0.35)';
+        ctx.fillRect(170, 120, 460, 70);
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = 'bold 30px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(game.message, canvas.width / 2, 160);
+      }
     }
 
-    function setLevel(nextIndex) {
-      levelIndex = (nextIndex + levels.length) % levels.length;
-      level = levels[levelIndex];
-      gameState.x = level.startX;
-      gameState.y = 300;
-      gameState.vx = 0;
-      gameState.vy = 0;
-      gameState.cameraX = 0;
-      gameState.rings = level.rings.map(r => ({ ...r, collected: false }));
-      gameState.enemies = level.enemies.map(e => ({ ...e }));
-      gameState.secretItems = [];
-      level.secretAreas.forEach((zone) => { zone.claimed = false; });
-      gameState.animTime = 0;
-      gameState.ending = null;
-      gameState.spinCharge = 0;
-      gameState.spinTimer = 0;
-      gameState.curling = 0;
-      updateHUD();
-      drawScene();
+    function onGroundCollision() {
+      const p = game.player;
+      const groundY = level.groundY;
+      if (p.y + p.h >= groundY && p.vy >= 0) {
+        p.y = groundY - p.h;
+        p.vy = 0;
+        p.onGround = true;
+      }
+
+      const b = level.bridge;
+      const playerRight = p.x + p.w;
+      const playerLeft = p.x;
+      const bridgeLeft = b.x;
+      const bridgeRight = b.x + b.w;
+      const topOfBridge = b.y + 18;
+      const bottomOfBridge = b.y + 90;
+      const playerBottom = p.y + p.h;
+      const playerTop = p.y;
+
+      if (
+        playerBottom >= topOfBridge &&
+        playerBottom <= bottomOfBridge + 12 &&
+        p.vy >= 0 &&
+        playerRight > bridgeLeft &&
+        playerLeft < bridgeRight &&
+        playerTop < topOfBridge + 8
+      ) {
+        p.y = topOfBridge - p.h;
+        p.vy = 0;
+        p.onGround = true;
+      }
     }
 
-    function resetLevel() {
-      gameState.x = level.startX;
-      gameState.y = 300;
-      gameState.vx = 0;
-      gameState.vy = 0;
-      gameState.cameraX = 0;
-      gameState.score = 0;
-      gameState.ringCount = 0;
-      gameState.lives = 3;
-      gameState.rings = level.rings.map(r => ({ ...r, collected: false }));
-      gameState.enemies = level.enemies.map(e => ({ ...e }));
-      gameState.secretItems = [];
-      gameState.ending = null;
-      gameState.spinCharge = 0;
-      gameState.spinTimer = 0;
-      gameState.curling = 0;
-      level.secretAreas.forEach((zone) => { zone.claimed = false; });
-      gameState.animTime = 0;
-      updateHUD();
+    function collectRings() {
+      const p = game.player;
+      for (const ring of game.rings) {
+        if (ring.collected) continue;
+        const dx = Math.abs((ring.x + 4) - (p.x + p.w / 2));
+        const dy = Math.abs((ring.y + 4) - (p.y + p.h / 2));
+        if (dx < 18 && dy < 18) {
+          ring.collected = true;
+          game.ringCount += 1;
+          game.score += 25;
+          updateHUD();
+        }
+      }
     }
 
-    function hitPlayer() {
-      if (gameState.invuln > 0) return;
-      if (gameState.ringCount > 0) {
-        gameState.ringCount = Math.max(0, gameState.ringCount - 5);
-        gameState.score = Math.max(0, gameState.score - 25);
-        gameState.invuln = 60;
+    function damagePlayer() {
+      const p = game.player;
+      if (p.invuln > 0) return;
+      if (game.ringCount > 0) {
+        game.ringCount = Math.max(0, game.ringCount - 5);
+        game.score = Math.max(0, game.score - 25);
+        p.invuln = 60;
         updateHUD();
         return;
       }
-
-      gameState.lives -= 1;
-      if (gameState.lives <= 0) {
-        alert('Game over! Final rings: ' + gameState.ringCount + ' | Score: ' + gameState.score);
-        resetLevel();
+      game.lives -= 1;
+      updateHUD();
+      if (game.lives <= 0) {
+        game.message = 'GAME OVER';
+        game.over = true;
         return;
       }
-      gameState.x = level.startX;
-      gameState.y = 300;
-      gameState.vx = 0;
-      gameState.vy = 0;
-      gameState.invuln = 90;
-      updateHUD();
+      p.x = level.startX;
+      p.y = 300;
+      p.vx = 0;
+      p.vy = 0;
+      p.invuln = 90;
+      game.cameraX = 0;
     }
 
-    function jump() {
-      if (!gameState.onGround) return;
-      gameState.vy = -12;
-      gameState.onGround = false;
-      gameState.curling = 14;
-    }
+    function piranhaHitCheck() {
+      const p = game.player;
+      for (const piranha of game.piranhas) {
+        if (!piranha.alive) continue;
+        const overlap = (
+          p.x + p.w > piranha.x &&
+          p.x < piranha.x + piranha.w &&
+          p.y + p.h > piranha.y &&
+          p.y < piranha.y + piranha.h
+        );
+        if (!overlap) continue;
 
-    function collectRingBurst(x, y, text = '+15') {
-      ctx.fillStyle = '#fef08a';
-      ctx.font = 'bold 16px Arial';
-      ctx.fillText(text, x - gameState.cameraX, y - 24);
-    }
-
-    function maybeSpawnSecret() {
-      for (const zone of level.secretAreas) {
-        if (zone.claimed) continue;
-        if (
-          gameState.x + gameState.w > zone.x &&
-          gameState.x < zone.x + zone.w &&
-          gameState.y + gameState.h > zone.y &&
-          gameState.y < zone.y + zone.h
-        ) {
-          zone.claimed = true;
-          const box = {
-            x: zone.rewardX,
-            y: zone.rewardY,
-            type: zone.rewardType,
-            collected: false,
-            reward: zone.rewardType === 'life' ? 1 : 25
-          };
-          gameState.secretItems.push(box);
-          collectRingBurst(zone.rewardX, zone.rewardY, zone.rewardType === 'life' ? '+1 life' : '+25 rings');
+        const stomp = (p.y + p.h) <= (piranha.y + 10) && p.vy > 0;
+        if (stomp && (p.spinTime > 0 || p.vy > 4.3)) {
+          piranha.alive = false;
+          p.vy = -8;
+          game.score += 150;
+          updateHUD();
+          continue;
         }
+
+        damagePlayer();
       }
     }
 
-    function checkLoops() {
-      for (const loop of level.loops) {
-        const cx = loop.x;
-        const cy = loop.y;
-        const px = gameState.x + gameState.w / 2;
-        const py = gameState.y + gameState.h / 2;
-        const dx = px - cx;
-        const dy = py - cy;
-        const dist = Math.hypot(dx, dy);
-        const close = dist < loop.radius + 18;
-        const aboveLoop = py < cy && gameState.vy >= 0;
+    function updatePiranhas() {
+      for (const piranha of game.piranhas) {
+        if (!piranha.alive) continue;
+        piranha.jumpTimer += 1;
+        const shouldPop = Math.abs(game.player.x - piranha.x) < 180 && game.player.x > 340 && game.player.x < 700;
+        const t = (piranha.jumpTimer % 120) / 120;
 
-        if (close && aboveLoop) {
-          const angle = Math.atan2(dy, dx);
-          const lift = Math.max(0, (loop.radius - dist) / 8);
-          gameState.y -= lift;
-          gameState.vy = -2.4 - lift * 0.3;
-          gameState.curling = 8;
-          gameState.x += Math.cos(angle) * 0.8;
-        }
-      }
-    }
-
-    function checkSprings() {
-      for (const spring of level.springs) {
-        const px = gameState.x + gameState.w;
-        const py = gameState.y + gameState.h;
-        const sx1 = spring.x;
-        const sx2 = spring.x + spring.w;
-        const sy1 = spring.y;
-        const sy2 = spring.y + spring.h;
-
-        if (
-          px > sx1 && gameState.x < sx2 &&
-          py >= sy1 && py <= sy2 + 10 &&
-          gameState.vy >= 0
-        ) {
-          gameState.y = spring.y - gameState.h - 2;
-          gameState.vy = -16;
-          gameState.vx *= 1.2;
-          gameState.curling = 16;
-        }
-      }
-    }
-
-    function checkGoal() {
-      if (gameState.x + gameState.w > level.goalX && gameState.y + gameState.h > 250 && gameState.y < 360) {
-        if (levelIndex === levels.length - 1) {
-          if (!gameState.ending) {
-            gameState.ending = { timer: 0 };
-            gameState.vx = 0;
-            gameState.vy = 0;
-          }
+        if (shouldPop) {
+          const pop = Math.max(0, Math.sin(t * Math.PI * 2));
+          piranha.out = pop > 0.1;
+          piranha.y = piranha.baseY - pop * 24;
         } else {
-          const nextStage = levelIndex + 1;
-          setLevel(nextStage);
+          piranha.out = false;
+          piranha.y = piranha.baseY;
         }
       }
+    }
+
+    function handleInput() {
+      const p = game.player;
+      if (keys.left) {
+        p.vx = -5;
+        p.lookDir = -1;
+      } else if (keys.right) {
+        p.vx = 5;
+        p.lookDir = 1;
+      } else {
+        p.vx *= 0.82;
+      }
+
+      if (keys.spin && p.onGround) {
+        p.spinCharge = Math.min(28, p.spinCharge + 2.4);
+      }
+
+      if (!keys.spin && p.spinCharge > 0) {
+        p.spinTime = 18;
+        p.vx = p.lookDir * (7 + p.spinCharge * 0.35);
+        p.spinCharge = 0;
+      }
+
+      if (keys.jump && p.onGround) {
+        p.vy = -12;
+        p.onGround = false;
+      }
+
+      if (p.spinTime > 0) {
+        p.spinTime -= 1;
+        p.vx *= 1.02;
+      }
+
+      if (p.invuln > 0) p.invuln -= 1;
+    }
+
+    function updatePlayer() {
+      const p = game.player;
+      p.vy += 0.65;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.onGround = false;
+
+      if (p.x < 0) p.x = 0;
+      if (p.x + p.w > level.width) p.x = level.width - p.w;
+
+      onGroundCollision();
+
+      if (p.y + p.h > canvas.height) {
+        p.y = canvas.height - p.h;
+        p.vy = 0;
+        p.onGround = true;
+      }
+
+      if (p.x + p.w > level.goalX && p.y + p.h > 250 && p.y < 360) {
+        game.message = 'STAGE CLEAR!';
+        game.ending = true;
+      }
+
+      if (game.ending) {
+        if (game.player.vx > 0) game.player.vx = 0;
+      }
+
+      game.cameraX = Math.max(0, Math.min(level.width - canvas.width, p.x - canvas.width / 2 + 60));
     }
 
     function update() {
-      if (gameState.ending) {
-        gameState.ending.timer += 1;
-        if (gameState.ending.timer > 180) {
-          setLevel(0);
-        }
+      if (game.over) {
         drawScene();
-        requestAnimationFrame(update);
         return;
       }
 
-      gameState.animTime += 1;
-      if (gameState.curling > 0) gameState.curling -= 1;
-      if (gameState.spinTimer > 0) gameState.spinTimer -= 1;
-      if (gameState.spinTimer === 0) gameState.spinning = false;
-
-      if (keys.spin && gameState.onGround) {
-        gameState.spinCharge = Math.min(28, gameState.spinCharge + 2);
+      game.anim += 1;
+      handleInput();
+      updatePiranhas();
+      updatePlayer();
+      collectRings();
+      piranhaHitCheck();
+      if (game.ending) {
+        game.message = 'STAGE CLEAR!';
       }
-
-      if (!keys.spin && gameState.spinCharge > 0) {
-        const dir = (keys.left ? -1 : keys.right ? 1 : (gameState.vx >= 0 ? 1 : -1));
-        gameState.vx = dir * (7 + gameState.spinCharge * 0.4);
-        gameState.spinTimer = 22;
-        gameState.spinning = true;
-        gameState.spinCharge = 0;
-      }
-
-      if (keys.left) gameState.vx = -5;
-      else if (keys.right) gameState.vx = 5;
-      else gameState.vx *= 0.8;
-
-      if (gameState.spinning) {
-        gameState.vx *= 1.04;
-      }
-
-      if (gameState.invuln > 0) gameState.invuln -= 1;
-
-      gameState.vy += 0.6;
-      gameState.x += gameState.vx;
-      gameState.y += gameState.vy;
-
-      if (gameState.x < 0) gameState.x = 0;
-      if (gameState.x + gameState.w > level.width) gameState.x = level.width - gameState.w;
-
-      let grounded = false;
-      for (const plat of level.platforms) {
-        if (
-          gameState.vy >= 0 &&
-          gameState.y + gameState.h >= plat.y &&
-          gameState.y + gameState.h <= plat.y + 30 &&
-          gameState.x + gameState.w > plat.x &&
-          gameState.x < plat.x + plat.w
-        ) {
-          gameState.y = plat.y - gameState.h;
-          gameState.vy = 0;
-          grounded = true;
-        }
-      }
-      gameState.onGround = grounded;
-
-      checkLoops();
-      checkSprings();
-
-      for (const ring of gameState.rings) {
-        if (ring.collected) continue;
-        if (
-          gameState.x < ring.x + 18 &&
-          gameState.x + gameState.w > ring.x - 14 &&
-          gameState.y < ring.y + 18 &&
-          gameState.y + gameState.h > ring.y - 14
-        ) {
-          ring.collected = true;
-          gameState.ringCount += 1;
-          gameState.score += 15;
-          collectRingBurst(ring.x, ring.y, '+15');
-          updateHUD();
-        }
-      }
-
-      for (const box of gameState.secretItems) {
-        if (box.collected) continue;
-        if (
-          gameState.x < box.x + 18 &&
-          gameState.x + gameState.w > box.x - 18 &&
-          gameState.y < box.y + 18 &&
-          gameState.y + gameState.h > box.y - 18
-        ) {
-          box.collected = true;
-          if (box.type === 'life') {
-            gameState.lives += 1;
-            collectRingBurst(box.x, box.y, '+1 life');
-          } else {
-            gameState.ringCount += box.reward;
-            gameState.score += box.reward * 10;
-            collectRingBurst(box.x, box.y, '+25 rings');
-          }
-          updateHUD();
-        }
-      }
-
-      maybeSpawnSecret();
-
-      for (const enemy of gameState.enemies) {
-        enemy.x += enemy.dir * 2;
-        if (enemy.x < 200 || enemy.x > level.width - 200) enemy.dir *= -1;
-
-        if (
-          gameState.x < enemy.x + enemy.w &&
-          gameState.x + gameState.w > enemy.x &&
-          gameState.y < enemy.y + enemy.h &&
-          gameState.y + gameState.h > enemy.y
-        ) {
-          hitPlayer();
-        }
-      }
-
-      if (gameState.y > canvas.height + 150) {
-        hitPlayer();
-      }
-
-      checkGoal();
-
-      gameState.cameraX = Math.max(0, Math.min(level.width - canvas.width, gameState.x - 220));
       drawScene();
       requestAnimationFrame(update);
     }
 
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') keys.left = true;
-      if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') keys.right = true;
-      if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') keys.down = true;
-      if (e.key === 'Shift' || e.key === 'S' || e.key === 's') keys.spin = true;
-      if (e.key === ' ' || e.code === 'Space') {
-        e.preventDefault();
-        jump();
-      }
-    });
-
-    window.addEventListener('keyup', (e) => {
-      if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') keys.left = false;
-      if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') keys.right = false;
-      if (e.key === 'ArrowDown' || e.key.toLowerCase() === 's') keys.down = false;
-      if (e.key === 'Shift' || e.key === 'S' || e.key === 's') keys.spin = false;
-    });
-
-    setLevel(levelIndex);
+    resetGame();
     updateHUD();
     drawScene();
     requestAnimationFrame(update);
