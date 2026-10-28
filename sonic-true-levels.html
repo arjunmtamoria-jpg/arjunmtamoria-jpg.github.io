@@ -301,87 +301,112 @@
       ctx.stroke();
     }
 
+    function drawBush(x, y, scale = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.fillStyle = '#2ba34a';
+      ctx.beginPath();
+      ctx.arc(-14, 0, 12, 0, Math.PI * 2);
+      ctx.arc(0, -8, 16, 0, Math.PI * 2);
+      ctx.arc(16, 0, 13, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
     function drawEnemy(enemy) {
       const x = enemy.x - gameState.cameraX;
-      const bob = Math.sin(gameState.animTime / 12) * 1.5;
+      const bob = Math.sin(gameState.animTime / 10) * 1.5;
       const bodyX = x + 4;
       const bodyY = enemy.y + 4 + bob;
 
+      ctx.fillStyle = '#f7f7f7';
+      ctx.fillRect(bodyX + 4, bodyY + 5, enemy.w - 12, 6);
+
       ctx.fillStyle = '#ef4444';
-      ctx.fillRect(bodyX, bodyY + 6, enemy.w - 8, enemy.h - 10);
+      ctx.fillRect(bodyX, bodyY + 8, enemy.w - 2, enemy.h - 10);
 
       ctx.fillStyle = '#b91c1c';
-      ctx.fillRect(bodyX + 6, bodyY + 2, enemy.w - 16, 8);
+      ctx.fillRect(bodyX + 6, bodyY + 2, enemy.w - 16, 9);
 
       ctx.fillStyle = '#f8fafc';
-      ctx.fillRect(bodyX + 9, bodyY + 9, 4, 4);
-      ctx.fillRect(bodyX + 15, bodyY + 9, 4, 4);
-
-      ctx.fillStyle = '#fca5a5';
-      ctx.fillRect(bodyX + 3, bodyY + 15, 4, 7);
-      ctx.fillRect(bodyX + enemy.w - 7, bodyY + 15, 4, 7);
+      ctx.fillRect(bodyX + 8, bodyY + 11, 5, 5);
+      ctx.fillRect(bodyX + 16, bodyY + 11, 5, 5);
 
       ctx.fillStyle = '#111827';
-      ctx.fillRect(bodyX + 3, bodyY + 22, 4, 6);
-      ctx.fillRect(bodyX + enemy.w - 7, bodyY + 22, 4, 6);
-      ctx.fillRect(bodyX + 9, bodyY + 12, 4, 6);
-      ctx.fillRect(bodyX + enemy.w - 13, bodyY + 12, 4, 6);
+      ctx.fillRect(bodyX + 7, bodyY + 18, 4, 7);
+      ctx.fillRect(bodyX + 19, bodyY + 18, 4, 7);
+
+      ctx.fillStyle = '#fca5a5';
+      ctx.fillRect(bodyX + 3, bodyY + 14, 4, 7);
+      ctx.fillRect(bodyX + enemy.w - 7, bodyY + 14, 4, 7);
+
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(bodyX + 2, bodyY + 23, 5, 6);
+      ctx.fillRect(bodyX + enemy.w - 7, bodyY + 23, 5, 6);
+
+      ctx.fillStyle = '#e0f2fe';
+      ctx.fillRect(bodyX + 6, bodyY + 2, 18, 4);
     }
 
     function drawPlayer() {
       const x = gameState.x - gameState.cameraX;
       const y = gameState.y;
       const blinking = gameState.invuln > 0 && Math.floor(gameState.invuln / 8) % 2 === 0;
-      const stride = Math.sin(gameState.animTime / 5) * (Math.abs(gameState.vx) > 0.2 ? 7 : 0);
-      const armSwing = Math.sin(gameState.animTime / 5) * 12;
-      const legSwing = Math.sin(gameState.animTime / 5 + Math.PI) * 8;
+      const runCycle = gameState.animTime / 5;
+      const moving = Math.abs(gameState.vx) > 0.2;
+      const bob = moving ? Math.sin(runCycle) * 2.5 : 0;
+      const armSwing = moving ? Math.sin(runCycle) * 18 : 0;
+      const legSwing = moving ? Math.sin(runCycle + Math.PI) * 12 : 0;
 
       ctx.save();
-      ctx.translate(x + 15, y + 21);
-      ctx.rotate(Math.atan2(gameState.vy, gameState.vx || 1) * 0.2);
+      ctx.translate(x + 15, y + 21 + bob);
+      ctx.rotate(Math.atan2(gameState.vy, gameState.vx || 1) * 0.18);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-12, 12, 24, 3);
 
       ctx.fillStyle = blinking ? '#f8fafc' : '#0a66ff';
-      ctx.fillRect(-9, -14, 18, 20);
+      ctx.fillRect(-8, -15, 16, 18);
 
-      ctx.fillStyle = '#0b2a5b';
-      ctx.fillRect(-7, -17, 14, 6);
+      ctx.fillStyle = '#dbeafe';
+      ctx.fillRect(-8, -28, 16, 12);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-4, -28, 3, 3);
+      ctx.fillRect(1, -28, 3, 3);
 
       ctx.fillStyle = '#fef3c7';
-      ctx.fillRect(-5, -27, 10, 10);
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-5, -28, 3, 3);
-      ctx.fillRect(2, -28, 3, 3);
+      ctx.fillRect(-6, -34, 12, 8);
 
       ctx.fillStyle = '#f8fafc';
-      ctx.fillRect(-10, -13, 4, 16);
-      ctx.fillRect(6, -13, 4, 16);
+      ctx.fillRect(-8, -7, 4, 12);
+      ctx.fillRect(4, -7, 4, 12);
 
       ctx.fillStyle = '#ff7a18';
-      ctx.fillRect(-9, 8, 7, 5);
-      ctx.fillRect(2, 8, 7, 5);
+      ctx.fillRect(-10, 6, 7, 5);
+      ctx.fillRect(3, 6, 7, 5);
 
       ctx.fillStyle = '#fbbf24';
-      ctx.fillRect(-5, 10, 10, 5);
+      ctx.fillRect(-6, 9, 12, 5);
 
       ctx.fillStyle = '#0f172a';
-      ctx.fillRect(-8, 15 + legSwing * 0.2, 5, 10);
-      ctx.fillRect(3, 15 - legSwing * 0.2, 5, 10);
-      ctx.fillRect(-13 + armSwing * 0.1, -6, 5, 12);
-      ctx.fillRect(8 - armSwing * 0.1, -6, 5, 12);
+      ctx.fillRect(-9, 14 + legSwing * 0.4, 5, 10);
+      ctx.fillRect(4, 14 - legSwing * 0.4, 5, 10);
+      ctx.fillRect(-13 + armSwing * 0.3, -9, 5, 11);
+      ctx.fillRect(8 - armSwing * 0.3, -9, 5, 11);
 
       ctx.fillStyle = '#ffedd5';
-      ctx.fillRect(-9, 24 + legSwing * 0.15, 6, 4);
-      ctx.fillRect(3, 24 - legSwing * 0.15, 6, 4);
+      ctx.fillRect(-10, 24 + legSwing * 0.2, 7, 4);
+      ctx.fillRect(3, 24 - legSwing * 0.2, 7, 4);
 
-      ctx.fillStyle = '#f59e0b';
-      ctx.fillRect(-10, -1, 20, 3);
+      ctx.fillStyle = '#ffbf69';
+      ctx.fillRect(-10, 0, 20, 2);
       ctx.restore();
     }
 
     function drawGround() {
       const baseY = level.groundY;
       const groundH = 100;
-      const width = canvas.width + 100;
 
       ctx.fillStyle = level.ground;
       ctx.fillRect(0, baseY, canvas.width, groundH);
@@ -421,15 +446,55 @@
 
     function drawGoal() {
       const x = level.goalX - gameState.cameraX;
-      ctx.fillStyle = '#facc15';
-      ctx.fillRect(x, 250, 24, 110);
-      ctx.fillStyle = '#0ea5e9';
+      const spin = gameState.animTime * 0.08;
+
+      ctx.fillStyle = '#925734';
+      ctx.fillRect(x + 10, 180, 12, 170);
+      ctx.fillStyle = '#7a4627';
+      ctx.fillRect(x - 10, 334, 52, 16);
+
+      ctx.save();
+      ctx.translate(x + 16, 170);
+      ctx.rotate(spin);
+
+      ctx.fillStyle = '#f8fafc';
       ctx.beginPath();
-      ctx.moveTo(x + 6, 265);
-      ctx.lineTo(x + 18, 265);
-      ctx.lineTo(x + 12, 235);
+      ctx.arc(0, 0, 28, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#d62828';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+      ctx.fillStyle = '#d62828';
+      ctx.beginPath();
+      ctx.arc(0, 0, 18, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(-22, -4, 44, 8);
+      ctx.fillRect(-4, -22, 8, 44);
+
+      ctx.beginPath();
+      ctx.moveTo(-3, -18);
+      ctx.lineTo(3, -18);
+      ctx.lineTo(0, -28);
       ctx.closePath();
       ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(18, -3);
+      ctx.lineTo(18, 3);
+      ctx.lineTo(28, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.arc(0, 0, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
     }
 
     function drawScene() {
@@ -452,6 +517,11 @@
         ctx.moveTo(hillX, 400);
         ctx.quadraticCurveTo(hillX + 90, 220, hillX + 180, 400);
         ctx.fill();
+      }
+
+      for (let i = 0; i < 10; i++) {
+        const bushX = ((i * 160) - (gameState.cameraX * 0.7)) % (canvas.width + 180);
+        drawBush(bushX + 18, 364, 0.9);
       }
 
       drawGround();
