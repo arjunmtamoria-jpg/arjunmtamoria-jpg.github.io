@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sonic True Levels</title>
+  <style>
+    :root {
+      --sky-top: #87d8ff;
+      --sky-bottom: #dff6ff;
+      --dirt-dark: #4c2d16;
+      --dirt-mid: #694625;
+      --dirt-light: #82542d;
+      --grass: #46c26a;
+      --grass-dark: #2a9f4d;
+      --ring: #ffd84d;
+      --ring-core: #fff5bd;
+      --panel: rgba(15, 23, 42, 0.82);
+      --text: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: linear-gradient(#06131f, #0b1d2a);
+      color: var(--text);
+    }
+
+    .wrap {
+      width: min(980px, 92vw);
+      margin: 28px auto;
+      background: var(--panel);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 20px 45px rgba(0,0,0,.35);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      text-align: center;
+      font-size: clamp(28px, 4vw, 42px);
+    }
+
+    .hud {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 12px 0 18px;
+      font-weight: bold;
+    }
+
+    .hud-box {
+      background: rgba(15, 23, 42, 0.9);
+      border: 2px solid rgba(148, 163, 184, .35);
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 18px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      max-width: 800px;
+      height: auto;
+      margin: 0 auto;
+      border: 2px solid rgba(255,255,255,.8);
+      background: linear-gradient(to bottom, var(--sky-top), var(--sky-bottom));
+      image-rendering: auto;
+      touch-action: none;
+    }
+
+    .controls {
+      text-align: center;
+      margin-top: 12px;
+      color: #dfe7ef;
+      font-size: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>SONIC TRUE LEVELS</h1>
+
+    <div class="hud">
+      <div class="hud-box">Rings: <span id="score">0</span></div>
+      <div class="hud-box">Stage: <span id="stage">Green Hill</span></div>
+      <div class="hud-box">Lives: <span id="lives">3</span></div>
+    </div>
+
+    <canvas id="game" width="800" height="400"></canvas>
+    <div class="controls">Arrow keys / A-D to move, Space to jump. Dirt ground, no grassy platforms, loop-de-loops included.</div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+
+    const scoreEl = document.getElementById('score');
+    const stageEl = document.getElementById('stage');
+    const livesEl = document.getElementById('lives');
+
+    const keys = { left: false, right: false };
+
+    const level = {
+      name: 'Green Hill',
+      width: 2400,
+      startX: 60,
+      goalX: 2280,
+      groundY: 380,
+      loops: [
+        { x: 620, y: 310, radius: 70 },
+        { x: 1460, y: 270, radius: 86 },
+        { x: 1980, y: 290, radius: 74 }
+      ],
+      platforms: [
+        { x: 0, y: 380, w: 420, h: 20 },
+        { x: 520, y: 380, w: 280, h: 20 },
+        { x: 900, y: 380, w: 260, h: 20 },
+        { x: 1240, y: 380, w: 250, h: 20 },
+        { x: 1560, y: 380, w: 300, h: 20 },
+        { x: 1940, y: 380, w: 420, h: 20 }
+      ],
+      rings: [
+        { x: 180, y: 330 }, { x: 380, y: 300 }, { x: 650, y: 290 },
+        { x: 980, y: 220 }, { x: 1340, y: 190 }, { x: 1600, y: 250 },
+        { x: 1820, y: 210 }, { x: 2060, y: 250 }, { x: 2230, y: 310 }
+      ],
+      enemies: [
+        { x: 700, y: 350, w: 28, h: 28, dir: 1 },
+        { x: 1460, y: 350, w: 28, h: 28, dir: -1 },
+        { x: 2110, y: 350, w: 28, h: 28, dir: 1 }
+      ]
+    };
+
+    const gameState = {
+      x: level.startX,
+      y: 300,
+      w: 30,
+      h: 42,
+      vx: 0,
+      vy: 0,
+      onGround: false,
+      score: 0,
+      lives: 3,
+      cameraX: 0,
+      invuln: 0,
+      rings: level.rings.map(r => ({ ...r, collected: false })),
+      enemies: level.enemies.map(e => ({ ...e }))
+    };
+
+    function updateHUD() {
+      scoreEl.textContent = gameState.score;
+      stageEl.textContent = level.name;
+      livesEl.textContent = gameState.lives;
+    }
+
+    function drawRing(x, y, radius = 10) {
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = '#ffd84d';
+      ctx.fill();
+      ctx.closePath();
+
+      ctx.beginPath();
+      ctx.arc(x, y, radius * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#fff5bd';
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    function drawLoop(loop) {
+      const drawX = loop.x - gameState.cameraX;
+      ctx.strokeStyle = '#f8fbff';
+      ctx.lineWidth = 9;
+      ctx.beginPath();
+      ctx.arc(drawX, loop.y, loop.radius, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#152534';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(drawX, loop.y, loop.radius - 14, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    function drawEnemy(enemy) {
+      const x = enemy.x - gameState.cameraX;
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(x + 4, enemy.y + 4, enemy.w - 8, enemy.h - 8);
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(x + 8, enemy.y + 10, 4, 4);
+      ctx.fillRect(x + 16, enemy.y + 10, 4, 4);
+    }
+
+    function drawPlayer() {
+      const x = gameState.x - gameState.cameraX;
+      const y = gameState.y;
+      const blinking = gameState.invuln > 0 && Math.floor(gameState.invuln / 8) % 2 === 0;
+
+      ctx.save();
+      ctx.translate(x + 15, y + 21);
+      ctx.rotate(Math.atan2(gameState.vy, gameState.vx || 1) * 0.2);
+
+      ctx.fillStyle = blinking ? '#f8fafc' : '#0a66ff';
+      ctx.fillRect(-10, -14, 20, 22);
+
+      ctx.fillStyle = '#ffd84d';
+      ctx.fillRect(-7, 10, 14, 7);
+
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(-7, -9, 4, 4);
+      ctx.fillRect(3, -9, 4, 4);
+
+      ctx.fillStyle = '#ff7a18';
+      ctx.fillRect(-12, 12, 7, 5);
+      ctx.fillRect(5, 12, 7, 5);
+
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(-8, 1, 16, 3);
+      ctx.restore();
+    }
+
+    function drawGround() {
+      const baseY = level.groundY;
+      const groundH = 100;
+      const width = canvas.width + 100;
+
+      ctx.fillStyle = '#3d2412';
+      ctx.fillRect(0, baseY, canvas.width, groundH);
+
+      for (let x = -20; x < canvas.width + 40; x += 24) {
+        const checker = ((Math.floor((x + gameState.cameraX * 0.25) / 24)) % 2 === 0) ? '#59351a' : '#4b2b14';
+        ctx.fillStyle = checker;
+        ctx.fillRect(x, baseY, 24, 26);
+      }
+
+      ctx.fillStyle = '#45c86a';
+      ctx.fillRect(0, baseY - 12, canvas.width, 12);
+
+      for (let x = 0; x < canvas.width; x += 14) {
+        ctx.fillStyle = '#2e9e49';
+        ctx.fillRect(x, baseY - 10, 8, 4);
+      }
+    }
+
+    function drawPlatforms() {
+      for (const plat of level.platforms) {
+        const x = plat.x - gameState.cameraX;
+        if (x + plat.w < -40 || x > canvas.width + 40) continue;
+
+        ctx.fillStyle = '#7a4d2a';
+        ctx.fillRect(x, plat.y, plat.w, plat.h);
+
+        for (let px = 0; px < plat.w; px += 18) {
+          for (let py = 0; py < plat.h; py += 18) {
+            const d = ((px / 18) + (py / 18)) % 2 === 0 ? '#8a532d' : '#724521';
+            ctx.fillStyle = d;
+            ctx.fillRect(x + px, plat.y + py, 18, 18);
+          }
+        }
+      }
+    }
+
+    function drawGoal() {
+      const x = level.goalX - gameState.cameraX;
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(x, 250, 24, 110);
+      ctx.fillStyle = '#0ea5e9';
+      ctx.beginPath();
+      ctx.moveTo(x + 6, 265);
+      ctx.lineTo(x + 18, 265);
+      ctx.lineTo(x + 12, 235);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function drawScene() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#87d8ff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#ffffff';
+      for (let i = 0; i < 7; i++) {
+        const x = ((i * 180) - (gameState.cameraX * 0.2)) % (canvas.width + 200);
+        ctx.beginPath();
+        ctx.arc(x, 80, 26, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.fillStyle = '#8dd7ff';
+      for (let i = 0; i < 6; i++) {
+        const hillX = ((i * 220) - (gameState.cameraX * 0.55)) % (canvas.width + 300);
+        ctx.beginPath();
+        ctx.moveTo(hillX, 400);
+        ctx.quadraticCurveTo(hillX + 90, 220, hillX + 180, 400);
+        ctx.fill();
+      }
+
+      drawGround();
+      drawPlatforms();
+
+      for (const loop of level.loops) drawLoop(loop);
+
+      for (const ring of gameState.rings) {
+        if (ring.collected) continue;
+        const x = ring.x - gameState.cameraX;
+        drawRing(x, ring.y, 10);
+      }
+
+      for (const enemy of gameState.enemies) {
+        drawEnemy(enemy);
+      }
+
+      drawGoal();
+      drawPlayer();
+    }
+
+    function resetLevel() {
+      gameState.x = level.startX;
+      gameState.y = 300;
+      gameState.vx = 0;
+      gameState.vy = 0;
+      gameState.cameraX = 0;
+      gameState.score = 0;
+      gameState.lives = 3;
+      gameState.rings = level.rings.map(r => ({ ...r, collected: false }));
+      gameState.enemies = level.enemies.map(e => ({ ...e }));
+      updateHUD();
+    }
+
+    function hitPlayer() {
+      if (gameState.invuln > 0) return;
+      if (gameState.score > 0) {
+        gameState.score = Math.max(0, gameState.score - 10);
+        gameState.invuln = 60;
+        updateHUD();
+        return;
+      }
+
+      gameState.lives -= 1;
+      if (gameState.lives <= 0) {
+        alert('Game over! Final rings: ' + gameState.score);
+        resetLevel();
+        return;
+      }
+      gameState.x = level.startX;
+      gameState.y = 300;
+      gameState.vx = 0;
+      gameState.vy = 0;
+      gameState.invuln = 90;
+      updateHUD();
+    }
+
+    function jump() {
+      if (!gameState.onGround) return;
+      gameState.vy = -12;
+      gameState.onGround = false;
+    }
+
+    function update() {
+      if (keys.left) gameState.vx = -5;
+      else if (keys.right) gameState.vx = 5;
+      else gameState.vx *= 0.8;
+
+      if (gameState.invuln > 0) gameState.invuln -= 1;
+
+      gameState.vy += 0.6;
+      gameState.x += gameState.vx;
+      gameState.y += gameState.vy;
+
+      if (gameState.x < 0) gameState.x = 0;
+      if (gameState.x + gameState.w > level.width) gameState.x = level.width - gameState.w;
+
+      let grounded = false;
+      for (const plat of level.platforms) {
+        if (
+          gameState.vy >= 0 &&
+          gameState.y + gameState.h >= plat.y &&
+          gameState.y + gameState.h <= plat.y + 30 &&
+          gameState.x + gameState.w > plat.x &&
+          gameState.x < plat.x + plat.w
+        ) {
+          gameState.y = plat.y - gameState.h;
+          gameState.vy = 0;
+          grounded = true;
+        }
+      }
+      gameState.onGround = grounded;
+
+      for (const ring of gameState.rings) {
+        if (ring.collected) continue;
+        if (
+          gameState.x < ring.x + 18 &&
+          gameState.x + gameState.w > ring.x - 14 &&
+          gameState.y < ring.y + 18 &&
+          gameState.y + gameState.h > ring.y - 14
+        ) {
+          ring.collected = true;
+          gameState.score += 10;
+          updateHUD();
+        }
+      }
+
+      for (const enemy of gameState.enemies) {
+        enemy.x += enemy.dir * 2;
+        if (enemy.x < 200 || enemy.x > level.width - 200) enemy.dir *= -1;
+
+        if (
+          gameState.x < enemy.x + enemy.w &&
+          gameState.x + gameState.w > enemy.x &&
+          gameState.y < enemy.y + enemy.h &&
+          gameState.y + gameState.h > enemy.y
+        ) {
+          hitPlayer();
+        }
+      }
+
+      if (gameState.y > canvas.height + 150) {
+        hitPlayer();
+      }
+
+      if (gameState.x + gameState.w > level.goalX && gameState.y + gameState.h > 250 && gameState.y < 360) {
+        alert('Stage clear! Final rings: ' + gameState.score);
+        resetLevel();
+      }
+
+      gameState.cameraX = Math.max(0, Math.min(level.width - canvas.width, gameState.x - 220));
+      drawScene();
+      requestAnimationFrame(update);
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') keys.left = true;
+      if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') keys.right = true;
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        jump();
+      }
+    });
+
+    window.addEventListener('keyup', (e) => {
+      if (e.key === 'ArrowLeft' || e.key.toLowerCase() === 'a') keys.left = false;
+      if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') keys.right = false;
+    });
+
+    resetLevel();
+    updateHUD();
+    drawScene();
+    requestAnimationFrame(update);
+  </script>
+</body>
+</html>
