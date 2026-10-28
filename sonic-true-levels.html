@@ -215,7 +215,7 @@
         <span class="ring-tv" aria-hidden="true"></span>
         <span>Rings: <span id="score">0</span></span>
       </div>
-      <div class="hud-box">Stage: <span id="stage">Green Hill</span></div>
+      <div class="hud-box">Stage: <span id="stage">Green Hill Act 1</span></div>
       <div class="hud-box">Lives: <span id="lives">3</span></div>
     </div>
 
@@ -228,7 +228,7 @@
       <canvas id="game" width="800" height="400"></canvas>
     </div>
 
-    <div class="controls">Arrow keys / A-D to move, Space to jump. Shift or S = spin dash. Spin-jump piranhas to destroy them.</div>
+    <div class="controls">Arrow keys / A-D to move, Space to jump. Shift or S = spin dash. Spin-jump piranhas to destroy them. Green Hill Act 2 keeps the long run space.</div>
 
     <div class="touch-bar" aria-label="Touch controls">
       <button class="touch-btn" data-key="left">◀</button>
@@ -252,25 +252,98 @@
     const keys = { left: false, right: false, jump: false, spin: false };
     const touchButtons = [...document.querySelectorAll('.touch-btn')];
 
-    const level = {
-      name: 'Green Hill',
-      width: 2400,
-      groundY: 380,
-      startX: 60,
-      goalX: 2260,
-      bridge: { x: 360, y: 260, w: 260, h: 120 },
-      flowerPositions: [
-        { x: 120, y: 360 }, { x: 210, y: 360 }, { x: 600, y: 360 },
-        { x: 1020, y: 360 }, { x: 1370, y: 360 }, { x: 1880, y: 360 },
-        { x: 2200, y: 360 }
-      ],
-      palms: [
-        { x: 480, y: 312, scale: 1.15 },
-        { x: 1180, y: 318, scale: 1.25 },
-        { x: 1760, y: 312, scale: 1.05 },
-        { x: 2080, y: 324, scale: 1.2 }
-      ]
-    };
+    const acts = [
+      {
+        name: 'Green Hill Act 1',
+        width: 2600,
+        groundY: 380,
+        startX: 60,
+        goalX: 2320,
+        bridge: { x: 340, y: 260, w: 250, h: 110 },
+        flowers: [
+          { x: 150, y: 360 }, { x: 260, y: 360 }, { x: 520, y: 360 },
+          { x: 790, y: 360 }, { x: 1080, y: 360 }, { x: 1380, y: 360 },
+          { x: 1640, y: 360 }, { x: 1960, y: 360 }, { x: 2220, y: 360 }
+        ],
+        palms: [
+          { x: 520, y: 312, scale: 1.15 },
+          { x: 1200, y: 318, scale: 1.3 },
+          { x: 1720, y: 312, scale: 1.15 },
+          { x: 2050, y: 322, scale: 1.2 }
+        ],
+        hills: [
+          { x: 150, y: 400, w: 180, h: 110 },
+          { x: 420, y: 400, w: 200, h: 120 },
+          { x: 770, y: 400, w: 220, h: 130 },
+          { x: 1160, y: 400, w: 180, h: 115 },
+          { x: 1480, y: 400, w: 230, h: 135 },
+          { x: 1850, y: 400, w: 210, h: 120 },
+          { x: 2180, y: 400, w: 200, h: 110 }
+        ],
+        rings: [
+          { x: 180, y: 330 }, { x: 380, y: 300 }, { x: 620, y: 290 },
+          { x: 860, y: 250 }, { x: 1100, y: 220 }, { x: 1380, y: 200 },
+          { x: 1640, y: 245 }, { x: 1890, y: 220 }, { x: 2140, y: 250 }, { x: 2300, y: 315 }
+        ],
+        piranhas: [
+          { x: 430, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 10 },
+          { x: 540, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 25 },
+          { x: 620, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 42 }
+        ],
+        checkpoints: [
+          { x: 910, y: 300, reached: false, flash: 0 },
+          { x: 1865, y: 300, reached: false, flash: 0 }
+        ]
+      },
+      {
+        name: 'Green Hill Act 2',
+        width: 3100,
+        groundY: 380,
+        startX: 90,
+        goalX: 2850,
+        bridge: { x: 650, y: 250, w: 310, h: 120 },
+        flowers: [
+          { x: 180, y: 360 }, { x: 340, y: 360 }, { x: 620, y: 360 }, { x: 910, y: 360 },
+          { x: 1240, y: 360 }, { x: 1560, y: 360 }, { x: 1820, y: 360 }, { x: 2120, y: 360 },
+          { x: 2440, y: 360 }, { x: 2720, y: 360 }
+        ],
+        palms: [
+          { x: 500, y: 312, scale: 1.2 },
+          { x: 980, y: 318, scale: 1.3 },
+          { x: 1680, y: 310, scale: 1.1 },
+          { x: 2280, y: 317, scale: 1.25 },
+          { x: 2700, y: 320, scale: 1.18 }
+        ],
+        hills: [
+          { x: 120, y: 400, w: 190, h: 110 },
+          { x: 420, y: 400, w: 240, h: 130 },
+          { x: 770, y: 400, w: 260, h: 140 },
+          { x: 1230, y: 400, w: 220, h: 120 },
+          { x: 1600, y: 400, w: 230, h: 130 },
+          { x: 1960, y: 400, w: 260, h: 140 },
+          { x: 2350, y: 400, w: 240, h: 125 },
+          { x: 2700, y: 400, w: 210, h: 120 }
+        ],
+        rings: [
+          { x: 210, y: 330 }, { x: 430, y: 290 }, { x: 760, y: 260 },
+          { x: 1060, y: 220 }, { x: 1340, y: 190 }, { x: 1660, y: 250 },
+          { x: 1980, y: 220 }, { x: 2260, y: 210 }, { x: 2520, y: 250 }, { x: 2780, y: 300 }
+        ],
+        piranhas: [
+          { x: 820, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 8 },
+          { x: 908, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 28 },
+          { x: 998, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 50 },
+          { x: 2060, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 65 }
+        ],
+        checkpoints: [
+          { x: 1060, y: 300, reached: false, flash: 0 },
+          { x: 2320, y: 300, reached: false, flash: 0 }
+        ]
+      }
+    ];
+
+    let actIndex = 0;
+    let level = acts[actIndex];
 
     const game = {
       cameraX: 0,
@@ -281,6 +354,8 @@
       ending: false,
       over: false,
       message: '',
+      respawnX: level.startX,
+      respawnY: 300,
       player: {
         x: level.startX,
         y: 300,
@@ -293,22 +368,29 @@
         invuln: 0,
         spinTime: 0,
         spinCharge: 0,
-        jumpHeld: false,
         lookDir: 1
       },
-      rings: [
-        { x: 160, y: 330, collected: false }, { x: 360, y: 300, collected: false },
-        { x: 520, y: 290, collected: false }, { x: 700, y: 260, collected: false },
-        { x: 980, y: 220, collected: false }, { x: 1320, y: 190, collected: false },
-        { x: 1600, y: 250, collected: false }, { x: 1820, y: 210, collected: false },
-        { x: 2050, y: 250, collected: false }, { x: 2230, y: 310, collected: false }
-      ],
-      piranhas: [
-        { x: 430, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 0, out: false, alive: true },
-        { x: 500, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 20, out: false, alive: true },
-        { x: 585, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 40, out: false, alive: true }
-      ]
+      rings: [],
+      piranhas: [],
+      checkpoints: []
     };
+
+    function buildLevelData() {
+      game.rings = level.rings.map(r => ({ ...r, collected: false }));
+      game.piranhas = level.piranhas.map((p, i) => ({ ...p, alive: true, out: false, jumpTimer: p.jumpTimer + i * 15 }));
+      game.checkpoints = level.checkpoints.map(cp => ({ ...cp, reached: false, flash: 0 }));
+      game.respawnX = level.startX;
+      game.respawnY = 300;
+      game.player.x = level.startX;
+      game.player.y = 300;
+      game.player.vx = 0;
+      game.player.vy = 0;
+      game.player.invuln = 0;
+      game.player.spinTime = 0;
+      game.player.spinCharge = 0;
+      game.player.onGround = false;
+      game.cameraX = 0;
+    }
 
     function updateHUD() {
       scoreEl.textContent = game.ringCount;
@@ -319,35 +401,20 @@
       hudLivesEl.textContent = game.lives;
     }
 
-    function resetGame() {
-      game.player.x = level.startX;
-      game.player.y = 300;
-      game.player.vx = 0;
-      game.player.vy = 0;
-      game.player.onGround = false;
-      game.player.invuln = 0;
-      game.player.spinTime = 0;
-      game.player.spinCharge = 0;
-      game.player.jumpHeld = false;
-      game.cameraX = 0;
-      game.score = 0;
-      game.ringCount = 0;
-      game.lives = 3;
-      game.rings.forEach(r => r.collected = false);
-      game.piranhas.forEach((p, i) => {
-        p.x = 430 + i * 70;
-        p.y = p.baseY;
-        p.out = false;
-        p.alive = true;
-        p.jumpTimer = i * 18;
-      });
-      updateHUD();
-    }
-
     function setKeyState(name, pressed) {
       if (name in keys) keys[name] = pressed;
       const btn = document.querySelector(`.touch-btn[data-key="${name}"]`);
       if (btn) btn.classList.toggle('active', pressed);
+    }
+
+    function resetGame() {
+      actIndex = 0;
+      level = acts[actIndex];
+      game.score = 0;
+      game.ringCount = 0;
+      game.lives = 3;
+      buildLevelData();
+      updateHUD();
     }
 
     document.addEventListener('keydown', (event) => {
@@ -451,6 +518,20 @@
       ctx.fillRect(x, b.y + 18, b.w, 8);
     }
 
+    function drawHills() {
+      ctx.fillStyle = '#7fcf6a';
+      for (const hill of level.hills) {
+        const x = hill.x - game.cameraX;
+        ctx.beginPath();
+        ctx.moveTo(x, hill.y);
+        ctx.quadraticCurveTo(x + hill.w * 0.5, hill.y - hill.h, x + hill.w, hill.y);
+        ctx.lineTo(x + hill.w, 400);
+        ctx.lineTo(x, 400);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
     function drawGround() {
       const baseY = level.groundY;
       ctx.fillStyle = '#5d3520';
@@ -515,6 +596,52 @@
       ctx.fillStyle = '#1d4d1a';
       ctx.fillRect(x - 3, bodyY + 10, 6, 3);
       ctx.fillRect(x + 8, bodyY + 5, 4, 3);
+    }
+
+    function drawStarPost(cp) {
+      const x = cp.x - game.cameraX;
+      const y = cp.y;
+      const active = cp.reached;
+      const flash = active && cp.flash > 0;
+
+      ctx.fillStyle = '#facc15';
+      ctx.fillRect(x - 10, y, 20, 14);
+
+      ctx.fillStyle = '#b6bcc8';
+      ctx.fillRect(x - 2, y - 36, 4, 36);
+
+      ctx.fillStyle = '#d93333';
+      ctx.beginPath();
+      ctx.arc(x, y - 42, 18, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#1b73ff';
+      ctx.beginPath();
+      ctx.arc(x, y - 42, 9, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#facc15';
+      ctx.beginPath();
+      ctx.moveTo(x, y - 58);
+      ctx.lineTo(x + 6, y - 46);
+      ctx.lineTo(x + 16, y - 46);
+      ctx.lineTo(x + 8, y - 39);
+      ctx.lineTo(x + 12, y - 28);
+      ctx.lineTo(x, y - 34);
+      ctx.lineTo(x - 12, y - 28);
+      ctx.lineTo(x - 8, y - 39);
+      ctx.lineTo(x - 16, y - 46);
+      ctx.lineTo(x - 6, y - 46);
+      ctx.closePath();
+      ctx.fill();
+
+      if (active && flash) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.9)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(x, y - 42, 26 + Math.sin(game.anim * 0.3) * 3, 0, Math.PI * 2);
+        ctx.stroke();
+      }
     }
 
     function drawPlayer() {
@@ -598,16 +725,9 @@
         ctx.fill();
       }
 
-      ctx.fillStyle = '#8cd6ff';
-      for (let i = 0; i < 7; i++) {
-        const hillX = ((i * 220) - (game.cameraX * 0.48)) % (canvas.width + 260);
-        ctx.beginPath();
-        ctx.moveTo(hillX, 400);
-        ctx.quadraticCurveTo(hillX + 80, 230, hillX + 180, 400);
-        ctx.fill();
-      }
+      drawHills();
 
-      for (const flower of level.flowerPositions) {
+      for (const flower of level.flowers) {
         drawSunflower(flower.x - game.cameraX, flower.y, 0.72);
       }
 
@@ -618,6 +738,7 @@
       drawGround();
       drawBridge();
 
+      game.checkpoints.forEach(drawStarPost);
       game.rings.forEach(drawRing);
       game.piranhas.forEach(drawPiranha);
       drawPlayer();
@@ -697,12 +818,29 @@
         game.over = true;
         return;
       }
-      p.x = level.startX;
-      p.y = 300;
+      p.x = game.respawnX;
+      p.y = game.respawnY;
       p.vx = 0;
       p.vy = 0;
       p.invuln = 90;
-      game.cameraX = 0;
+      game.cameraX = Math.max(0, p.x - canvas.width / 2 + 60);
+    }
+
+    function checkCheckpoints() {
+      for (const cp of game.checkpoints) {
+        if (cp.reached) {
+          cp.flash = Math.max(0, cp.flash - 1);
+          continue;
+        }
+        if (game.player.x + game.player.w > cp.x && game.player.x < cp.x + 24) {
+          cp.reached = true;
+          cp.flash = 50;
+          game.respawnX = cp.x;
+          game.respawnY = 300;
+          game.message = 'CHECKPOINT!';
+          setTimeout(() => { if (game.message === 'CHECKPOINT!') game.message = ''; }, 650);
+        }
+      }
     }
 
     function piranhaHitCheck() {
@@ -734,7 +872,7 @@
       for (const piranha of game.piranhas) {
         if (!piranha.alive) continue;
         piranha.jumpTimer += 1;
-        const shouldPop = Math.abs(game.player.x - piranha.x) < 180 && game.player.x > 340 && game.player.x < 700;
+        const shouldPop = Math.abs(game.player.x - piranha.x) < 180 && game.player.x > 340 && game.player.x < level.goalX;
         const t = (piranha.jumpTimer % 120) / 120;
 
         if (shouldPop) {
@@ -783,6 +921,14 @@
       if (p.invuln > 0) p.invuln -= 1;
     }
 
+    function loadAct(nextIndex) {
+      actIndex = nextIndex;
+      level = acts[actIndex];
+      game.message = '';
+      buildLevelData();
+      updateHUD();
+    }
+
     function updatePlayer() {
       const p = game.player;
       p.vy += 0.65;
@@ -801,15 +947,20 @@
         p.onGround = true;
       }
 
-      if (p.x + p.w > level.goalX && p.y + p.h > 250 && p.y < 360) {
+      if (p.x + p.w > level.goalX && actIndex < acts.length - 1) {
+        game.message = 'ACT CLEAR!';
+        setTimeout(() => {
+          loadAct(actIndex + 1);
+        }, 700);
+        return;
+      }
+
+      if (p.x + p.w > level.goalX && actIndex === acts.length - 1) {
         game.message = 'STAGE CLEAR!';
         game.ending = true;
       }
 
-      if (game.ending) {
-        if (game.player.vx > 0) game.player.vx = 0;
-      }
-
+      if (game.ending && game.player.vx > 0) game.player.vx = 0;
       game.cameraX = Math.max(0, Math.min(level.width - canvas.width, p.x - canvas.width / 2 + 60));
     }
 
@@ -823,11 +974,9 @@
       handleInput();
       updatePiranhas();
       updatePlayer();
+      checkCheckpoints();
       collectRings();
       piranhaHitCheck();
-      if (game.ending) {
-        game.message = 'STAGE CLEAR!';
-      }
       drawScene();
       requestAnimationFrame(update);
     }
