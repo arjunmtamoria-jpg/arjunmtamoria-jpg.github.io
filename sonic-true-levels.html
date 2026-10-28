@@ -17,6 +17,8 @@
       --ring-core: #fff5bd;
       --panel: rgba(15, 23, 42, 0.82);
       --text: #e2e8f0;
+      --ring-box: #000000;
+      --ring-box-frame: #a8b1bc;
     }
 
     * { box-sizing: border-box; }
@@ -60,6 +62,37 @@
       font-size: 18px;
     }
 
+    .ring-display {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 120px;
+      justify-content: center;
+    }
+
+    .ring-tv {
+      width: 30px;
+      height: 30px;
+      background: var(--ring-box);
+      border: 3px solid var(--ring-box-frame);
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.06);
+    }
+
+    .ring-tv::before {
+      content: "";
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #fff7d6 0 25%, var(--ring-core) 26% 38%, var(--ring) 39% 100%);
+      border: 3px solid #ddb64a;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.25);
+    }
+
     canvas {
       display: block;
       width: 100%;
@@ -85,7 +118,10 @@
     <h1>SONIC TRUE LEVELS</h1>
 
     <div class="hud">
-      <div class="hud-box">Rings: <span id="score">0</span></div>
+      <div class="hud-box ring-display">
+        <span class="ring-tv" aria-hidden="true"></span>
+        <span>Rings: <span id="score">0</span></span>
+      </div>
       <div class="hud-box">Stage: <span id="stage">Green Hill</span></div>
       <div class="hud-box">Lives: <span id="lives">3</span></div>
     </div>
@@ -104,36 +140,114 @@
 
     const keys = { left: false, right: false };
 
-    const level = {
-      name: 'Green Hill',
-      width: 2400,
-      startX: 60,
-      goalX: 2280,
-      groundY: 380,
-      loops: [
-        { x: 620, y: 310, radius: 70 },
-        { x: 1460, y: 270, radius: 86 },
-        { x: 1980, y: 290, radius: 74 }
-      ],
-      platforms: [
-        { x: 0, y: 380, w: 420, h: 20 },
-        { x: 520, y: 380, w: 280, h: 20 },
-        { x: 900, y: 380, w: 260, h: 20 },
-        { x: 1240, y: 380, w: 250, h: 20 },
-        { x: 1560, y: 380, w: 300, h: 20 },
-        { x: 1940, y: 380, w: 420, h: 20 }
-      ],
-      rings: [
-        { x: 180, y: 330 }, { x: 380, y: 300 }, { x: 650, y: 290 },
-        { x: 980, y: 220 }, { x: 1340, y: 190 }, { x: 1600, y: 250 },
-        { x: 1820, y: 210 }, { x: 2060, y: 250 }, { x: 2230, y: 310 }
-      ],
-      enemies: [
-        { x: 700, y: 350, w: 28, h: 28, dir: 1 },
-        { x: 1460, y: 350, w: 28, h: 28, dir: -1 },
-        { x: 2110, y: 350, w: 28, h: 28, dir: 1 }
-      ]
-    };
+    const levels = [
+      {
+        name: 'Green Hill',
+        width: 2400,
+        startX: 60,
+        goalX: 2280,
+        groundY: 380,
+        skyTop: '#87d8ff',
+        skyBottom: '#dff6ff',
+        grass: '#46c26a',
+        ground: '#4c2d16',
+        loops: [
+          { x: 620, y: 310, radius: 70 },
+          { x: 1460, y: 270, radius: 86 },
+          { x: 1980, y: 290, radius: 74 }
+        ],
+        platforms: [
+          { x: 0, y: 380, w: 420, h: 20 },
+          { x: 520, y: 380, w: 280, h: 20 },
+          { x: 900, y: 380, w: 260, h: 20 },
+          { x: 1240, y: 380, w: 250, h: 20 },
+          { x: 1560, y: 380, w: 300, h: 20 },
+          { x: 1940, y: 380, w: 420, h: 20 }
+        ],
+        rings: [
+          { x: 180, y: 330 }, { x: 380, y: 300 }, { x: 650, y: 290 },
+          { x: 980, y: 220 }, { x: 1340, y: 190 }, { x: 1600, y: 250 },
+          { x: 1820, y: 210 }, { x: 2060, y: 250 }, { x: 2230, y: 310 }
+        ],
+        enemies: [
+          { x: 700, y: 350, w: 30, h: 28, dir: 1 },
+          { x: 1460, y: 350, w: 30, h: 28, dir: -1 },
+          { x: 2110, y: 350, w: 30, h: 28, dir: 1 }
+        ]
+      },
+      {
+        name: 'Marble Zone',
+        width: 2450,
+        startX: 60,
+        goalX: 2320,
+        groundY: 380,
+        skyTop: '#8fd3ff',
+        skyBottom: '#d4e6ff',
+        grass: '#7a82b8',
+        ground: '#575f7a',
+        loops: [
+          { x: 640, y: 300, radius: 78 },
+          { x: 1510, y: 250, radius: 92 },
+          { x: 2010, y: 300, radius: 80 }
+        ],
+        platforms: [
+          { x: 0, y: 380, w: 430, h: 20 },
+          { x: 540, y: 380, w: 300, h: 20 },
+          { x: 930, y: 380, w: 250, h: 20 },
+          { x: 1280, y: 380, w: 230, h: 20 },
+          { x: 1600, y: 380, w: 320, h: 20 },
+          { x: 1970, y: 380, w: 430, h: 20 }
+        ],
+        rings: [
+          { x: 220, y: 330 }, { x: 420, y: 300 }, { x: 650, y: 265 },
+          { x: 980, y: 235 }, { x: 1385, y: 200 }, { x: 1640, y: 250 },
+          { x: 1860, y: 220 }, { x: 2090, y: 260 }, { x: 2250, y: 310 }
+        ],
+        enemies: [
+          { x: 720, y: 350, w: 30, h: 28, dir: 1 },
+          { x: 1500, y: 350, w: 30, h: 28, dir: -1 },
+          { x: 2130, y: 350, w: 30, h: 28, dir: 1 }
+        ]
+      },
+      {
+        name: 'Sky Sanctuary',
+        width: 2500,
+        startX: 80,
+        goalX: 2370,
+        groundY: 370,
+        skyTop: '#96c6ff',
+        skyBottom: '#e5f0ff',
+        grass: '#7de0df',
+        ground: '#5b5e9d',
+        loops: [
+          { x: 610, y: 300, radius: 74 },
+          { x: 1440, y: 260, radius: 88 },
+          { x: 2020, y: 280, radius: 76 }
+        ],
+        platforms: [
+          { x: 0, y: 370, w: 430, h: 20 },
+          { x: 540, y: 380, w: 250, h: 20 },
+          { x: 820, y: 330, w: 150, h: 18 },
+          { x: 1100, y: 360, w: 250, h: 20 },
+          { x: 1460, y: 310, w: 180, h: 18 },
+          { x: 1680, y: 380, w: 380, h: 20 },
+          { x: 2130, y: 350, w: 260, h: 20 }
+        ],
+        rings: [
+          { x: 220, y: 320 }, { x: 430, y: 300 }, { x: 620, y: 250 },
+          { x: 940, y: 260 }, { x: 1210, y: 220 }, { x: 1490, y: 245 },
+          { x: 1680, y: 200 }, { x: 1905, y: 290 }, { x: 2250, y: 300 }
+        ],
+        enemies: [
+          { x: 700, y: 345, w: 30, h: 28, dir: 1 },
+          { x: 1520, y: 345, w: 30, h: 28, dir: -1 },
+          { x: 2160, y: 345, w: 30, h: 28, dir: 1 }
+        ]
+      }
+    ];
+
+    let levelIndex = 0;
+    let level = levels[levelIndex];
 
     const gameState = {
       x: level.startX,
@@ -147,8 +261,9 @@
       lives: 3,
       cameraX: 0,
       invuln: 0,
-      rings: level.rings.map(r => ({ ...r, collected: false })),
-      enemies: level.enemies.map(e => ({ ...e }))
+      animTime: 0,
+      rings: [],
+      enemies: []
     };
 
     function updateHUD() {
@@ -165,7 +280,7 @@
       ctx.closePath();
 
       ctx.beginPath();
-      ctx.arc(x, y, radius * 0.5, 0, Math.PI * 2);
+      ctx.arc(x, y, radius * 0.52, 0, Math.PI * 2);
       ctx.fillStyle = '#fff5bd';
       ctx.fill();
       ctx.closePath();
@@ -188,38 +303,78 @@
 
     function drawEnemy(enemy) {
       const x = enemy.x - gameState.cameraX;
+      const bob = Math.sin(gameState.animTime / 12) * 1.5;
+      const bodyX = x + 4;
+      const bodyY = enemy.y + 4 + bob;
+
       ctx.fillStyle = '#ef4444';
-      ctx.fillRect(x + 4, enemy.y + 4, enemy.w - 8, enemy.h - 8);
+      ctx.fillRect(bodyX, bodyY + 6, enemy.w - 8, enemy.h - 10);
+
+      ctx.fillStyle = '#b91c1c';
+      ctx.fillRect(bodyX + 6, bodyY + 2, enemy.w - 16, 8);
+
       ctx.fillStyle = '#f8fafc';
-      ctx.fillRect(x + 8, enemy.y + 10, 4, 4);
-      ctx.fillRect(x + 16, enemy.y + 10, 4, 4);
+      ctx.fillRect(bodyX + 9, bodyY + 9, 4, 4);
+      ctx.fillRect(bodyX + 15, bodyY + 9, 4, 4);
+
+      ctx.fillStyle = '#fca5a5';
+      ctx.fillRect(bodyX + 3, bodyY + 15, 4, 7);
+      ctx.fillRect(bodyX + enemy.w - 7, bodyY + 15, 4, 7);
+
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(bodyX + 3, bodyY + 22, 4, 6);
+      ctx.fillRect(bodyX + enemy.w - 7, bodyY + 22, 4, 6);
+      ctx.fillRect(bodyX + 9, bodyY + 12, 4, 6);
+      ctx.fillRect(bodyX + enemy.w - 13, bodyY + 12, 4, 6);
     }
 
     function drawPlayer() {
       const x = gameState.x - gameState.cameraX;
       const y = gameState.y;
       const blinking = gameState.invuln > 0 && Math.floor(gameState.invuln / 8) % 2 === 0;
+      const stride = Math.sin(gameState.animTime / 5) * (Math.abs(gameState.vx) > 0.2 ? 7 : 0);
+      const armSwing = Math.sin(gameState.animTime / 5) * 12;
+      const legSwing = Math.sin(gameState.animTime / 5 + Math.PI) * 8;
 
       ctx.save();
       ctx.translate(x + 15, y + 21);
       ctx.rotate(Math.atan2(gameState.vy, gameState.vx || 1) * 0.2);
 
       ctx.fillStyle = blinking ? '#f8fafc' : '#0a66ff';
-      ctx.fillRect(-10, -14, 20, 22);
+      ctx.fillRect(-9, -14, 18, 20);
 
-      ctx.fillStyle = '#ffd84d';
-      ctx.fillRect(-7, 10, 14, 7);
+      ctx.fillStyle = '#0b2a5b';
+      ctx.fillRect(-7, -17, 14, 6);
 
-      ctx.fillStyle = '#111827';
-      ctx.fillRect(-7, -9, 4, 4);
-      ctx.fillRect(3, -9, 4, 4);
+      ctx.fillStyle = '#fef3c7';
+      ctx.fillRect(-5, -27, 10, 10);
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-5, -28, 3, 3);
+      ctx.fillRect(2, -28, 3, 3);
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.fillRect(-10, -13, 4, 16);
+      ctx.fillRect(6, -13, 4, 16);
 
       ctx.fillStyle = '#ff7a18';
-      ctx.fillRect(-12, 12, 7, 5);
-      ctx.fillRect(5, 12, 7, 5);
+      ctx.fillRect(-9, 8, 7, 5);
+      ctx.fillRect(2, 8, 7, 5);
 
-      ctx.fillStyle = '#ef4444';
-      ctx.fillRect(-8, 1, 16, 3);
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillRect(-5, 10, 10, 5);
+
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(-8, 15 + legSwing * 0.2, 5, 10);
+      ctx.fillRect(3, 15 - legSwing * 0.2, 5, 10);
+      ctx.fillRect(-13 + armSwing * 0.1, -6, 5, 12);
+      ctx.fillRect(8 - armSwing * 0.1, -6, 5, 12);
+
+      ctx.fillStyle = '#ffedd5';
+      ctx.fillRect(-9, 24 + legSwing * 0.15, 6, 4);
+      ctx.fillRect(3, 24 - legSwing * 0.15, 6, 4);
+
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(-10, -1, 20, 3);
       ctx.restore();
     }
 
@@ -228,7 +383,7 @@
       const groundH = 100;
       const width = canvas.width + 100;
 
-      ctx.fillStyle = '#3d2412';
+      ctx.fillStyle = level.ground;
       ctx.fillRect(0, baseY, canvas.width, groundH);
 
       for (let x = -20; x < canvas.width + 40; x += 24) {
@@ -237,7 +392,7 @@
         ctx.fillRect(x, baseY, 24, 26);
       }
 
-      ctx.fillStyle = '#45c86a';
+      ctx.fillStyle = level.grass;
       ctx.fillRect(0, baseY - 12, canvas.width, 12);
 
       for (let x = 0; x < canvas.width; x += 14) {
@@ -279,7 +434,7 @@
 
     function drawScene() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#87d8ff';
+      ctx.fillStyle = level.skyTop;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       ctx.fillStyle = '#ffffff';
@@ -318,6 +473,21 @@
       drawPlayer();
     }
 
+    function setLevel(nextIndex) {
+      levelIndex = (nextIndex + levels.length) % levels.length;
+      level = levels[levelIndex];
+      gameState.x = level.startX;
+      gameState.y = 300;
+      gameState.vx = 0;
+      gameState.vy = 0;
+      gameState.cameraX = 0;
+      gameState.rings = level.rings.map(r => ({ ...r, collected: false }));
+      gameState.enemies = level.enemies.map(e => ({ ...e }));
+      gameState.animTime = 0;
+      updateHUD();
+      drawScene();
+    }
+
     function resetLevel() {
       gameState.x = level.startX;
       gameState.y = 300;
@@ -328,6 +498,7 @@
       gameState.lives = 3;
       gameState.rings = level.rings.map(r => ({ ...r, collected: false }));
       gameState.enemies = level.enemies.map(e => ({ ...e }));
+      gameState.animTime = 0;
       updateHUD();
     }
 
@@ -360,7 +531,15 @@
       gameState.onGround = false;
     }
 
+    function collectRingBurst(x, y) {
+      ctx.fillStyle = '#fef08a';
+      ctx.font = 'bold 16px Arial';
+      ctx.fillText('+15', x - gameState.cameraX, y - 24);
+    }
+
     function update() {
+      gameState.animTime += 1;
+
       if (keys.left) gameState.vx = -5;
       else if (keys.right) gameState.vx = 5;
       else gameState.vx *= 0.8;
@@ -399,7 +578,8 @@
           gameState.y + gameState.h > ring.y - 14
         ) {
           ring.collected = true;
-          gameState.score += 10;
+          gameState.score += 15;
+          collectRingBurst(ring.x, ring.y);
           updateHUD();
         }
       }
@@ -423,8 +603,12 @@
       }
 
       if (gameState.x + gameState.w > level.goalX && gameState.y + gameState.h > 250 && gameState.y < 360) {
-        alert('Stage clear! Final rings: ' + gameState.score);
-        resetLevel();
+        const nextStage = levelIndex + 1;
+        if (nextStage < levels.length) {
+          setLevel(nextStage);
+        } else {
+          setLevel(0);
+        }
       }
 
       gameState.cameraX = Math.max(0, Math.min(level.width - canvas.width, gameState.x - 220));
@@ -446,7 +630,7 @@
       if (e.key === 'ArrowRight' || e.key.toLowerCase() === 'd') keys.right = false;
     });
 
-    resetLevel();
+    setLevel(levelIndex);
     updateHUD();
     drawScene();
     requestAnimationFrame(update);
