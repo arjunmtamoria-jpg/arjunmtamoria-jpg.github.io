@@ -6,20 +6,26 @@
   <title>Sonic True Levels</title>
   <style>
     :root {
-      --sky-top: #84d8ff;
+      --sky-top: #7fd7ff;
       --sky-bottom: #ebfbff;
       --panel: rgba(15, 23, 42, 0.82);
-      --panel-border: rgba(255,255,255,0.18);
-      --text: #eff7ff;
+      --panel-border: rgba(255,255,255,0.22);
+      --text: #f2f8ff;
       --ring: #ffd84d;
-      --ring-core: #fff8cf;
+      --ring-core: #fff7cd;
       --gold: #facc15;
-      --red: #d93434;
-      --blue: #1e77ff;
-      --blue-soft: #7bc7ff;
-      --shadow: rgba(0,0,0,0.24);
-      --marble: #dfe7ee;
-      --marble-dark: #8794a6;
+      --red: #d93333;
+      --blue: #1d7ae8;
+      --blue-soft: #9ad4ff;
+      --shadow: rgba(0,0,0,0.28);
+      --marble: #dfe7ef;
+      --marble-dark: #8a96a9;
+      --platform: #7a4d2a;
+      --platform-alt: #8d5a30;
+      --green: #4ac66d;
+      --green-dark: #2b9e52;
+      --cave: #202b38;
+      --lava: #ff8a3d;
     }
 
     * { box-sizing: border-box; }
@@ -27,7 +33,7 @@
       margin: 0;
       min-height: 100%;
       font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(#06131f, #0b1d2a);
+      background: linear-gradient(#071824, #0b1b2a 32%, #111827);
       color: var(--text);
     }
 
@@ -35,7 +41,7 @@
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding: 20px 12px 42px;
+      padding: 22px 12px 44px;
     }
 
     .wrap {
@@ -43,15 +49,16 @@
       background: var(--panel);
       border: 1px solid var(--panel-border);
       border-radius: 18px;
-      box-shadow: 0 18px 38px rgba(0,0,0,.35);
-      padding: 22px 20px 18px;
+      box-shadow: 0 20px 42px rgba(0,0,0,0.4);
+      padding: 20px 18px 18px;
     }
 
     h1 {
-      margin: 0 0 12px;
+      margin: 0 0 14px;
       text-align: center;
       font-size: clamp(28px, 4vw, 42px);
       letter-spacing: 1px;
+      text-shadow: 0 4px 10px rgba(45, 129, 255, 0.35);
     }
 
     .hud {
@@ -59,18 +66,19 @@
       justify-content: center;
       flex-wrap: wrap;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       font-weight: 700;
     }
 
     .hud-box {
       background: rgba(15, 23, 42, 0.9);
-      border: 2px solid rgba(148,163,184,.38);
+      border: 2px solid rgba(148,163,184,.42);
       border-radius: 10px;
       padding: 8px 16px;
       font-size: clamp(16px, 2vw, 20px);
       min-width: 120px;
       text-align: center;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
     }
 
     .ring-display {
@@ -86,7 +94,7 @@
       height: 26px;
       border-radius: 7px;
       background: #000;
-      border: 3px solid #a5b4c5;
+      border: 3px solid #9faec1;
       position: relative;
       box-shadow: inset 0 0 0 2px rgba(255,255,255,.08);
     }
@@ -111,9 +119,10 @@
       width: 100%;
       height: auto;
       background: linear-gradient(var(--sky-top), var(--sky-bottom));
-      border: 2px solid rgba(255,255,255,.8);
-      border-radius: 4px;
+      border: 2px solid rgba(255,255,255,.82);
+      border-radius: 6px;
       touch-action: none;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.08);
     }
 
     .game-hud {
@@ -223,7 +232,7 @@
       <canvas id="game" width="800" height="400"></canvas>
     </div>
 
-    <div class="controls">Arrow keys / A-D to move. Space = jump. Shift or S = spin. In Marble Zone, underground caverns, lava, bats, and bee-bot shots are active.</div>
+    <div class="controls">Arrow keys / A-D to move. Space = jump. Shift or S = spin. Marble Zone adds columns, pipes, cave detail, lava, bat swarms, and aggressive bee-bot attacks.</div>
 
     <div class="touch-bar" aria-label="Touch controls">
       <button class="touch-btn" data-key="left">◀</button>
@@ -250,257 +259,263 @@
     const levelDefs = [
       {
         name: 'Green Hill Act 1',
-        width: 2700,
-        groundY: 380,
-        skyTop: '#87d8ff',
-        skyBottom: '#edfaff',
-        ground: '#4d2c16',
-        grass: '#46c26a',
-        bridge: { x: 360, y: 260, w: 280, h: 120 },
-        flowers: [
-          { x: 110, y: 360 }, { x: 250, y: 360 }, { x: 420, y: 360 },
-          { x: 660, y: 360 }, { x: 980, y: 360 }, { x: 1260, y: 360 },
-          { x: 1500, y: 360 }, { x: 1820, y: 360 }, { x: 2140, y: 360 }, { x: 2450, y: 360 }
-        ],
+        width: 2600,
+        groundY: 360,
+        skyTop: '#7fd7ff',
+        skyBottom: '#ebfbff',
+        ground: '#4a2d1a',
+        grass: '#46c766',
+        bridge: { x: 420, y: 245, w: 260, h: 120 },
+        flowers: [110, 260, 420, 660, 980, 1260, 1500, 1820, 2140, 2450].map(x => ({ x, y: 340 })),
         palms: [
-          { x: 520, y: 315, scale: 1.2 },
-          { x: 1180, y: 318, scale: 1.25 },
-          { x: 1710, y: 312, scale: 1.15 },
-          { x: 2200, y: 320, scale: 1.2 }
+          { x: 500, y: 298, scale: 1.2 },
+          { x: 1120, y: 300, scale: 1.25 },
+          { x: 1700, y: 295, scale: 1.15 },
+          { x: 2190, y: 301, scale: 1.2 }
         ],
         hills: [
-          { x: 100, y: 400, w: 180, h: 120 },
-          { x: 420, y: 400, w: 210, h: 125 },
-          { x: 760, y: 400, w: 230, h: 132 },
-          { x: 1160, y: 400, w: 220, h: 120 },
-          { x: 1500, y: 400, w: 250, h: 138 },
-          { x: 1880, y: 400, w: 220, h: 120 },
-          { x: 2240, y: 400, w: 210, h: 120 }
+          { x: 90, y: 380, w: 180, h: 120 },
+          { x: 420, y: 380, w: 220, h: 130 },
+          { x: 760, y: 380, w: 260, h: 140 },
+          { x: 1180, y: 380, w: 220, h: 120 },
+          { x: 1520, y: 380, w: 260, h: 138 },
+          { x: 1880, y: 380, w: 220, h: 120 },
+          { x: 2240, y: 380, w: 210, h: 120 }
         ],
         platforms: [
-          { x: 0, y: 380, w: 520, h: 20 },
-          { x: 560, y: 380, w: 280, h: 20 },
-          { x: 980, y: 380, w: 270, h: 20 },
-          { x: 1330, y: 380, w: 250, h: 20 },
-          { x: 1700, y: 380, w: 310, h: 20 },
-          { x: 2120, y: 380, w: 420, h: 20 }
+          { x: 0, y: 360, w: 520, h: 18 },
+          { x: 540, y: 360, w: 290, h: 18 },
+          { x: 980, y: 360, w: 260, h: 18 },
+          { x: 1320, y: 360, w: 250, h: 18 },
+          { x: 1690, y: 360, w: 320, h: 18 },
+          { x: 2120, y: 360, w: 420, h: 18 }
+        ],
+        pipes: [
+          { x: 940, y: 300, w: 38, h: 60 },
+          { x: 1420, y: 272, w: 44, h: 88 }
         ],
         rings: [
-          { x: 170, y: 330 }, { x: 390, y: 300 }, { x: 620, y: 290 },
-          { x: 860, y: 250 }, { x: 1120, y: 220 }, { x: 1420, y: 200 },
-          { x: 1670, y: 250 }, { x: 1925, y: 220 }, { x: 2190, y: 250 }, { x: 2460, y: 320 }
+          { x: 160, y: 310 }, { x: 380, y: 270 }, { x: 630, y: 240 },
+          { x: 860, y: 220 }, { x: 1130, y: 190 }, { x: 1420, y: 160 },
+          { x: 1670, y: 220 }, { x: 1920, y: 200 }, { x: 2200, y: 220 }, { x: 2480, y: 285 }
         ],
         checkpoints: [
-          { x: 980, y: 300 }, { x: 1980, y: 300 }
+          { x: 1000, y: 280 }, { x: 1980, y: 280 }
         ],
         startX: 60,
-        goalX: 2480,
+        goalX: 2460,
         boss: null,
         enemies: [
-          { type: 'piranha', x: 430, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 14 },
-          { type: 'bee', x: 860, y: 300, w: 28, h: 24, dir: -1, baseY: 300 },
-          { type: 'piranha', x: 1640, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 28 }
+          { type: 'bat', x: 480, y: 210, w: 32, h: 24, dir: 1, baseY: 210 },
+          { type: 'bee', x: 860, y: 250, w: 28, h: 24, dir: -1, baseY: 250 },
+          { type: 'bat', x: 1620, y: 180, w: 32, h: 24, dir: -1, baseY: 170 }
         ]
       },
       {
         name: 'Green Hill Act 2',
-        width: 3120,
-        groundY: 380,
-        skyTop: '#87d8ff',
+        width: 3000,
+        groundY: 360,
+        skyTop: '#80d5ff',
         skyBottom: '#edfaff',
-        ground: '#4d2c16',
-        grass: '#46c26a',
-        bridge: { x: 700, y: 250, w: 340, h: 120 },
-        flowers: [
-          { x: 150, y: 360 }, { x: 380, y: 360 }, { x: 600, y: 360 }, { x: 880, y: 360 },
-          { x: 1240, y: 360 }, { x: 1540, y: 360 }, { x: 1820, y: 360 }, { x: 2140, y: 360 },
-          { x: 2440, y: 360 }, { x: 2720, y: 360 }
-        ],
+        ground: '#4a2d1a',
+        grass: '#45c76b',
+        bridge: { x: 700, y: 220, w: 350, h: 120 },
+        flowers: [160, 380, 620, 900, 1240, 1560, 1820, 2140, 2440, 2720].map(x => ({ x, y: 340 })),
         palms: [
-          { x: 500, y: 315, scale: 1.2 },
-          { x: 1010, y: 318, scale: 1.3 },
-          { x: 1700, y: 312, scale: 1.15 },
-          { x: 2320, y: 318, scale: 1.25 },
-          { x: 2790, y: 316, scale: 1.18 }
+          { x: 500, y: 298, scale: 1.15 },
+          { x: 1040, y: 300, scale: 1.3 },
+          { x: 1685, y: 295, scale: 1.15 },
+          { x: 2330, y: 298, scale: 1.28 },
+          { x: 2780, y: 296, scale: 1.18 }
         ],
         hills: [
-          { x: 110, y: 400, w: 200, h: 120 },
-          { x: 420, y: 400, w: 240, h: 130 },
-          { x: 760, y: 400, w: 280, h: 142 },
-          { x: 1230, y: 400, w: 220, h: 120 },
-          { x: 1600, y: 400, w: 240, h: 136 },
-          { x: 1960, y: 400, w: 260, h: 138 },
-          { x: 2360, y: 400, w: 240, h: 124 },
-          { x: 2740, y: 400, w: 220, h: 118 }
+          { x: 110, y: 380, w: 200, h: 120 },
+          { x: 430, y: 380, w: 240, h: 135 },
+          { x: 770, y: 380, w: 280, h: 142 },
+          { x: 1225, y: 380, w: 220, h: 120 },
+          { x: 1600, y: 380, w: 240, h: 138 },
+          { x: 1960, y: 380, w: 260, h: 138 },
+          { x: 2360, y: 380, w: 240, h: 124 },
+          { x: 2740, y: 380, w: 220, h: 120 }
         ],
         platforms: [
-          { x: 0, y: 380, w: 440, h: 20 },
-          { x: 520, y: 380, w: 320, h: 20 },
-          { x: 880, y: 380, w: 260, h: 20 },
-          { x: 1280, y: 380, w: 260, h: 20 },
-          { x: 1620, y: 380, w: 310, h: 20 },
-          { x: 2010, y: 380, w: 350, h: 20 },
-          { x: 2440, y: 380, w: 390, h: 20 }
+          { x: 0, y: 360, w: 420, h: 18 },
+          { x: 520, y: 360, w: 320, h: 18 },
+          { x: 900, y: 360, w: 260, h: 18 },
+          { x: 1280, y: 360, w: 260, h: 18 },
+          { x: 1640, y: 360, w: 310, h: 18 },
+          { x: 2010, y: 360, w: 350, h: 18 },
+          { x: 2450, y: 360, w: 390, h: 18 }
+        ],
+        pipes: [
+          { x: 820, y: 285, w: 40, h: 75 },
+          { x: 1880, y: 280, w: 46, h: 80 }
         ],
         rings: [
-          { x: 220, y: 330 }, { x: 420, y: 290 }, { x: 760, y: 260 },
-          { x: 1010, y: 220 }, { x: 1340, y: 190 }, { x: 1640, y: 250 },
-          { x: 1980, y: 220 }, { x: 2260, y: 210 }, { x: 2560, y: 250 }, { x: 2860, y: 300 }
+          { x: 220, y: 310 }, { x: 440, y: 260 }, { x: 760, y: 220 },
+          { x: 1010, y: 180 }, { x: 1360, y: 150 }, { x: 1640, y: 220 },
+          { x: 1985, y: 180 }, { x: 2275, y: 170 }, { x: 2580, y: 220 }, { x: 2860, y: 280 }
         ],
         checkpoints: [
-          { x: 1100, y: 300 }, { x: 2360, y: 300 }
+          { x: 1120, y: 280 }, { x: 2360, y: 280 }
         ],
         startX: 80,
-        goalX: 2890,
+        goalX: 2860,
         boss: {
-          x: 2520,
-          y: 260,
+          x: 2530,
+          y: 225,
           hp: 4,
           active: false,
           phase: 0,
-          chainLen: 90,
+          chainLen: 88,
           maceAngle: 0,
-          angleSpeed: 0.04,
+          angleSpeed: 0.055,
           shield: 0,
           hidePlatforms: [
-            { x: 2330, y: 305, w: 90, h: 12 },
-            { x: 2428, y: 305, w: 90, h: 12 }
+            { x: 2320, y: 300, w: 100, h: 12 },
+            { x: 2425, y: 300, w: 100, h: 12 }
           ]
         },
         enemies: [
-          { type: 'bee', x: 740, y: 290, w: 28, h: 24, dir: -1, baseY: 290 },
-          { type: 'piranha', x: 940, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 8 },
-          { type: 'bee', x: 1690, y: 280, w: 28, h: 24, dir: 1, baseY: 280 },
-          { type: 'piranha', x: 2140, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 60 }
+          { type: 'bee', x: 760, y: 250, w: 28, h: 24, dir: -1, baseY: 250 },
+          { type: 'bat', x: 980, y: 180, w: 32, h: 24, dir: 1, baseY: 180 },
+          { type: 'bee', x: 1730, y: 240, w: 28, h: 24, dir: 1, baseY: 240 },
+          { type: 'bat', x: 2150, y: 165, w: 32, h: 24, dir: -1, baseY: 165 }
         ]
       },
       {
         name: 'Marble Zone Act 1',
         width: 3300,
-        groundY: 380,
-        skyTop: '#8ec5ff',
-        skyBottom: '#e5f5ff',
-        ground: '#7a7d8e',
-        grass: '#8b90a9',
-        bridge: { x: 820, y: 240, w: 320, h: 120 },
-        flowers: [
-          { x: 200, y: 360 }, { x: 420, y: 360 }, { x: 740, y: 360 }, { x: 980, y: 360 },
-          { x: 1320, y: 360 }, { x: 1600, y: 360 }, { x: 1950, y: 360 }, { x: 2240, y: 360 },
-          { x: 2550, y: 360 }, { x: 2860, y: 360 }
-        ],
+        groundY: 360,
+        skyTop: '#93c8ff',
+        skyBottom: '#eff9ff',
+        ground: '#7b7d8e',
+        grass: '#9aa4b9',
+        bridge: { x: 820, y: 220, w: 320, h: 120 },
+        flowers: [200, 420, 740, 980, 1320, 1600, 1950, 2240, 2550, 2860].map(x => ({ x, y: 340 })),
         palms: [
-          { x: 300, y: 315, scale: 1.1 },
-          { x: 1180, y: 318, scale: 1.3 },
-          { x: 1980, y: 312, scale: 1.15 },
-          { x: 2730, y: 318, scale: 1.28 }
+          { x: 310, y: 300, scale: 1.1 },
+          { x: 1180, y: 304, scale: 1.3 },
+          { x: 1980, y: 298, scale: 1.15 },
+          { x: 2730, y: 302, scale: 1.28 }
         ],
         hills: [
-          { x: 120, y: 400, w: 220, h: 120 },
-          { x: 430, y: 400, w: 270, h: 140 },
-          { x: 860, y: 400, w: 300, h: 150 },
-          { x: 1280, y: 400, w: 260, h: 135 },
-          { x: 1700, y: 400, w: 260, h: 140 },
-          { x: 2120, y: 400, w: 260, h: 130 },
-          { x: 2520, y: 400, w: 240, h: 124 },
-          { x: 2870, y: 400, w: 220, h: 118 }
+          { x: 120, y: 380, w: 220, h: 120 },
+          { x: 430, y: 380, w: 270, h: 138 },
+          { x: 860, y: 380, w: 300, h: 150 },
+          { x: 1280, y: 380, w: 260, h: 135 },
+          { x: 1700, y: 380, w: 260, h: 140 },
+          { x: 2120, y: 380, w: 260, h: 130 },
+          { x: 2520, y: 380, w: 240, h: 124 },
+          { x: 2870, y: 380, w: 220, h: 118 }
         ],
         platforms: [
-          { x: 0, y: 380, w: 360, h: 20 },
-          { x: 470, y: 380, w: 280, h: 20 },
-          { x: 860, y: 380, w: 240, h: 20 },
-          { x: 1160, y: 380, w: 260, h: 20 },
-          { x: 1500, y: 380, w: 260, h: 20 },
-          { x: 1880, y: 380, w: 330, h: 20 },
-          { x: 2320, y: 380, w: 370, h: 20 },
-          { x: 2820, y: 380, w: 260, h: 20 }
+          { x: 0, y: 360, w: 360, h: 18 },
+          { x: 470, y: 360, w: 280, h: 18 },
+          { x: 860, y: 360, w: 240, h: 18 },
+          { x: 1160, y: 360, w: 260, h: 18 },
+          { x: 1500, y: 360, w: 260, h: 18 },
+          { x: 1880, y: 360, w: 330, h: 18 },
+          { x: 2320, y: 360, w: 370, h: 18 },
+          { x: 2820, y: 360, w: 260, h: 18 }
         ],
-        rings: [
-          { x: 220, y: 330 }, { x: 560, y: 310 }, { x: 900, y: 260 },
-          { x: 1180, y: 230 }, { x: 1480, y: 200 }, { x: 1760, y: 260 },
-          { x: 2060, y: 240 }, { x: 2360, y: 220 }, { x: 2660, y: 230 }, { x: 2980, y: 310 }
-        ],
-        checkpoints: [
-          { x: 1220, y: 300 }, { x: 2460, y: 300 }
+        pipes: [
+          { x: 620, y: 286, w: 36, h: 74 },
+          { x: 1700, y: 278, w: 40, h: 82 },
+          { x: 2580, y: 292, w: 42, h: 68 }
         ],
         columns: [
-          { x: 540, y: 300, h: 80 }, { x: 790, y: 300, h: 80 }, { x: 1040, y: 300, h: 80 },
-          { x: 1420, y: 300, h: 80 }, { x: 1670, y: 300, h: 80 }, { x: 1920, y: 300, h: 80 },
-          { x: 2320, y: 300, h: 80 }, { x: 2580, y: 300, h: 80 }, { x: 2840, y: 300, h: 80 }
+          { x: 540, y: 280, h: 80 }, { x: 790, y: 280, h: 80 }, { x: 1040, y: 280, h: 80 },
+          { x: 1420, y: 280, h: 80 }, { x: 1670, y: 280, h: 80 }, { x: 1920, y: 280, h: 80 },
+          { x: 2320, y: 280, h: 80 }, { x: 2580, y: 280, h: 80 }, { x: 2840, y: 280, h: 80 }
+        ],
+        rings: [
+          { x: 220, y: 300 }, { x: 560, y: 285 }, { x: 900, y: 240 },
+          { x: 1180, y: 210 }, { x: 1480, y: 180 }, { x: 1760, y: 220 },
+          { x: 2060, y: 200 }, { x: 2360, y: 190 }, { x: 2660, y: 210 }, { x: 2980, y: 280 }
+        ],
+        checkpoints: [
+          { x: 1220, y: 270 }, { x: 2460, y: 270 }
         ],
         startX: 70,
         goalX: 3050,
         underground: true,
-        lavaY: 406,
+        lavaY: 396,
         enemies: [
-          { type: 'bee', x: 660, y: 300, w: 28, h: 24, dir: -1, baseY: 300 },
-          { type: 'bee', x: 1710, y: 290, w: 28, h: 24, dir: 1, baseY: 290 },
-          { type: 'piranha', x: 2120, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 30 },
-          { type: 'piranha', x: 2780, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 60 }
+          { type: 'bee', x: 660, y: 250, w: 28, h: 24, dir: -1, baseY: 250 },
+          { type: 'bee', x: 1710, y: 235, w: 28, h: 24, dir: 1, baseY: 235 },
+          { type: 'bat', x: 2140, y: 160, w: 32, h: 24, dir: -1, baseY: 160 },
+          { type: 'bat', x: 2780, y: 170, w: 32, h: 24, dir: 1, baseY: 170 }
         ],
         boss: null
       },
       {
         name: 'Marble Zone Act 2',
         width: 3500,
-        groundY: 380,
-        skyTop: '#9ac7ff',
-        skyBottom: '#edf9ff',
-        ground: '#7d8190',
-        grass: '#a0a8bf',
-        bridge: { x: 920, y: 240, w: 350, h: 120 },
-        flowers: [
-          { x: 220, y: 360 }, { x: 500, y: 360 }, { x: 830, y: 360 }, { x: 1170, y: 360 },
-          { x: 1500, y: 360 }, { x: 1790, y: 360 }, { x: 2100, y: 360 }, { x: 2420, y: 360 },
-          { x: 2760, y: 360 }, { x: 3080, y: 360 }
-        ],
+        groundY: 360,
+        skyTop: '#9dc7ff',
+        skyBottom: '#f1faff',
+        ground: '#7c8296',
+        grass: '#a2abbf',
+        bridge: { x: 920, y: 220, w: 350, h: 120 },
+        flowers: [220, 500, 830, 1170, 1500, 1790, 2100, 2420, 2760, 3080].map(x => ({ x, y: 340 })),
         palms: [
-          { x: 360, y: 312, scale: 1.08 }, { x: 1020, y: 316, scale: 1.28 },
-          { x: 1710, y: 315, scale: 1.22 }, { x: 2310, y: 318, scale: 1.24 }, { x: 2960, y: 314, scale: 1.18 }
+          { x: 360, y: 298, scale: 1.08 },
+          { x: 1020, y: 302, scale: 1.28 },
+          { x: 1710, y: 300, scale: 1.22 },
+          { x: 2310, y: 302, scale: 1.24 },
+          { x: 2960, y: 299, scale: 1.18 }
         ],
         hills: [
-          { x: 120, y: 400, w: 220, h: 120 },
-          { x: 480, y: 400, w: 260, h: 140 },
-          { x: 890, y: 400, w: 300, h: 150 },
-          { x: 1280, y: 400, w: 250, h: 130 },
-          { x: 1700, y: 400, w: 250, h: 138 },
-          { x: 2140, y: 400, w: 260, h: 134 },
-          { x: 2550, y: 400, w: 250, h: 128 },
-          { x: 2960, y: 400, w: 220, h: 120 }
+          { x: 120, y: 380, w: 220, h: 120 },
+          { x: 480, y: 380, w: 260, h: 140 },
+          { x: 890, y: 380, w: 300, h: 150 },
+          { x: 1280, y: 380, w: 250, h: 130 },
+          { x: 1700, y: 380, w: 250, h: 138 },
+          { x: 2140, y: 380, w: 260, h: 134 },
+          { x: 2550, y: 380, w: 250, h: 128 },
+          { x: 2960, y: 380, w: 220, h: 120 }
         ],
         platforms: [
-          { x: 0, y: 380, w: 390, h: 20 },
-          { x: 520, y: 380, w: 270, h: 20 },
-          { x: 890, y: 380, w: 240, h: 20 },
-          { x: 1200, y: 380, w: 260, h: 20 },
-          { x: 1550, y: 380, w: 250, h: 20 },
-          { x: 1890, y: 380, w: 350, h: 20 },
-          { x: 2330, y: 380, w: 320, h: 20 },
-          { x: 2760, y: 380, w: 300, h: 20 },
-          { x: 3130, y: 380, w: 280, h: 20 }
+          { x: 0, y: 360, w: 390, h: 18 },
+          { x: 520, y: 360, w: 270, h: 18 },
+          { x: 890, y: 360, w: 240, h: 18 },
+          { x: 1200, y: 360, w: 260, h: 18 },
+          { x: 1550, y: 360, w: 250, h: 18 },
+          { x: 1890, y: 360, w: 350, h: 18 },
+          { x: 2330, y: 360, w: 320, h: 18 },
+          { x: 2760, y: 360, w: 300, h: 18 },
+          { x: 3130, y: 360, w: 280, h: 18 }
         ],
-        rings: [
-          { x: 220, y: 330 }, { x: 620, y: 300 }, { x: 980, y: 250 },
-          { x: 1220, y: 220 }, { x: 1500, y: 200 }, { x: 1780, y: 250 },
-          { x: 2080, y: 230 }, { x: 2380, y: 210 }, { x: 2700, y: 240 }, { x: 3030, y: 300 }
-        ],
-        checkpoints: [
-          { x: 1220, y: 300 }, { x: 2600, y: 300 }
+        pipes: [
+          { x: 690, y: 290, w: 38, h: 70 },
+          { x: 1750, y: 276, w: 44, h: 84 },
+          { x: 2440, y: 288, w: 40, h: 72 },
+          { x: 3070, y: 282, w: 44, h: 78 }
         ],
         columns: [
-          { x: 610, y: 300, h: 80 }, { x: 860, y: 300, h: 80 }, { x: 1110, y: 300, h: 80 },
-          { x: 1400, y: 300, h: 80 }, { x: 1680, y: 300, h: 80 }, { x: 1980, y: 300, h: 80 },
-          { x: 2260, y: 300, h: 80 }, { x: 2520, y: 300, h: 80 }, { x: 2810, y: 300, h: 80 }, { x: 3080, y: 300, h: 80 }
+          { x: 610, y: 280, h: 80 }, { x: 860, y: 280, h: 80 }, { x: 1110, y: 280, h: 80 },
+          { x: 1400, y: 280, h: 80 }, { x: 1680, y: 280, h: 80 }, { x: 1980, y: 280, h: 80 },
+          { x: 2260, y: 280, h: 80 }, { x: 2520, y: 280, h: 80 }, { x: 2810, y: 280, h: 80 }, { x: 3080, y: 280, h: 80 }
+        ],
+        rings: [
+          { x: 220, y: 300 }, { x: 620, y: 270 }, { x: 980, y: 220 },
+          { x: 1220, y: 190 }, { x: 1500, y: 170 }, { x: 1780, y: 230 },
+          { x: 2080, y: 200 }, { x: 2380, y: 185 }, { x: 2700, y: 210 }, { x: 3030, y: 280 }
+        ],
+        checkpoints: [
+          { x: 1220, y: 270 }, { x: 2600, y: 270 }
         ],
         startX: 80,
         goalX: 3210,
         underground: true,
-        lavaY: 405,
+        lavaY: 398,
         enemies: [
-          { type: 'bee', x: 730, y: 300, w: 28, h: 24, dir: -1, baseY: 300 },
-          { type: 'bee', x: 1750, y: 290, w: 28, h: 24, dir: 1, baseY: 290 },
-          { type: 'piranha', x: 1950, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 12 },
-          { type: 'piranha', x: 2670, y: 350, w: 36, h: 26, baseY: 350, jumpTimer: 48 },
-          { type: 'bee', x: 2980, y: 280, w: 28, h: 24, dir: -1, baseY: 280 }
+          { type: 'bee', x: 730, y: 250, w: 28, h: 24, dir: -1, baseY: 250 },
+          { type: 'bee', x: 1750, y: 230, w: 28, h: 24, dir: 1, baseY: 230 },
+          { type: 'bat', x: 1950, y: 160, w: 32, h: 24, dir: -1, baseY: 160 },
+          { type: 'bat', x: 2670, y: 155, w: 32, h: 24, dir: 1, baseY: 155 },
+          { type: 'bee', x: 2980, y: 220, w: 28, h: 24, dir: -1, baseY: 220 }
         ],
         boss: null
       }
@@ -526,10 +541,10 @@
         vy: 0,
         onGround: false,
         dir: 1,
+        lookDir: 1,
         invuln: 0,
         spinTime: 0,
-        spinCharge: 0,
-        lookDir: 1,
+        jumpQueued: false,
         respawnX: 80,
         respawnY: 300
       },
@@ -550,21 +565,21 @@
     function resetLevelState() {
       level = levelDefs[actIndex];
       state.player.x = level.startX;
-      state.player.y = 300;
+      state.player.y = level.groundY - state.player.h;
       state.player.vx = 0;
       state.player.vy = 0;
-      state.player.onGround = false;
+      state.player.onGround = true;
       state.player.respawnX = level.startX;
-      state.player.respawnY = 300;
+      state.player.respawnY = level.groundY - state.player.h;
       state.player.invuln = 0;
       state.player.spinTime = 0;
-      state.player.spinCharge = 0;
+      state.player.lookDir = 1;
       state.cameraX = 0;
       state.rings = level.rings.map(r => ({ ...r, collected: false }));
-      state.enemies = level.enemies.map((e, i) => ({ ...e, alive: true, jumpTimer: (e.jumpTimer || 0) + i * 20 }));
+      state.enemies = level.enemies.map((e, i) => ({ ...e, alive: true, jumpTimer: (e.jumpTimer || 0) + i * 18, shootCooldown: 60 + i * 15 }));
       state.checkpoints = level.checkpoints.map((cp, i) => ({ ...cp, reached: false, flash: 0, index: i }));
       state.projectiles = [];
-      state.boss = level.boss ? ({ ...level.boss, active: false, hp: level.boss.hp, shield: 0, maceAngle: 0 }) : null;
+      state.boss = level.boss ? { ...level.boss, active: false, hp: level.boss.hp, shield: 0, maceAngle: 0 } : null;
       state.bossDefeated = false;
       state.message = '';
       updateHUD();
@@ -591,8 +606,8 @@
     function spawnProjectile(enemy, dir) {
       state.projectiles.push({
         x: enemy.x,
-        y: enemy.y,
-        vx: dir * 2.4,
+        y: enemy.y + 10,
+        vx: dir * 2.7,
         vy: 0,
         r: 6,
         from: 'enemy'
@@ -611,7 +626,7 @@
     });
 
     document.addEventListener('keyup', (event) => {
-      const key = event.key.toLowerDefault?.() || event.key.toLowerCase();
+      const key = (event.key || '').toLowerCase();
       if (key === 'arrowleft' || key === 'a') setKeyState('left', false);
       if (key === 'arrowright' || key === 'd') setKeyState('right', false);
       if (key === ' ' || key === 'arrowup' || key === 'w') setKeyState('jump', false);
@@ -740,12 +755,22 @@
       }
     }
 
+    function drawPipe(pipe) {
+      const x = pipe.x - state.cameraX;
+      ctx.fillStyle = '#2fc476';
+      ctx.fillRect(x, pipe.y, pipe.w, pipe.h);
+      ctx.fillStyle = '#1b8d4d';
+      ctx.fillRect(x + 8, pipe.y, pipe.w - 16, 8);
+      ctx.fillStyle = '#7dffb5';
+      ctx.fillRect(x + 10, pipe.y + 12, pipe.w - 20, 4);
+    }
+
     function drawMarbleColumns() {
       if (!level.columns) return;
       for (const col of level.columns) {
         const x = col.x - state.cameraX;
         const h = col.h;
-        const y = 300;
+        const y = 280;
         ctx.fillStyle = '#dfe7ef';
         ctx.fillRect(x - 11, y, 22, h);
         ctx.fillStyle = '#8a94a6';
@@ -845,6 +870,33 @@
       ctx.fill();
     }
 
+    function drawBat(enemy) {
+      if (!enemy.alive) return;
+      const x = enemy.x - state.cameraX;
+      const y = enemy.y + Math.sin(state.anim * 0.15) * 5;
+      ctx.fillStyle = '#dfeaf8';
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x - 18, y + 10);
+      ctx.lineTo(x - 12, y + 18);
+      ctx.lineTo(x, y + 14);
+      ctx.lineTo(x + 12, y + 18);
+      ctx.lineTo(x + 18, y + 10);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#111827';
+      ctx.fillRect(x - 5, y + 4, 3, 3);
+      ctx.fillRect(x + 2, y + 4, 3, 3);
+      ctx.strokeStyle = '#111827';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x - 18, y + 10);
+      ctx.lineTo(x - 30, y + 18);
+      ctx.moveTo(x + 18, y + 10);
+      ctx.lineTo(x + 30, y + 18);
+      ctx.stroke();
+    }
+
     function drawPiranha(p) {
       if (!p.alive) return;
       const x = p.x - state.cameraX;
@@ -889,26 +941,22 @@
 
     function drawStarPost(cp) {
       const x = cp.x - state.cameraX;
-      const y = 300;
+      const y = 280;
       const active = cp.reached;
       const flash = active && cp.flash > 0;
 
       ctx.fillStyle = '#facc15';
       ctx.fillRect(x - 10, y, 20, 14);
-
       ctx.fillStyle = '#b6bcc8';
       ctx.fillRect(x - 2, y - 36, 4, 36);
-
       ctx.fillStyle = '#d93333';
       ctx.beginPath();
       ctx.arc(x, y - 42, 18, 0, Math.PI * 2);
       ctx.fill();
-
       ctx.fillStyle = '#1b73ff';
       ctx.beginPath();
       ctx.arc(x, y - 42, 9, 0, Math.PI * 2);
       ctx.fill();
-
       ctx.fillStyle = '#facc15';
       ctx.beginPath();
       ctx.moveTo(x, y - 58);
@@ -980,7 +1028,7 @@
 
       ctx.fillStyle = '#f8fafc';
       ctx.font = 'bold 14px Arial';
-      ctx.fillText('EGGMAN', x - 28, y - 28);
+      ctx.fillText('EGGMAN', x - 30, y - 28);
       ctx.fillStyle = '#ef4444';
       ctx.fillRect(x - 38, y - 44, 76, 8);
       ctx.fillStyle = '#34d399';
@@ -997,253 +1045,85 @@
       const spinPose = p.spinTime > 0;
       const face = p.lookDir;
 
+      if (blink) return;
+
       ctx.save();
-      ctx.translate(x + 15, y + 21 + bob);
+      ctx.translate(x + (face === 1 ? 0 : 0), y + bob);
       ctx.scale(face, 1);
 
+      ctx.fillStyle = '#0d3b8c';
+      ctx.fillRect(-12, 16, 24, 18);
+      ctx.fillStyle = '#1e77ff';
+      ctx.fillRect(-8, 18, 16, 12);
+
+      ctx.fillStyle = '#f7d65a';
+      ctx.beginPath();
+      ctx.ellipse(0, -12, 12, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#1d2740';
+      ctx.fillRect(-13, -4, 26, 18);
+      ctx.fillStyle = '#d9f0ff';
+      ctx.fillRect(-14, -10, 28, 12);
+
+      ctx.fillStyle = '#f7d65a';
+      ctx.fillRect(-7, -20, 14, 10);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(-10, -14, 6, 6);
+      ctx.fillRect(4, -14, 6, 6);
+      ctx.fillStyle = '#f5f5f5';
+      ctx.fillRect(-6, -23, 4, 3);
+      ctx.fillRect(2, -23, 4, 3);
+      ctx.fillStyle = '#f7d65a';
+      ctx.fillRect(-6, 30, 5, 12);
+      ctx.fillRect(1, 30, 5, 12);
+
+      ctx.fillStyle = '#1d5efc';
+      ctx.fillRect(-12, 34, 9, 9);
+      ctx.fillRect(3, 34, 9, 9);
+
       if (spinPose) {
-        ctx.fillStyle = blink ? '#f8fafc' : '#1e74ff';
+        ctx.strokeStyle = '#fef3c7';
+        ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.arc(0, 0, 15, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#fef3c7';
-        ctx.fillRect(-10, -10, 20, 8);
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-4, -6, 3, 3);
-        ctx.fillRect(1, -6, 3, 3);
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillRect(-4, 6, 8, 4);
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-12, -2, 4, 9);
-        ctx.fillRect(8, -2, 4, 9);
-      } else {
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-12, 12, 24, 3);
-        ctx.fillStyle = blink ? '#f8fafc' : '#0a66ff';
-        ctx.fillRect(-8, -15, 16, 18);
-        ctx.fillStyle = '#dbeafe';
-        ctx.fillRect(-8, -28, 16, 12);
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-4, -28, 3, 3);
-        ctx.fillRect(1, -28, 3, 3);
-        ctx.fillStyle = '#fef3c7';
-        ctx.fillRect(-6, -34, 12, 8);
-        ctx.fillStyle = '#ff4732';
-        ctx.fillRect(-9, 8, 7, 5);
-        ctx.fillRect(2, 8, 7, 5);
-        ctx.fillStyle = '#fbbf24';
-        ctx.fillRect(-5, 10, 10, 5);
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(-10, 14, 5, 9);
-        ctx.fillRect(5, 14, 5, 9);
-        ctx.fillRect(-13, -9, 4, 11);
-        ctx.fillRect(9, -9, 4, 11);
+        ctx.arc(0, 10, 20, 0, Math.PI * 2);
+        ctx.stroke();
       }
+
       ctx.restore();
     }
 
-    function drawScene() {
-      if (level.underground) {
-        drawUnderground();
-      } else {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = level.skyTop;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = '#fff';
-        for (let i = 0; i < 8; i++) {
-          const cloudX = ((i * 180) - (state.cameraX * 0.2)) % (canvas.width + 200);
-          ctx.beginPath();
-          ctx.arc(cloudX, 72, 26, 0, Math.PI * 2);
-          ctx.fill();
+    function drawBackground() {
+      const skyTop = level.skyTop || '#7fd7ff';
+      const skyBottom = level.skyBottom || '#ebfbff';
+      const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      g.addColorStop(0, skyTop);
+      g.addColorStop(1, skyBottom);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (level.palms) {
+        for (const palm of level.palms) {
+          drawPalmTree(palm.x - state.cameraX, palm.y, palm.scale);
+        }
+      }
+
+      if (level.flowers) {
+        for (const flower of level.flowers) {
+          drawSunflower(flower.x - state.cameraX, flower.y, 0.8);
+        }
+      }
+
+      if (level.bridge) drawBridge();
+
+      if (level.pipes) {
+        for (const pipe of level.pipes) {
+          drawPipe(pipe);
         }
       }
 
       if (!level.underground) {
         drawHills();
-      }
-
-      for (const flower of level.flowers) {
-        drawSunflower(flower.x - state.cameraX, flower.y, 0.72);
-      }
-
-      for (const palm of level.palms) {
-        drawPalmTree(palm.x - state.cameraX, palm.y, palm.scale);
-      }
-
-      if (!level.underground) {
-        drawGround();
-        drawBridge();
-      }
-      drawPlatformBase();
-      if (level.columns) drawMarbleColumns();
-
-      for (const cp of state.checkpoints) drawStarPost(cp);
-      for (const ring of state.rings) drawRing(ring);
-      for (const enemy of state.enemies) {
-        if (enemy.type === 'bee') drawBeeBot(enemy);
-        else if (enemy.type === 'piranha') drawPiranha(enemy);
-      }
-      for (const proj of state.projectiles) drawProjectile(proj);
-      drawBoss();
-      drawPlayer();
-
-      if (state.message) {
-        ctx.fillStyle = 'rgba(15,23,42,0.38)';
-        ctx.fillRect(165, 120, 470, 70);
-        ctx.fillStyle = '#f8fafc';
-        ctx.font = 'bold 30px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(state.message, canvas.width / 2, 160);
-      }
-    }
-
-    function onGroundCollision() {
-      const p = state.player;
-      const baseY = level.groundY;
-      if (p.y + p.h >= baseY && p.vy >= 0) {
-        p.y = baseY - p.h;
-        p.vy = 0;
-        p.onGround = true;
-      }
-
-      const bridge = level.bridge;
-      const playerRight = p.x + p.w;
-      const playerLeft = p.x;
-      const brLeft = bridge.x;
-      const brRight = bridge.x + bridge.w;
-      const top = bridge.y + 18;
-      const bottom = bridge.y + 90;
-      const playerBottom = p.y + p.h;
-      const playerTop = p.y;
-
-      if (
-        playerBottom >= top &&
-        playerBottom <= bottom + 12 &&
-        p.vy >= 0 &&
-        playerRight > brLeft &&
-        playerLeft < brRight &&
-        playerTop < top + 8
-      ) {
-        p.y = top - p.h;
-        p.vy = 0;
-        p.onGround = true;
-      }
-
-      for (const plat of level.platforms) {
-        const px = plat.x;
-        const py = plat.y;
-        const pw = plat.w;
-        const ph = plat.h;
-        if (
-          p.x + p.w > px && p.x < px + pw &&
-          p.y + p.h >= py && p.y + p.h <= py + 18 &&
-          p.vy >= 0
-        ) {
-          p.y = py - p.h;
-          p.vy = 0;
-          p.onGround = true;
-        }
-      }
-    }
-
-    function collectRings() {
-      const p = state.player;
-      for (const ring of state.rings) {
-        if (ring.collected) continue;
-        const dx = Math.abs((ring.x + 4) - (p.x + p.w / 2));
-        const dy = Math.abs((ring.y + 4) - (p.y + p.h / 2));
-        if (dx < 18 && dy < 18) {
-          ring.collected = true;
-          state.ringCount += 1;
-          state.score += 25;
-          updateHUD();
-        }
-      }
-    }
-
-    function damagePlayer() {
-      const p = state.player;
-      if (p.invuln > 0) return;
-      if (state.ringCount > 0) {
-        state.ringCount = Math.max(0, state.ringCount - 5);
-        state.score = Math.max(0, state.score - 25);
-        p.invuln = 60;
-        updateHUD();
-        return;
-      }
-      state.lives -= 1;
-      updateHUD();
-      if (state.lives <= 0) {
-        state.message = 'GAME OVER';
-        state.over = true;
-        return;
-      }
-      p.x = p.respawnX;
-      p.y = p.respawnY;
-      p.vx = 0;
-      p.vy = 0;
-      p.invuln = 90;
-      state.cameraX = Math.max(0, p.x - canvas.width / 2 + 60);
-    }
-
-    function checkCheckpoints() {
-      for (const cp of state.checkpoints) {
-        if (cp.reached) {
-          cp.flash = Math.max(0, cp.flash - 1);
-          continue;
-        }
-        if (state.player.x + state.player.w > cp.x && state.player.x < cp.x + 28) {
-          cp.reached = true;
-          cp.flash = 50;
-          state.player.respawnX = cp.x;
-          state.player.respawnY = 300;
-          state.message = 'CHECKPOINT!';
-          setTimeout(() => {
-            if (state.message === 'CHECKPOINT!') state.message = '';
-          }, 650);
-        }
-      }
-    }
-
-    function updateProjectiles() {
-      for (const proj of state.projectiles) {
-        proj.x += proj.vx;
-        proj.y += proj.vy;
-      }
-      state.projectiles = state.projectiles.filter((p) => {
-        const within = p.x > -20 && p.x < level.width + 20 && p.y > -20 && p.y < canvas.height + 20;
-        return within;
-      });
-
-      for (const proj of state.projectiles) {
-        const p = state.player;
-        if (Math.abs(proj.x - (p.x + p.w / 2)) < 13 && Math.abs(proj.y - (p.y + p.h / 2)) < 16) {
-          damagePlayer();
-        }
-      }
-    }
-
-    function enemyCollision() {
-      const p = state.player;
-      for (const enemy of state.enemies) {
-        if (!enemy.alive) continue;
-        const overlap = (
-          p.x + p.w > enemy.x &&
-          p.x < enemy.x + enemy.w &&
-          p.y + p.h > enemy.y &&
-          p.y < enemy.y + enemy.h
-        );
-        if (!overlap) continue;
-
-        const stomp = (p.y + p.h) <= (enemy.y + 10) && p.vy > 0;
-        if (stomp && (p.spinTime > 0 || p.vy > 4.3)) {
-          enemy.alive = false;
-          p.vy = -8;
-          state.score += 150;
-          updateHUD();
-        } else {
-          damagePlayer();
-        }
       }
     }
 
@@ -1251,180 +1131,236 @@
       for (const enemy of state.enemies) {
         if (!enemy.alive) continue;
 
-        if (enemy.type === 'bee') {
-          enemy.x += enemy.dir * 1.8;
-          if (enemy.x < 200 || enemy.x > level.width - 220) enemy.dir *= -1;
-          enemy.y = enemy.baseY + Math.sin(state.anim / 10) * 18;
-          if (Math.random() < 0.016) {
-            spawnProjectile(enemy, enemy.dir);
-          }
+        if (enemy.type === 'bee' || enemy.type === 'bat') {
+          enemy.x += enemy.dir * (enemy.type === 'bee' ? 1.2 : 1.7);
+          if (enemy.x < 150 || enemy.x > level.width - 120) enemy.dir *= -1;
+          enemy.y = enemy.baseY + Math.sin(state.anim * 0.18 + enemy.x * 0.04) * (enemy.type === 'bee' ? 22 : 28);
         }
 
-        if (enemy.type === 'piranha') {
-          enemy.jumpTimer += 1;
-          const close = Math.abs(state.player.x - enemy.x) < 180;
-          const t = (enemy.jumpTimer % 120) / 120;
-          if (close) {
-            const pop = Math.max(0, Math.sin(t * Math.PI * 2));
-            enemy.y = enemy.baseY - pop * 24;
-          } else {
-            enemy.y = enemy.baseY;
-          }
+        if (enemy.type === 'bat' && Math.random() < 0.012) {
+          spawnProjectile(enemy, enemy.dir || 1);
+        }
+
+        if (enemy.type === 'bee' && Math.random() < 0.018) {
+          spawnProjectile(enemy, enemy.dir || 1);
         }
       }
     }
 
     function updateBoss() {
+      if (!state.boss) return;
       const boss = state.boss;
-      if (!boss || boss.hp <= 0) return;
-      if (state.player.x > boss.x - 140) {
+      boss.maceAngle += boss.angleSpeed;
+      if (boss.hp <= 0) {
+        state.bossDefeated = true;
+        return;
+      }
+      if (state.player.x > boss.x - 120 && state.player.x < boss.x + 120) {
         boss.active = true;
       }
-      if (!boss.active) return;
-
-      boss.maceAngle += boss.angleSpeed;
-      boss.shield = Math.sin(state.anim * 0.1) * 12;
-
-      const bossRect = { x: boss.x - 36, y: boss.y + 8, w: 72, h: 42 };
-      const maceX = boss.x - 16 + Math.cos(boss.maceAngle) * boss.chainLen;
-      const maceY = boss.y + Math.sin(boss.maceAngle) * boss.chainLen;
-
-      const hitMace =
-        state.player.x + state.player.w > maceX - 18 &&
-        state.player.x < maceX + 18 &&
-        state.player.y + state.player.h > maceY - 18 &&
-        state.player.y < maceY + 18;
-
-      if (hitMace) {
-        damagePlayer();
+      if (boss.active) {
+        boss.x += Math.sin(state.anim * 0.08) * 0.9;
+        if (Math.random() < 0.022) spawnProjectile({ x: boss.x, y: boss.y + 12 }, Math.sign(state.player.x - boss.x) || 1);
       }
+    }
 
-      const under =
-        state.player.x + state.player.w > boss.x - 20 &&
-        state.player.x < boss.x + 20 &&
-        state.player.y + state.player.h >= boss.y + 18 &&
-        state.player.y + state.player.h <= boss.y + 45 &&
-        state.player.vy > 0;
-
-      if (under && (state.player.spinTime > 0 || state.player.vy > 4.2)) {
-        boss.hp -= 1;
-        state.player.vy = -8;
-        state.score += 250;
-        updateHUD();
-        if (boss.hp <= 0) {
-          state.message = 'BOSS DOWN!';
-          state.bossDefeated = true;
-          state.score += 1000;
-        }
-      }
-
-      for (const p of boss.hidePlatforms) {
-        const playerMid = state.player.x + state.player.w / 2;
-        const platformHit = playerMid > p.x && playerMid < p.x + p.w && state.player.y + state.player.h >= p.y && state.player.y + state.player.h <= p.y + 16 && state.player.vy >= 0;
-        if (platformHit) {
-          state.player.y = p.y - state.player.h;
-          state.player.vy = 0;
-          state.player.onGround = true;
+    function collectRings() {
+      for (const ring of state.rings) {
+        if (ring.collected) continue;
+        const px = state.player.x + state.player.w * 0.5;
+        const py = state.player.y + state.player.h * 0.5;
+        const dx = px - ring.x;
+        const dy = py - ring.y;
+        if (dx * dx + dy * dy < 900) {
+          ring.collected = true;
+          state.ringCount += 1;
+          state.score += 10;
+          updateHUD();
         }
       }
     }
 
-    function handleInput() {
-      const p = state.player;
-      if (keys.left) {
-        p.vx = -8.2;
-        p.lookDir = -1;
-      } else if (keys.right) {
-        p.vx = 8.2;
-        p.lookDir = 1;
-      } else {
-        p.vx *= 0.82;
+    function checkCheckpoints() {
+      for (const cp of state.checkpoints) {
+        const d = Math.abs(state.player.x - cp.x);
+        if (!cp.reached && d < 38) {
+          cp.reached = true;
+          cp.flash = 30;
+          state.player.respawnX = cp.x;
+          state.player.respawnY = level.groundY - state.player.h;
+        }
+        if (cp.flash > 0) cp.flash -= 1;
       }
-
-      if (keys.spin && p.onGround) {
-        p.spinCharge = Math.min(28, p.spinCharge + 2.5);
-      }
-
-      if (!keys.spin && p.spinCharge > 0) {
-        p.spinTime = 18;
-        p.vx = p.lookDir * (10 + p.spinCharge * 0.45);
-        p.spinCharge = 0;
-      }
-
-      if (keys.jump && p.onGround) {
-        p.vy = -12.8;
-        p.onGround = false;
-      }
-
-      if (p.spinTime > 0) p.spinTime -= 1;
-      if (p.invuln > 0) p.invuln -= 1;
     }
 
-    function advanceLevel() {
-      if (actIndex < levelDefs.length - 1) {
-        actIndex += 1;
-        resetLevelState();
-      } else {
-        state.message = 'YOU WIN!';
+    function hurtPlayer() {
+      if (state.player.invuln > 0) return;
+      state.lives -= 1;
+      state.player.invuln = 90;
+      state.player.x = state.player.respawnX;
+      state.player.y = state.player.respawnY;
+      state.player.vx = 0;
+      state.player.vy = 0;
+      if (state.lives <= 0) {
         state.over = true;
+        state.message = 'GAME OVER';
+      }
+      updateHUD();
+    }
+
+    function checkEnemyHits() {
+      const p = state.player;
+      for (const enemy of state.enemies) {
+        if (!enemy.alive) continue;
+        const hit = p.x < enemy.x + enemy.w && p.x + p.w > enemy.x && p.y < enemy.y + enemy.h && p.y + p.h > enemy.y;
+        if (hit) {
+          if (p.spinTime > 0) {
+            enemy.alive = false;
+            state.score += 25;
+          } else {
+            hurtPlayer();
+          }
+        }
+      }
+    }
+
+    function checkProjectileHits() {
+      const p = state.player;
+      for (const proj of state.projectiles) {
+        const hit = proj.x > p.x && proj.x < p.x + p.w && proj.y > p.y && proj.y < p.y + p.h;
+        if (hit) {
+          hurtPlayer();
+          proj.x = -9999;
+        }
+      }
+    }
+
+    function updateProjectiles() {
+      state.projectiles = state.projectiles.filter((proj) => {
+        proj.x += proj.vx;
+        proj.y += proj.vy;
+        return proj.x > -20 && proj.x < level.width + 20 && proj.y > -20 && proj.y < canvas.height + 20;
+      });
+    }
+
+    function nextLevelIfReady() {
+      if (state.player.x > level.goalX) {
+        if (actIndex < levelDefs.length - 1) {
+          actIndex += 1;
+          resetLevelState();
+        } else {
+          state.message = 'YOU WIN!';
+        }
       }
     }
 
     function updatePlayer() {
       const p = state.player;
-      p.vy += 0.65;
-      p.x += p.vx;
+      const moveLeft = keys.left;
+      const moveRight = keys.right;
+      const jump = keys.jump;
+      const spin = keys.spin;
+
+      if (moveLeft) {
+        p.vx -= 0.7;
+        p.dir = -1;
+      }
+      if (moveRight) {
+        p.vx += 0.7;
+        p.dir = 1;
+      }
+      if (!moveLeft && !moveRight) {
+        p.vx *= 0.8;
+      }
+      p.vx = Math.max(-3.8, Math.min(3.8, p.vx));
+      p.lookDir = p.dir;
+
+      if (spin && p.spinTime <= 0) p.spinTime = 18;
+      if (p.spinTime > 0) {
+        p.spinTime -= 1;
+      }
+
+      if (jump && p.onGround) {
+        p.vy = -7.8;
+        p.onGround = false;
+      }
+
+      p.vy += 0.42;
       p.y += p.vy;
-      p.onGround = false;
+      p.x += p.vx;
 
-      if (p.x < 0) p.x = 0;
-      if (p.x + p.w > level.width) p.x = level.width - p.w;
-
-      onGroundCollision();
-
-      if (p.y + p.h > canvas.height) {
-        p.y = canvas.height - p.h;
+      const groundTop = level.groundY - p.h;
+      if (p.y >= groundTop) {
+        p.y = groundTop;
         p.vy = 0;
         p.onGround = true;
       }
 
-      if (p.x + p.w > level.goalX && !state.boss && !state.bossDefeated) {
-        state.message = 'ACT CLEAR!';
-        setTimeout(() => advanceLevel(), 650);
-      }
+      if (p.x < 0) p.x = 0;
+      if (p.x + p.w > level.width) p.x = level.width - p.w;
 
-      if (state.boss && state.boss.active && state.boss.hp <= 0 && !state.bossDefeated) {
-        state.bossDefeated = true;
-        state.message = 'BOSS DOWN!';
-        setTimeout(() => advanceLevel(), 900);
-      }
-
-      state.cameraX = Math.max(0, Math.min(level.width - canvas.width, p.x - canvas.width / 2 + 60));
+      state.cameraX = Math.max(0, Math.min(level.width - 800, p.x - 300));
+      p.invuln = Math.max(0, p.invuln - 1);
     }
 
-    function update() {
-      if (state.over) {
-        drawScene();
-        return;
+    function drawMessage() {
+      if (!state.message) return;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+      ctx.fillRect(200, 150, 400, 100);
+      ctx.strokeStyle = '#f8fafc';
+      ctx.strokeRect(200, 150, 400, 100);
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 30px Arial';
+      ctx.fillText(state.message, 300, 210);
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBackground();
+      if (level.underground) {
+        drawUnderground();
       }
 
+      for (const ring of state.rings) drawRing(ring);
+
+      if (level.columns) drawMarbleColumns();
+      drawPlatformBase();
+
+      for (const cp of state.checkpoints) drawStarPost(cp);
+
+      for (const enemy of state.enemies) {
+        if (enemy.type === 'bee') drawBeeBot(enemy);
+        if (enemy.type === 'bat') drawBat(enemy);
+        if (enemy.type === 'piranha') drawPiranha(enemy);
+      }
+
+      for (const proj of state.projectiles) drawProjectile(proj);
+      drawBoss();
+      drawPlayer();
+      drawMessage();
+    }
+
+    function tick() {
       state.anim += 1;
-      handleInput();
-      updateEnemies();
-      updateBoss();
-      updatePlayer();
-      checkCheckpoints();
-      collectRings();
-      enemyCollision();
-      updateProjectiles();
-      drawScene();
-      requestAnimationFrame(update);
+
+      if (!state.over) {
+        updatePlayer();
+        updateEnemies();
+        updateProjectiles();
+        updateBoss();
+        collectRings();
+        checkCheckpoints();
+        checkEnemyHits();
+        checkProjectileHits();
+        nextLevelIfReady();
+      }
+
+      render();
+      requestAnimationFrame(tick);
     }
 
     resetGame();
-    updateHUD();
-    drawScene();
-    requestAnimationFrame(update);
+    requestAnimationFrame(tick);
   </script>
 </body>
 </html>
