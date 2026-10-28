@@ -87,6 +87,24 @@
       font-size: 0.98rem;
     }
 
+    .portal-footer {
+      margin-top: 26px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .portal-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .portal-footer a:hover {
+      text-decoration: underline;
+    }
+
     @media (max-width: 600px) {
       .container {
         padding: 20px 16px;
@@ -114,7 +132,7 @@
 
   <div class="container">
     <h1>🎮 Games</h1>
-    <div class="games-container">
+    <div class="games-container" id="games-list">
       <a class="game-card" href="snake.html">
         <h2>🐍</h2>
         <h2>Snake</h2>
@@ -162,6 +180,10 @@
         <h2>Space Shooter</h2>
         <p>Blast enemy waves and survive the starfield.</p>
       </a>
+    </div>
+
+    <div class="portal-footer">
+      <p>Looking for another game? <a href="#games-list">Check here</a>.</p>
     </div>
   </div>
 </body>
