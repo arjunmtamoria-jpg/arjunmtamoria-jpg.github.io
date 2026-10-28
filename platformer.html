@@ -214,14 +214,7 @@
       {
         name: 'Green Hill',
         act: 'Act 1',
-        theme: {
-          sky: '#87CEEB',
-          skyFade: '#E0F6FF',
-          hill: '#7dd3fc',
-          hill2: '#9ae6b4',
-          ground: '#5b3418',
-          accent: '#2a7f3b'
-        },
+        theme: { sky: '#87CEEB', skyFade: '#E0F6FF', hill: '#7dd3fc', hill2: '#9ae6b4', ground: '#5b3418', accent: '#2a7f3b' },
         width: 2200,
         startX: 50,
         signX: 2040,
@@ -259,97 +252,136 @@
         ]
       },
       {
-        name: 'Sky Sanctuary',
-        act: 'Act 1',
-        theme: {
-          sky: '#1e1b4b',
-          skyFade: '#a5b4fc',
-          hill: '#4f46e5',
-          hill2: '#c4b5fd',
-          ground: '#422f17',
-          accent: '#e9d5ff'
-        },
+        name: 'Green Hill',
+        act: 'Act 2',
+        theme: { sky: '#8ecae6', skyFade: '#dff3ff', hill: '#90cdf4', hill2: '#86efac', ground: '#22c55e', accent: '#14532d' },
         width: 2600,
         startX: 60,
-        signX: 2440,
-        goal: { x: 2500, y: 170, width: 26, height: 100 },
+        signX: 2480,
+        goal: { x: 2520, y: 160, width: 26, height: 100 },
         checkpoints: [
-          { x: 700, y: 285, active: false },
-          { x: 1700, y: 200, active: false }
+          { x: 620, y: 300, active: false },
+          { x: 1760, y: 160, active: false }
         ],
         boss: null,
         platforms: [
-          { x: 0, y: 380, width: 430, height: 20 },
-          { x: 520, y: 380, width: 280, height: 20 },
-          { x: 900, y: 380, width: 260, height: 20 },
-          { x: 1260, y: 380, width: 220, height: 20 },
-          { x: 1600, y: 380, width: 260, height: 20 },
-          { x: 1950, y: 380, width: 250, height: 20 },
-          { x: 2240, y: 380, width: 360, height: 20 }
+          { x: 0, y: 380, width: 420, height: 20 },
+          { x: 520, y: 340, width: 140, height: 20 },
+          { x: 720, y: 300, width: 150, height: 20 },
+          { x: 980, y: 250, width: 180, height: 20 },
+          { x: 1270, y: 220, width: 170, height: 20 },
+          { x: 1510, y: 270, width: 200, height: 20 },
+          { x: 1780, y: 210, width: 190, height: 20 },
+          { x: 2020, y: 170, width: 170, height: 20 },
+          { x: 2280, y: 380, width: 320, height: 20 }
         ],
         loops: [
-          { x: 650, y: 320, radius: 88 },
-          { x: 1360, y: 280, radius: 90 },
-          { x: 2050, y: 280, radius: 78 }
+          { x: 470, y: 330, radius: 70 },
+          { x: 1280, y: 220, radius: 90 },
+          { x: 2050, y: 170, radius: 78 }
+        ],
+        rings: [
+          { x: 180, y: 330 }, { x: 580, y: 290 }, { x: 780, y: 250 }, { x: 1040, y: 200 },
+          { x: 1330, y: 170 }, { x: 1560, y: 220 }, { x: 1840, y: 160 }, { x: 2080, y: 120 },
+          { x: 2330, y: 330 }
+        ],
+        enemies: [
+          { x: 540, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 1580, y: 350, width: 30, height: 30, dir: -1 },
+          { x: 2140, y: 350, width: 30, height: 30, dir: 1 }
+        ],
+        tvBoxes: [
+          { x: 915, y: 345, width: 34, height: 35 },
+          { x: 1680, y: 345, width: 34, height: 35 },
+          { x: 2410, y: 345, width: 34, height: 35 }
+        ]
+      },
+      {
+        name: 'Sky Sanctuary',
+        act: 'Act 1',
+        theme: { sky: '#1e1b4b', skyFade: '#a5b4fc', hill: '#4f46e5', hill2: '#c4b5fd', ground: '#312e81', accent: '#c4b5fd' },
+        width: 3000,
+        startX: 70,
+        signX: 2860,
+        goal: { x: 2900, y: 150, width: 26, height: 100 },
+        checkpoints: [
+          { x: 620, y: 290, active: false },
+          { x: 1780, y: 180, active: false }
+        ],
+        boss: {
+          x: 2550, y: 300, width: 80, height: 80, dir: -1, speed: 2, health: 3
+        },
+        platforms: [
+          { x: 0, y: 380, width: 360, height: 20 },
+          { x: 450, y: 320, width: 150, height: 20 },
+          { x: 700, y: 260, width: 180, height: 20 },
+          { x: 970, y: 200, width: 150, height: 20 },
+          { x: 1230, y: 260, width: 180, height: 20 },
+          { x: 1470, y: 310, width: 170, height: 20 },
+          { x: 1750, y: 230, width: 180, height: 20 },
+          { x: 1980, y: 180, width: 170, height: 20 },
+          { x: 2200, y: 240, width: 160, height: 20 },
+          { x: 2440, y: 310, width: 170, height: 20 },
+          { x: 2660, y: 380, width: 340, height: 20 }
+        ],
+        loops: [
+          { x: 620, y: 320, radius: 88 },
+          { x: 1520, y: 310, radius: 92 },
+          { x: 2360, y: 300, radius: 85 }
         ],
         rings: [
           { x: 180, y: 330 }, { x: 520, y: 270 }, { x: 760, y: 210 }, { x: 1030, y: 150 },
           { x: 1260, y: 210 }, { x: 1510, y: 260 }, { x: 1770, y: 180 }, { x: 2030, y: 130 },
-          { x: 2250, y: 190 }, { x: 2460, y: 270 }
+          { x: 2250, y: 190 }, { x: 2500, y: 260 }, { x: 2730, y: 330 }
         ],
         enemies: [
-          { x: 540, y: 350, width: 30, height: 30, dir: 1 },
-          { x: 1280, y: 350, width: 30, height: 30, dir: -1 },
+          { x: 560, y: 350, width: 30, height: 30, dir: 1 },
+          { x: 1260, y: 350, width: 30, height: 30, dir: -1 },
           { x: 1750, y: 350, width: 30, height: 30, dir: 1 },
-          { x: 2360, y: 350, width: 30, height: 30, dir: -1 }
+          { x: 2430, y: 350, width: 30, height: 30, dir: -1 }
         ],
         tvBoxes: [
           { x: 905, y: 345, width: 34, height: 35 },
           { x: 1655, y: 345, width: 34, height: 35 },
-          { x: 2150, y: 345, width: 34, height: 35 }
+          { x: 2160, y: 345, width: 34, height: 35 }
         ]
       },
       {
         name: 'Marble Zone',
         act: 'Act 1',
-        theme: {
-          sky: '#e2e8f0',
-          skyFade: '#f8fafc',
-          hill: '#cbd5e1',
-          hill2: '#94a3b8',
-          ground: '#473c2d',
-          accent: '#f8fafc'
-        },
-        width: 3000,
+        theme: { sky: '#e2e8f0', skyFade: '#f8fafc', hill: '#cbd5e1', hill2: '#94a3b8', ground: '#475569', accent: '#f8fafc' },
+        width: 3200,
         startX: 60,
-        signX: 2860,
-        goal: { x: 2900, y: 170, width: 26, height: 100 },
+        signX: 3080,
+        goal: { x: 3120, y: 170, width: 26, height: 100 },
         checkpoints: [
           { x: 760, y: 250, active: false },
           { x: 2060, y: 180, active: false }
         ],
         boss: null,
         platforms: [
-          { x: 0, y: 380, width: 480, height: 20 },
-          { x: 560, y: 380, width: 200, height: 20 },
-          { x: 820, y: 380, width: 240, height: 20 },
-          { x: 1120, y: 380, width: 220, height: 20 },
-          { x: 1420, y: 380, width: 200, height: 20 },
-          { x: 1700, y: 380, width: 260, height: 20 },
-          { x: 2040, y: 380, width: 260, height: 20 },
-          { x: 2380, y: 380, width: 240, height: 20 },
-          { x: 2680, y: 380, width: 320, height: 20 }
+          { x: 0, y: 380, width: 450, height: 20 },
+          { x: 540, y: 330, width: 160, height: 20 },
+          { x: 780, y: 280, width: 170, height: 20 },
+          { x: 1060, y: 220, width: 170, height: 20 },
+          { x: 1310, y: 180, width: 170, height: 20 },
+          { x: 1565, y: 250, width: 180, height: 20 },
+          { x: 1810, y: 300, width: 180, height: 20 },
+          { x: 2060, y: 220, width: 170, height: 20 },
+          { x: 2320, y: 180, width: 170, height: 20 },
+          { x: 2590, y: 260, width: 200, height: 20 },
+          { x: 2875, y: 380, width: 325, height: 20 }
         ],
         loops: [
-          { x: 600, y: 330, radius: 70 },
-          { x: 1450, y: 210, radius: 90 },
-          { x: 2370, y: 190, radius: 86 },
+          { x: 570, y: 330, radius: 70 },
+          { x: 1370, y: 180, radius: 90 },
+          { x: 2335, y: 180, radius: 86 },
           { x: 2700, y: 260, radius: 75 }
         ],
         rings: [
           { x: 200, y: 330 }, { x: 600, y: 280 }, { x: 860, y: 230 }, { x: 1130, y: 170 },
           { x: 1365, y: 140 }, { x: 1620, y: 210 }, { x: 1875, y: 260 }, { x: 2140, y: 170 },
-          { x: 2380, y: 130 }, { x: 2660, y: 210 }, { x: 2860, y: 330 }
+          { x: 2380, y: 130 }, { x: 2660, y: 210 }, { x: 2940, y: 330 }
         ],
         enemies: [
           { x: 610, y: 350, width: 30, height: 30, dir: 1 },
@@ -436,14 +468,17 @@
     }
 
     function resetPlatformerGame() {
-      if (platformerGame.running) platformerGame.running = false;
+      platformerGame.running = false;
       startPlatformerGameplay();
     }
 
     function platformerKeyHandler(e) {
       if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') platformerKeys.left = true;
       if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') platformerKeys.right = true;
-      if (e.key === ' ') { e.preventDefault(); jumpPlatformer(); }
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        jumpPlatformer();
+      }
     }
 
     function platformerKeyUpHandler(e) {
@@ -452,9 +487,11 @@
     }
 
     function jumpPlatformer() {
-      if (!platformerGame.player.jumping && platformerGame.running) {
-        platformerGame.player.velocityY = -12;
-        platformerGame.player.jumping = true;
+      if (!platformerGame.running) return;
+      const p = platformerGame.player;
+      if (!p.jumping) {
+        p.velocityY = -12;
+        p.jumping = true;
       }
     }
 
@@ -493,26 +530,65 @@
       p.spinAngle += spinSpeed;
 
       platformerCtx.save();
-      platformerCtx.translate(playerX + 15, playerY + 20);
+      platformerCtx.translate(playerX + 15, playerY + 18);
       platformerCtx.rotate(p.spinAngle + (p.velocityX < 0 ? Math.PI : 0));
 
       const invuln = platformerGame.invulnerable > 0 && Math.floor(platformerGame.invulnerable / 8) % 2 === 0;
-      platformerCtx.fillStyle = invuln ? '#f8fafc' : '#0066FF';
-      platformerCtx.fillRect(-10, -13, 20, 22);
 
-      platformerCtx.fillStyle = '#facc15';
-      platformerCtx.fillRect(-7, 7, 14, 8);
+      platformerCtx.fillStyle = '#1d4ed8';
+      platformerCtx.beginPath();
+      platformerCtx.arc(0, -12, 17, 0, Math.PI * 2);
+      platformerCtx.fill();
+
+      for (let i = -2; i <= 2; i++) {
+        const x = i * 8;
+        platformerCtx.fillStyle = '#1d4ed8';
+        platformerCtx.beginPath();
+        platformerCtx.moveTo(x, -28);
+        platformerCtx.lineTo(x + 6, -20);
+        platformerCtx.lineTo(x - 6, -20);
+        platformerCtx.closePath();
+        platformerCtx.fill();
+      }
+
+      platformerCtx.fillStyle = invuln ? '#f8e7d7' : '#f2c99d';
+      platformerCtx.beginPath();
+      platformerCtx.arc(0, -10, 10, 0, Math.PI * 2);
+      platformerCtx.fill();
+
+      platformerCtx.fillStyle = '#ffffff';
+      platformerCtx.beginPath();
+      platformerCtx.arc(-5, -14, 3.5, 0, Math.PI * 2);
+      platformerCtx.arc(5, -14, 3.5, 0, Math.PI * 2);
+      platformerCtx.fill();
 
       platformerCtx.fillStyle = '#0f172a';
-      platformerCtx.fillRect(-7, -10, 4, 4);
-      platformerCtx.fillRect(3, -10, 4, 4);
+      platformerCtx.beginPath();
+      platformerCtx.arc(-5, -14, 1.7, 0, Math.PI * 2);
+      platformerCtx.arc(5, -14, 1.7, 0, Math.PI * 2);
+      platformerCtx.fill();
 
-      platformerCtx.fillStyle = '#f59e0b';
-      platformerCtx.fillRect(-12, 12, 8, 5);
-      platformerCtx.fillRect(4, 12, 8, 5);
+      platformerCtx.fillStyle = '#f2c99d';
+      platformerCtx.beginPath();
+      platformerCtx.arc(0, -4, 5, 0, Math.PI);
+      platformerCtx.fill();
 
-      platformerCtx.fillStyle = '#ef4444';
-      platformerCtx.fillRect(-7, 1, 14, 3);
+      platformerCtx.fillStyle = '#0f57c8';
+      platformerCtx.beginPath();
+      platformerCtx.arc(0, 12, 13, 0, Math.PI * 2);
+      platformerCtx.fill();
+
+      platformerCtx.fillStyle = '#f2c99d';
+      platformerCtx.beginPath();
+      platformerCtx.arc(0, 15, 8, 0, Math.PI * 2);
+      platformerCtx.fill();
+
+      platformerCtx.fillStyle = '#f2c99d';
+      platformerCtx.fillRect(-7, 22, 14, 5);
+      platformerCtx.fillStyle = '#1d4ed8';
+      platformerCtx.fillRect(-11, 25, 9, 5);
+      platformerCtx.fillRect(2, 25, 9, 5);
+
       platformerCtx.restore();
     }
 
@@ -623,13 +699,6 @@
       p.jumping = false;
     }
 
-    function collides(a, b) {
-      return a.x < b.x + b.width &&
-        a.x + a.width > b.x &&
-        a.y < b.y + b.height &&
-        a.y + a.height > b.y;
-    }
-
     function platformerGameLoop() {
       if (!platformerGame.running) return;
 
@@ -639,7 +708,9 @@
       if (platformerGame.introTimer > 0) {
         platformerGame.introTimer -= 30;
         drawBackground();
+        drawGroundSegments();
         drawLevelIntro();
+        updateHUD();
         setTimeout(platformerGameLoop, 30);
         return;
       }
@@ -651,9 +722,7 @@
           nextLevel();
           return;
         }
-      }
-
-      if (!platformerGame.clearing) {
+      } else {
         platformerGame.checkpoints.forEach(cp => {
           const reached = p.x + p.width > cp.x && p.x < cp.x + 20 && p.y + p.height > 200 && p.y < 400;
           if (reached && !cp.active) {
@@ -663,8 +732,8 @@
           }
         });
 
-        if (platformerKeys.left) p.velocityX = -5;
-        else if (platformerKeys.right) p.velocityX = 5;
+        if (platformerKeys.left) p.velocityX = -6;
+        else if (platformerKeys.right) p.velocityX = 6;
         else p.velocityX *= 0.8;
 
         p.velocityY += platformerGame.gravity;
@@ -685,14 +754,10 @@
         });
 
         if (!onGround && p.velocityY > 0) p.jumping = true;
-      }
 
-      cameraX = Math.max(0, Math.min(platformerGame.width - platformerCanvas.width, p.x - 250));
-      platformerGame.sign.angle += platformerGame.clearing ? 0.45 : 0.08;
-
-      if (!platformerGame.clearing) {
         platformerGame.rings = platformerGame.rings.filter(ring => {
-          if (p.x < ring.x + 20 && p.x + p.width > ring.x && p.y < ring.y + 20 && p.y + p.height > ring.y) {
+          const hit = p.x < ring.x + 20 && p.x + p.width > ring.x && p.y < ring.y + 20 && p.y + p.height > ring.y;
+          if (hit) {
             platformerGame.score += 10;
             if (platformerGame.score > highScores.platformer) {
               highScores.platformer = platformerGame.score;
@@ -715,7 +780,8 @@
             ring.velocityX *= 0.8;
           }
 
-          if (p.x < ring.x + ring.radius && p.x + p.width > ring.x - ring.radius && p.y < ring.y + ring.radius && p.y + p.height > ring.y - ring.radius) {
+          const hit = p.x < ring.x + ring.radius && p.x + p.width > ring.x - ring.radius && p.y < ring.y + ring.radius && p.y + p.height > ring.y - ring.radius;
+          if (hit) {
             platformerGame.score += 10;
             if (platformerGame.score > highScores.platformer) {
               highScores.platformer = platformerGame.score;
@@ -779,33 +845,9 @@
         p.velocityY = 0;
       }
 
+      cameraX = Math.max(0, Math.min(platformerGame.width - platformerCanvas.width, p.x - 250));
       drawBackground();
-
-      platformerCtx.fillStyle = '#8B4513';
-      platformerGame.platforms.forEach(plat => {
-        const drawX = plat.x - cameraX;
-        const dirtH = plat.height;
-        const grassH = 12;
-
-        platformerCtx.fillStyle = '#7a4a25';
-        platformerCtx.fillRect(drawX, plat.y, plat.width, dirtH);
-
-        for (let x = 0; x < plat.width; x += 18) {
-          for (let y = 0; y < dirtH; y += 18) {
-            const checker = ((x / 18 + y / 18) % 2 === 0) ? '#8f532a' : '#734720';
-            platformerCtx.fillStyle = checker;
-            platformerCtx.fillRect(drawX + x, plat.y + y, 18, 18);
-          }
-        }
-
-        platformerCtx.fillStyle = '#39b54a';
-        platformerCtx.fillRect(drawX, plat.y - grassH, plat.width, grassH);
-
-        platformerCtx.fillStyle = '#2f9e44';
-        for (let x = 0; x < plat.width; x += 14) {
-          platformerCtx.fillRect(drawX + x, plat.y - grassH + 4, 8, 4);
-        }
-      });
+      drawGroundSegments();
 
       platformerGame.loops.forEach(loop => {
         const drawX = loop.x - cameraX;
@@ -886,21 +928,47 @@
       platformerCtx.fill();
       platformerCtx.restore();
 
+      const goalX = goal.x - cameraX;
+      platformerCtx.fillStyle = '#22c55e';
+      platformerCtx.fillRect(goalX, goal.y, goal.width, goal.height);
+
+      drawPlayerSprite(p.x - cameraX, p.y);
+
       if (platformerGame.clearing) {
         platformerCtx.fillStyle = '#facc15';
         platformerCtx.font = 'bold 18px Arial';
         platformerCtx.fillText('STAGE CLEAR!', 290, 70);
       }
 
-      platformerCtx.fillStyle = '#22c55e';
-      const goalX = goal.x - cameraX;
-      platformerCtx.fillRect(goalX, goal.y, goal.width, goal.height);
-
-      const drawPlayerX = p.x - cameraX;
-      drawPlayerSprite(drawPlayerX, p.y);
-
       updateHUD();
       setTimeout(platformerGameLoop, 30);
+    }
+
+    function drawGroundSegments() {
+      platformerGame.platforms.forEach(plat => {
+        const drawX = plat.x - cameraX;
+        const dirtH = plat.height;
+        const grassH = 12;
+
+        platformerCtx.fillStyle = '#7a4a25';
+        platformerCtx.fillRect(drawX, plat.y, plat.width, dirtH);
+
+        for (let x = 0; x < plat.width; x += 18) {
+          for (let y = 0; y < dirtH; y += 18) {
+            const checker = ((x / 18 + y / 18) % 2 === 0) ? '#8f532a' : '#734720';
+            platformerCtx.fillStyle = checker;
+            platformerCtx.fillRect(drawX + x, plat.y + y, 18, 18);
+          }
+        }
+
+        platformerCtx.fillStyle = '#39b54a';
+        platformerCtx.fillRect(drawX, plat.y - grassH, plat.width, grassH);
+
+        platformerCtx.fillStyle = '#2f9e44';
+        for (let x = 0; x < plat.width; x += 14) {
+          platformerCtx.fillRect(drawX + x, plat.y - grassH + 4, 8, 4);
+        }
+      });
     }
 
     function drawBackground() {
@@ -936,9 +1004,6 @@
         platformerCtx.quadraticCurveTo(hillX + 80, 260, hillX + 160, 400);
         platformerCtx.fill();
       }
-
-      platformerCtx.fillStyle = theme.ground;
-      platformerCtx.fillRect(0, 380, platformerCanvas.width, 40);
     }
   </script>
 </body>
