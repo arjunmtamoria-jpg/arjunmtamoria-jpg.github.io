@@ -5,28 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sonic True Levels</title>
   <style>
-    :root {
-      --panel: rgba(15, 23, 42, .88);
-      --panel-border: rgba(255,255,255,.2);
-      --text: #edf6ff;
-    }
+    :root { --panel: rgba(15, 23, 42, .88); --panel-border: rgba(255,255,255,.2); --text: #edf6ff; }
     * { box-sizing: border-box; }
-    html, body {
-      margin: 0;
-      min-height: 100%;
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--text);
-      background: linear-gradient(#071824, #0b1b2a 45%, #111827);
-    }
+    html, body { margin: 0; min-height: 100%; font-family: Arial, Helvetica, sans-serif; color: var(--text); background: linear-gradient(#071824, #0b1b2a 45%, #111827); }
     body { display: flex; justify-content: center; padding: 18px 12px 36px; }
-    .wrap {
-      width: min(1000px, 96vw);
-      padding: 18px;
-      background: var(--panel);
-      border: 1px solid var(--panel-border);
-      border-radius: 16px;
-      box-shadow: 0 20px 42px rgba(0,0,0,.4);
-    }
+    .wrap { width: min(1000px, 96vw); padding: 18px; background: var(--panel); border: 1px solid var(--panel-border); border-radius: 16px; box-shadow: 0 20px 42px rgba(0,0,0,.4); }
     h1 { margin: 0 0 12px; text-align: center; font-size: clamp(26px, 4vw, 40px); }
     .hud { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 12px; font-weight: 700; }
     .hud span { padding: 8px 14px; min-width: 120px; text-align: center; background: rgba(15,23,42,.9); border: 2px solid rgba(148,163,184,.42); border-radius: 9px; }
@@ -43,13 +26,14 @@
       <span>Lives: <b id="lives">3</b></span>
     </div>
     <canvas id="game" width="960" height="420" aria-label="Sonic platform game"></canvas>
-    <div class="controls">Move: ← / → or A / D · Jump: Space / ↑ / W · Spin: Shift / S<br>Press 1 for Green Hill or 2 for Marble Zone. GHZ trees and totems stay fixed in place.</div>
+    <div class="controls">Move: ← / → or A / D · Jump: Space / ↑ / W<br>Jumping makes Sonic spin automatically. Reach the end of a stage to continue.</div>
   </main>
 <script>
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
   const ringsLabel = document.getElementById('rings');
   const stageLabel = document.getElementById('stage');
+  const livesLabel = document.getElementById('lives');
   const keys = new Set();
   const WORLD_WIDTH = 2600;
   const GROUND_Y = 342;
@@ -60,26 +44,32 @@
       grass: '#27c840', grassLight: '#70e546', grassDark: '#138a32',
       dirt: '#9b542b', dirtDark: '#542b1c', dirtLight: '#c87a3b',
       hillFar: '#7651a5', hillNear: '#55bd39', palm: true, cave: false,
-      bees: [{x: 510, y: 205}, {x: 1120, y: 190}, {x: 1870, y: 210}], bats: []
+      bees: [{x: 510, y: 205}, {x: 1120, y: 190}, {x: 1870, y: 210} ], bats: []
     },
     {
       name: 'Marble Zone', skyTop: '#4d79b5', skyBottom: '#b6c4df',
       grass: '#9992a9', grassLight: '#b5abc2', grassDark: '#716b81',
       dirt: '#765b89', dirtDark: '#40354e', dirtLight: '#a184b1',
       hillFar: '#675a78', hillNear: '#827a98', palm: false, cave: true,
-      bees: [{x: 560, y: 210}, {x: 1450, y: 190}], bats: [{x: 680, y: 180}, {x: 1550, y: 150}, {x: 2210, y: 180}]
+      bees: [{x: 560, y: 210}, {x: 1450, y: 190}, {x: 2130, y: 205}], bats: [{x: 680, y: 180}, {x: 1550, y: 150}, {x: 2210, y: 180}]
     }
   ];
 
   const game = {
     stage: 0, camera: 0, time: 0, rings: 0, lives: 3,
-    player: { x: 90, y: GROUND_Y - 46, vx: 0, vy: 0, w: 34, h: 46, grounded: true, spin: false },
-    ringObjects: Array.from({length: 24}, (_, i) => ({x: 170 + i * 96, y: 270 - (i % 3) * 24, collected: false}))
+    player: { x: 90, y: GROUND_Y - 46, vx: 0, vy: 0, w: 34, h: 46, grounded: true, spin: false, invulnerable: 0 },
+    ringObjects: [], projectiles: [], messageTimer: 0
   };
+
+  function makeRings() {
+    return Array.from({length: 24}, (_, i) => ({x: 170 + i * 96, y: 270 - (i % 3) * 24, collected: false}));
+  }
+  game.ringObjects = makeRings();
 
   function updateHud() {
     ringsLabel.textContent = game.rings;
     stageLabel.textContent = stages[game.stage].name;
+    livesLabel.textContent = game.lives;
   }
 
   function drawCloud(x, y, scale = 1) {
@@ -89,8 +79,7 @@
     ctx.ellipse(0, 0, 31, 14, 0, 0, Math.PI * 2);
     ctx.ellipse(25, -9, 28, 16, 0, 0, Math.PI * 2);
     ctx.ellipse(53, 1, 32, 14, 0, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
+    ctx.fill(); ctx.restore();
   }
 
   function drawPalm(x, baseY, scale = 1) {
@@ -98,67 +87,44 @@
     ctx.fillStyle = '#87451f'; ctx.fillRect(-8, -102, 16, 102);
     ctx.fillStyle = '#aa6330'; ctx.fillRect(-5, -101, 5, 98);
     const crownY = -98;
-    const fronds = [
-      {a: -2.72, len: 88}, {a: -2.12, len: 94}, {a: -1.57, len: 84},
-      {a: -1.02, len: 94}, {a: -0.42, len: 88}
-    ];
+    const fronds = [{a:-2.72,len:88},{a:-2.12,len:94},{a:-1.57,len:84},{a:-1.02,len:94},{a:-.42,len:88}];
     for (let i = 0; i < fronds.length; i++) {
       const {a, len} = fronds[i];
       const ux = Math.cos(a), uy = Math.sin(a), px = -uy, py = ux;
       const sx = 0, sy = crownY, shoulder = len * .69, width = 12;
-      const bx = sx + ux * shoulder, by = sy + uy * shoulder;
-      const tx = sx + ux * len, ty = sy + uy * len;
+      const bx = ux * shoulder, by = sy + uy * shoulder, tx = ux * len, ty = sy + uy * len;
       ctx.fillStyle = i % 2 ? '#0da943' : '#18bd43';
-      ctx.beginPath();
-      ctx.moveTo(sx + px * 5, sy + py * 5);
-      ctx.lineTo(bx + px * width, by + py * width);
-      ctx.lineTo(bx - px * width, by - py * width);
-      ctx.lineTo(sx - px * 5, sy - py * 5);
-      ctx.closePath(); ctx.fill();
-      ctx.beginPath();
-      ctx.moveTo(bx + px * width, by + py * width);
-      ctx.lineTo(tx, ty);
-      ctx.lineTo(bx - px * width, by - py * width);
-      ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(sx + px*5,sy + py*5); ctx.lineTo(bx+px*width,by+py*width); ctx.lineTo(bx-px*width,by-py*width); ctx.lineTo(sx-px*5,sy-py*5); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(bx+px*width,by+py*width); ctx.lineTo(tx,ty); ctx.lineTo(bx-px*width,by-py*width); ctx.closePath(); ctx.fill();
     }
-    ctx.fillStyle = '#8b4b22'; ctx.fillRect(-5, crownY - 5, 10, 10);
-    ctx.restore();
+    ctx.fillStyle = '#8b4b22'; ctx.fillRect(-5, crownY - 5, 10, 10); ctx.restore();
   }
 
   function drawTotem(x, baseY, scale = 1) {
     ctx.save(); ctx.translate(x, baseY); ctx.scale(scale, scale);
-    // Short, patterned GHZ stone pillars, kept static with the palms.
     ctx.fillStyle = '#8f552e'; ctx.fillRect(-13, -54, 26, 54);
     ctx.fillStyle = '#d89135'; ctx.fillRect(-13, -54, 26, 7);
     ctx.fillStyle = '#2c923d'; ctx.fillRect(-16, -39, 32, 8);
     ctx.fillStyle = '#f2b83d';
     for (const [px, py] of [[-6,-30],[6,-30],[-6,-15],[6,-15]]) {
       ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#583b29'; ctx.beginPath(); ctx.arc(px, py, 1.5, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#f2b83d';
+      ctx.fillStyle = '#583b29'; ctx.beginPath(); ctx.arc(px, py, 1.5, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#f2b83d';
     }
-    ctx.fillStyle = '#5c351f'; ctx.fillRect(-16, -5, 32, 5);
-    ctx.restore();
+    ctx.fillStyle = '#5c351f'; ctx.fillRect(-16, -5, 32, 5); ctx.restore();
   }
 
   function drawWater() {
-    // A broad bright lagoon and little waterfall sit behind the playable ground.
     ctx.fillStyle = '#087fd0';
-    ctx.beginPath();
-    ctx.moveTo(0, 302); ctx.quadraticCurveTo(145, 282, 275, 302);
-    ctx.quadraticCurveTo(405, 326, 530, 301); ctx.lineTo(530, 338);
-    ctx.lineTo(0, 338); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0,302); ctx.quadraticCurveTo(145,282,275,302); ctx.quadraticCurveTo(405,326,530,301); ctx.lineTo(530,338); ctx.lineTo(0,338); ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#5bd7f4';
-    ctx.beginPath(); ctx.moveTo(0, 307); ctx.quadraticCurveTo(145, 288, 275, 307);
-    ctx.quadraticCurveTo(405, 330, 530, 306); ctx.lineTo(530, 313);
-    ctx.quadraticCurveTo(405, 337, 275, 314); ctx.quadraticCurveTo(145, 296, 0, 315); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(0,307); ctx.quadraticCurveTo(145,288,275,307); ctx.quadraticCurveTo(405,330,530,306); ctx.lineTo(530,313); ctx.quadraticCurveTo(405,337,275,314); ctx.quadraticCurveTo(145,296,0,315); ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#86e9ff';
     for (let i = 0; i < 10; i++) {
-      const x = (i * 67 - game.camera * .28) % 530;
-      ctx.beginPath(); ctx.ellipse(x < 0 ? x + 530 : x, 310 + (i % 3) * 5, 15, 3, 0, 0, Math.PI * 2); ctx.fill();
+      const x = ((i * 67 - game.time * .7) % 530 + 530) % 530;
+      ctx.beginPath(); ctx.ellipse(x, 310 + (i % 3) * 5, 15, 3, 0, 0, Math.PI * 2); ctx.fill();
     }
     ctx.fillStyle = '#20a9e3'; ctx.fillRect(505, 283, 25, 55);
-    ctx.fillStyle = '#8be9ff'; ctx.fillRect(510, 288, 5, 46); ctx.fillRect(522, 292, 3, 40);
+    ctx.fillStyle = '#8be9ff'; ctx.fillRect(510,288,5,46); ctx.fillRect(522,292,3,40);
   }
 
   function drawBackdrop(level) {
@@ -166,202 +132,211 @@
     sky.addColorStop(0, level.skyTop); sky.addColorStop(1, level.skyBottom);
     ctx.fillStyle = sky; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Clouds move independently across the sky and wrap cleanly at the edges.
     for (let i = 0; i < 10; i++) {
-      const x = ((i * 145 - game.camera * .08) % 1280 + 1280) % 1280 - 100;
+      const x = ((i * 145 + game.time * (.25 + (i % 3) * .08)) % 1180) - 100;
       drawCloud(x, 48 + (i % 4) * 32, .62 + (i % 3) * .12);
     }
 
-    // Cooler distant ridge rather than a wall of brown hills.
-    ctx.fillStyle = level.hillFar;
-    ctx.beginPath(); ctx.moveTo(0, 270);
+    ctx.fillStyle = level.hillFar; ctx.beginPath(); ctx.moveTo(0,270);
     for (let x = -30; x <= canvas.width + 30; x += 42) {
       const wx = x + game.camera * .12;
-      const peak = 218 + Math.sin(wx * .017) * 16 + Math.sin(wx * .041) * 8;
-      ctx.lineTo(x, peak); ctx.lineTo(x + 21, peak + 24);
+      const peak = 218 + Math.sin(wx*.017)*16 + Math.sin(wx*.041)*8;
+      ctx.lineTo(x,peak); ctx.lineTo(x+21,peak+24);
     }
-    ctx.lineTo(canvas.width, 342); ctx.lineTo(0, 342); ctx.closePath(); ctx.fill();
+    ctx.lineTo(canvas.width,342); ctx.lineTo(0,342); ctx.closePath(); ctx.fill();
 
-    // Rolling green hills add depth without covering the soil with brown shapes.
     for (let layer = 0; layer < 2; layer++) {
       ctx.fillStyle = layer === 0 ? level.hillNear : level.hillFar;
-      const spacing = layer === 0 ? 230 : 310;
-      const speed = layer === 0 ? .24 : .12;
-      const base = layer === 0 ? 328 : 300;
+      const spacing = layer === 0 ? 230 : 310, speed = layer === 0 ? .24 : .12, base = layer === 0 ? 328 : 300;
       for (let i = -2; i < 8; i++) {
-        const x = i * spacing - ((game.camera * speed) % spacing);
-        const w = layer === 0 ? 250 : 330;
+        const x = i * spacing - ((game.camera * speed) % spacing), w = layer === 0 ? 250 : 330;
         const h = (layer === 0 ? 52 : 70) + ((i + 2) % 3) * 10;
-        ctx.beginPath(); ctx.moveTo(x, base);
-        ctx.quadraticCurveTo(x + w * .5, base - h * 2, x + w, base);
-        ctx.lineTo(x + w, 342); ctx.lineTo(x, 342); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(x,base); ctx.quadraticCurveTo(x+w*.5,base-h*2,x+w,base); ctx.lineTo(x+w,342); ctx.lineTo(x,342); ctx.closePath(); ctx.fill();
       }
     }
 
     if (level.palm) {
       drawWater();
-      // Fixed viewport positions: trees and totems do not scroll with Sonic/camera.
-      const treePositions = [[38, .82], [300, 1.02], [566, .90], [828, 1.03], [1080, .88]];
-      for (const [x, scale] of treePositions) drawPalm(x, GROUND_Y, scale);
-      const totemPositions = [[190, .9], [470, 1], [730, .92], [990, 1.02]];
-      for (const [x, scale] of totemPositions) drawTotem(x, GROUND_Y, scale);
+      // World coordinates scroll with the stage camera instead of staying glued to the screen.
+      const treePositions = [[38,.82],[300,1.02],[566,.90],[828,1.03],[1080,.88],[1360,.95],[1640,1.08],[1930,.9],[2230,1.04],[2490,.9]];
+      for (const [worldX, scale] of treePositions) drawPalm(worldX - game.camera, GROUND_Y, scale);
+      const totemPositions = [[190,.9],[470,1],[730,.92],[990,1.02],[1260,.9],[1540,1],[1840,.94],[2140,1.02],[2420,.9]];
+      for (const [worldX, scale] of totemPositions) drawTotem(worldX - game.camera, GROUND_Y, scale);
     }
   }
 
   function drawTerrain(level) {
     const y = GROUND_Y;
-    // Continuous patterned soil reaches the bottom edge; no bare background gap.
-    ctx.fillStyle = level.dirt; ctx.fillRect(0, y, canvas.width, canvas.height - y);
+    ctx.fillStyle = level.dirt; ctx.fillRect(0,y,canvas.width,canvas.height-y);
     const tile = 24, offset = game.camera % tile;
     for (let x = -tile; x < canvas.width + tile; x += tile) {
       const col = Math.floor((x + offset) / tile);
       ctx.fillStyle = ((col % 2 + 2) % 2 === 0) ? level.dirt : level.dirtDark;
-      ctx.fillRect(x - offset, y, tile, canvas.height - y);
-      ctx.fillStyle = level.dirtLight;
-      ctx.fillRect(x - offset + 3, y + 4, 5, 5);
+      ctx.fillRect(x-offset,y,tile,canvas.height-y);
+      ctx.fillStyle = level.dirtLight; ctx.fillRect(x-offset+3,y+4,5,5);
     }
-    ctx.fillStyle = level.grass; ctx.fillRect(0, y - 15, canvas.width, 15);
-    ctx.fillStyle = level.grassLight; ctx.fillRect(0, y - 15, canvas.width, 5);
+    ctx.fillStyle = level.grass; ctx.fillRect(0,y-15,canvas.width,15);
+    ctx.fillStyle = level.grassLight; ctx.fillRect(0,y-15,canvas.width,5);
     ctx.fillStyle = level.grassDark;
-    for (let x = 0; x < canvas.width + 14; x += 14) ctx.fillRect(x, y - 7, 8, 4);
+    for (let x = 0; x < canvas.width+14; x += 14) ctx.fillRect(x,y-7,8,4);
 
     if (level.cave) {
-      const holes = [{x: 370, w: 120}, {x: 980, w: 150}, {x: 1580, w: 130}, {x: 2200, w: 150}];
+      const holes = [{x:370,w:120},{x:980,w:150},{x:1580,w:130},{x:2200,w:150}];
       for (const hole of holes) {
         const hx = hole.x - game.camera;
-        ctx.fillStyle = '#201c2b'; ctx.fillRect(hx, y, hole.w, 78);
-        ctx.fillStyle = '#655875'; ctx.fillRect(hx - 8, y, hole.w + 16, 9);
-        ctx.fillStyle = '#f05b24'; ctx.fillRect(hx + 5, y + 56, hole.w - 10, 22);
-        ctx.fillStyle = '#ffc24a';
-        for (let bx = hx + 10; bx < hx + hole.w - 8; bx += 28) ctx.fillRect(bx, y + 57 + Math.sin(game.time * .08 + bx) * 2, 14, 4);
+        ctx.fillStyle='#201c2b'; ctx.fillRect(hx,y,hole.w,78);
+        ctx.fillStyle='#655875'; ctx.fillRect(hx-8,y,hole.w+16,9);
+        ctx.fillStyle='#f05b24'; ctx.fillRect(hx+5,y+56,hole.w-10,22);
+        ctx.fillStyle='#ffc24a';
+        for (let bx=hx+10; bx<hx+hole.w-8; bx+=28) ctx.fillRect(bx,y+57+Math.sin(game.time*.08+bx)*2,14,4);
       }
     }
   }
 
   function drawRing(ring) {
     if (ring.collected) return;
-    const x = ring.x - game.camera;
-    if (x < -20 || x > canvas.width + 20) return;
-    ctx.lineWidth = 4; ctx.strokeStyle = '#ffcb28';
-    ctx.beginPath(); ctx.ellipse(x, ring.y, 8, 11, 0, 0, Math.PI * 2); ctx.stroke();
-    ctx.lineWidth = 2; ctx.strokeStyle = '#fff3a7';
-    ctx.beginPath(); ctx.ellipse(x, ring.y, 4, 7, 0, 0, Math.PI * 2); ctx.stroke();
+    const x = ring.x-game.camera; if (x < -20 || x > canvas.width+20) return;
+    ctx.lineWidth=4; ctx.strokeStyle='#ffcb28'; ctx.beginPath(); ctx.ellipse(x,ring.y,8,11,0,0,Math.PI*2); ctx.stroke();
+    ctx.lineWidth=2; ctx.strokeStyle='#fff3a7'; ctx.beginPath(); ctx.ellipse(x,ring.y,4,7,0,0,Math.PI*2); ctx.stroke();
   }
 
   function drawSonic() {
-    const p = game.player;
-    const x = p.x - game.camera;
-    const y = p.y;
-    ctx.save(); ctx.translate(x + p.w / 2, y + p.h / 2);
-    if (p.spin) ctx.rotate(game.time * .38);
-    const facing = p.vx < -.2 ? -1 : 1;
-    ctx.scale(facing, 1);
-
-    // Back quills and head silhouette.
-    ctx.fillStyle = '#0750bd';
-    ctx.beginPath();
-    ctx.moveTo(-5, -13); ctx.lineTo(-27, -25); ctx.lineTo(-19, -8);
-    ctx.lineTo(-32, -6); ctx.lineTo(-18, 2); ctx.lineTo(-24, 12);
-    ctx.lineTo(-8, 10); ctx.lineTo(11, 5); ctx.lineTo(12, -9); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#1684ff'; ctx.beginPath(); ctx.ellipse(3, -11, 13, 14, -.1, 0, Math.PI * 2); ctx.fill();
-
-    // Body, belly, arms and hands.
-    ctx.fillStyle = '#1684ff'; ctx.beginPath(); ctx.ellipse(1, 5, 9, 13, -.15, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#f4c49a'; ctx.beginPath(); ctx.ellipse(5, 7, 6, 8, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = '#1684ff'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(-3, 3); ctx.lineTo(-11, 8); ctx.stroke();
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-12, 9, 4, 0, Math.PI * 2); ctx.fill();
-
-    // Face, eye, and pointed nose.
-    ctx.fillStyle = '#f4c49a'; ctx.beginPath(); ctx.ellipse(9, -5, 8, 7, .12, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(7, -14, 4, 7, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#101827'; ctx.fillRect(8, -15, 2, 5);
-    ctx.fillStyle = '#1684ff'; ctx.beginPath(); ctx.moveTo(14, -7); ctx.lineTo(22, -4); ctx.lineTo(14, -1); ctx.closePath(); ctx.fill();
-
-    // Separate legs, socks, and signature red shoes.
-    ctx.strokeStyle = '#0750bd'; ctx.lineWidth = 5; ctx.beginPath();
-    ctx.moveTo(-3, 12); ctx.lineTo(-7, 18); ctx.moveTo(6, 12); ctx.lineTo(8, 18); ctx.stroke();
-    ctx.fillStyle = '#fff'; ctx.fillRect(-11, 16, 10, 3); ctx.fillRect(5, 16, 10, 3);
-    ctx.fillStyle = '#e53b35'; ctx.beginPath(); ctx.ellipse(-6, 21, 10, 5, -.08, 0, Math.PI * 2); ctx.fill();
-    ctx.beginPath(); ctx.ellipse(10, 21, 10, 5, .08, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.fillRect(-14, 19, 13, 2); ctx.fillRect(2, 19, 13, 2);
-    ctx.restore();
+    const p=game.player, x=p.x-game.camera, y=p.y;
+    ctx.save(); ctx.translate(x+p.w/2,y+p.h/2);
+    if (p.spin) ctx.rotate(game.time*.38);
+    ctx.scale(p.vx<-.2 ? -1 : 1,1);
+    ctx.fillStyle='#0750bd'; ctx.beginPath();
+    ctx.moveTo(-5,-13); ctx.lineTo(-27,-25); ctx.lineTo(-19,-8); ctx.lineTo(-32,-6); ctx.lineTo(-18,2); ctx.lineTo(-24,12); ctx.lineTo(-8,10); ctx.lineTo(11,5); ctx.lineTo(12,-9); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#1684ff'; ctx.beginPath(); ctx.ellipse(3,-11,13,14,-.1,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#1684ff'; ctx.beginPath(); ctx.ellipse(1,5,9,13,-.15,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#f4c49a'; ctx.beginPath(); ctx.ellipse(5,7,6,8,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#1684ff'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(-3,3); ctx.lineTo(-11,8); ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-12,9,4,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#f4c49a'; ctx.beginPath(); ctx.ellipse(9,-5,8,7,.12,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.beginPath(); ctx.ellipse(7,-14,4,7,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#101827'; ctx.fillRect(8,-15,2,5);
+    // Pointed black nose.
+    ctx.fillStyle='#050505'; ctx.beginPath(); ctx.moveTo(14,-7); ctx.lineTo(22,-4); ctx.lineTo(14,-1); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle='#0750bd'; ctx.lineWidth=5; ctx.beginPath(); ctx.moveTo(-3,12); ctx.lineTo(-7,18); ctx.moveTo(6,12); ctx.lineTo(8,18); ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.fillRect(-11,16,10,3); ctx.fillRect(5,16,10,3);
+    ctx.fillStyle='#e53b35'; ctx.beginPath(); ctx.ellipse(-6,21,10,5,-.08,0,Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.ellipse(10,21,10,5,.08,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#fff'; ctx.fillRect(-14,19,13,2); ctx.fillRect(2,19,13,2); ctx.restore();
   }
 
-  function drawBee(x, y) {
-    const px = x - game.camera;
-    const py = y + Math.sin(game.time * .08 + x) * 5;
-    ctx.save(); ctx.translate(px, py);
-    ctx.fillStyle = 'rgba(255,255,255,.8)';
-    ctx.beginPath(); ctx.ellipse(-12, -9, 8, 4, -.4, 0, Math.PI * 2); ctx.ellipse(12, -9, 8, 4, .4, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#f7c900'; ctx.beginPath(); ctx.ellipse(0, 0, 13, 10, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#242331'; ctx.fillRect(-7, -8, 4, 16); ctx.fillRect(3, -9, 4, 17);
-    ctx.fillStyle = '#111'; ctx.fillRect(6, -3, 2, 3);
-    ctx.restore();
+  function drawBee(bee) {
+    const px=bee.x-game.camera, py=bee.y+Math.sin(game.time*.08+bee.x)*5;
+    ctx.save(); ctx.translate(px,py);
+    ctx.fillStyle='rgba(255,255,255,.8)'; ctx.beginPath(); ctx.ellipse(-12,-9,8,4,-.4,0,Math.PI*2); ctx.ellipse(12,-9,8,4,.4,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#f7c900'; ctx.beginPath(); ctx.ellipse(0,0,13,10,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#242331'; ctx.fillRect(-7,-8,4,16); ctx.fillRect(3,-9,4,17);
+    ctx.fillStyle='#111'; ctx.fillRect(6,-3,2,3); ctx.restore();
   }
 
-  function drawBat(x, y) {
-    const px = x - game.camera;
-    const py = y + Math.sin(game.time * .09 + x) * 8;
-    ctx.save(); ctx.translate(px, py);
-    ctx.fillStyle = '#4c315d'; ctx.beginPath();
-    ctx.moveTo(0, -4); ctx.lineTo(-20, -14); ctx.lineTo(-15, -1); ctx.lineTo(-22, 9);
-    ctx.lineTo(-8, 6); ctx.lineTo(0, 13); ctx.lineTo(8, 6); ctx.lineTo(22, 9);
-    ctx.lineTo(15, -1); ctx.lineTo(20, -14); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#ffed91'; ctx.fillRect(-5, -3, 2, 2); ctx.fillRect(3, -3, 2, 2);
-    ctx.restore();
+  function drawBat(x,y) {
+    const px=x-game.camera, py=y+Math.sin(game.time*.09+x)*8;
+    ctx.save(); ctx.translate(px,py); ctx.fillStyle='#4c315d'; ctx.beginPath();
+    ctx.moveTo(0,-4); ctx.lineTo(-20,-14); ctx.lineTo(-15,-1); ctx.lineTo(-22,9); ctx.lineTo(-8,6); ctx.lineTo(0,13); ctx.lineTo(8,6); ctx.lineTo(22,9); ctx.lineTo(15,-1); ctx.lineTo(20,-14); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#ffed91'; ctx.fillRect(-5,-3,2,2); ctx.fillRect(3,-3,2,2); ctx.restore();
+  }
+
+  function drawProjectile(projectile) {
+    const x=projectile.x-game.camera;
+    ctx.fillStyle='#ff6238'; ctx.beginPath(); ctx.arc(x,projectile.y,6,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ffd166'; ctx.beginPath(); ctx.arc(x-2,projectile.y-2,2,0,Math.PI*2); ctx.fill();
+  }
+
+  function resetStage() {
+    game.camera=0; game.player.x=90; game.player.y=GROUND_Y-game.player.h;
+    game.player.vx=0; game.player.vy=0; game.player.grounded=true;
+    game.player.invulnerable=70; game.ringObjects=makeRings(); game.projectiles=[];
+    for (const level of stages) for (const bee of level.bees) bee.cooldown=70 + (bee.x % 100);
+  }
+
+  function finishStage() {
+    if (game.stage < stages.length-1) {
+      game.stage++;
+      game.messageTimer=100;
+      resetStage();
+      updateHud();
+    } else {
+      game.stage=0; game.rings=0; game.messageTimer=130;
+      resetStage(); updateHud();
+    }
   }
 
   function drawScene() {
-    const level = stages[game.stage];
-    drawBackdrop(level);
-    drawTerrain(level);
+    const level=stages[game.stage];
+    drawBackdrop(level); drawTerrain(level);
     for (const ring of game.ringObjects) drawRing(ring);
-    for (const bee of level.bees) drawBee(bee.x, bee.y);
-    for (const bat of level.bats) drawBat(bat.x, bat.y);
+    for (const bee of level.bees) drawBee(bee);
+    for (const bat of level.bats) drawBat(bat.x,bat.y);
+    for (const projectile of game.projectiles) drawProjectile(projectile);
     drawSonic();
+    if (game.messageTimer>0) {
+      ctx.save(); ctx.fillStyle='rgba(8,20,40,.75)'; ctx.fillRect(275,155,410,58);
+      ctx.fillStyle='#fff'; ctx.font='bold 25px Arial'; ctx.textAlign='center';
+      ctx.fillText(game.stage===0 ? 'MARBLE ZONE!' : 'ALL ZONES CLEARED!',480,192); ctx.restore();
+    }
   }
 
   function update() {
     game.time++;
-    const p = game.player;
-    const moveLeft = keys.has('arrowleft') || keys.has('a');
-    const moveRight = keys.has('arrowright') || keys.has('d');
-    const jump = keys.has(' ') || keys.has('arrowup') || keys.has('w');
-    p.spin = keys.has('shift') || keys.has('s');
-    if (moveLeft) p.vx -= .42;
-    if (moveRight) p.vx += .42;
-    if (!moveLeft && !moveRight) p.vx *= .82;
-    p.vx = Math.max(-5, Math.min(5, p.vx));
-    if (jump && p.grounded) { p.vy = -10.5; p.grounded = false; }
-    p.vy += .48;
-    p.x += p.vx;
-    p.y += p.vy;
-    if (p.y + p.h >= GROUND_Y) { p.y = GROUND_Y - p.h; p.vy = 0; p.grounded = true; }
-    p.x = Math.max(0, Math.min(WORLD_WIDTH - p.w, p.x));
-    game.camera = Math.max(0, Math.min(WORLD_WIDTH - canvas.width, p.x - 180));
+    const p=game.player, level=stages[game.stage];
+    const left=keys.has('arrowleft')||keys.has('a'), right=keys.has('arrowright')||keys.has('d');
+    const jump=keys.has(' ')||keys.has('arrowup')||keys.has('w');
+    // Jumping automatically curls Sonic into a spinning ball; no separate spin button.
+    p.spin=!p.grounded;
+    if (left) p.vx-=.42; if (right) p.vx+=.42;
+    if (!left&&!right) p.vx*=.82;
+    p.vx=Math.max(-5,Math.min(5,p.vx));
+    if (jump&&p.grounded) { p.vy=-10.5; p.grounded=false; p.spin=true; }
+    p.vy+=.48; p.x+=p.vx; p.y+=p.vy;
+    if (p.y+p.h>=GROUND_Y) { p.y=GROUND_Y-p.h; p.vy=0; p.grounded=true; p.spin=false; }
+    p.x=Math.max(0,Math.min(WORLD_WIDTH-p.w,p.x));
+    game.camera=Math.max(0,Math.min(WORLD_WIDTH-canvas.width,p.x-180));
+    if (p.invulnerable>0) p.invulnerable--;
 
     for (const ring of game.ringObjects) {
-      if (!ring.collected && Math.abs((p.x + p.w / 2) - ring.x) < 22 && Math.abs((p.y + p.h / 2) - ring.y) < 28) {
-        ring.collected = true; game.rings++; updateHud();
+      if (!ring.collected&&Math.abs((p.x+p.w/2)-ring.x)<22&&Math.abs((p.y+p.h/2)-ring.y)<28) { ring.collected=true; game.rings++; updateHud(); }
+    }
+
+    // Bee-bots fire aimed bolts when Sonic is within their active screen area.
+    for (const bee of level.bees) {
+      bee.cooldown=(bee.cooldown||0)-1;
+      const screenX=bee.x-game.camera;
+      if (bee.cooldown<=0&&screenX>-80&&screenX<canvas.width+80) {
+        const dx=(p.x+p.w/2)-bee.x, dy=(p.y+p.h/2)-bee.y;
+        const length=Math.hypot(dx,dy)||1;
+        game.projectiles.push({x:bee.x,y:bee.y,vx:dx/length*3.1,vy:dy/length*3.1});
+        bee.cooldown=115;
       }
     }
+    for (const shot of game.projectiles) { shot.x+=shot.vx; shot.y+=shot.vy; }
+    game.projectiles=game.projectiles.filter(shot=>shot.x>-40&&shot.x<WORLD_WIDTH+40&&shot.y>-30&&shot.y<canvas.height+30);
+    if (p.invulnerable===0) {
+      const hitIndex=game.projectiles.findIndex(shot=>Math.hypot((p.x+p.w/2)-shot.x,(p.y+p.h/2)-shot.y)<18);
+      if (hitIndex!==-1) {
+        game.projectiles.splice(hitIndex,1); game.lives--;
+        if (game.lives<=0) game.lives=3;
+        p.x=Math.max(0,p.x-100); p.y=GROUND_Y-p.h; p.vx=0; p.vy=0; p.grounded=true; p.invulnerable=90;
+        updateHud();
+      }
+    }
+    if (game.messageTimer>0) game.messageTimer--;
+    if (p.x>=WORLD_WIDTH-p.w-1) finishStage();
   }
 
-  document.addEventListener('keydown', (event) => {
-    const key = event.key.toLowerCase(); keys.add(key);
-    if ([' ', 'arrowup', 'arrowleft', 'arrowright'].includes(key)) event.preventDefault();
-    if (key === '1' && game.stage !== 0) { game.stage = 0; updateHud(); }
-    if (key === '2' && game.stage !== 1) { game.stage = 1; updateHud(); }
+  document.addEventListener('keydown', event=>{
+    const key=event.key.toLowerCase(); keys.add(key);
+    if ([' ','arrowup','arrowleft','arrowright'].includes(key)) event.preventDefault();
   });
-  document.addEventListener('keyup', (event) => keys.delete(event.key.toLowerCase()));
-  window.addEventListener('blur', () => keys.clear());
+  document.addEventListener('keyup', event=>keys.delete(event.key.toLowerCase()));
+  window.addEventListener('blur',()=>keys.clear());
 
-  function loop() {
-    update();
-    drawScene();
-    requestAnimationFrame(loop);
-  }
-  updateHud();
-  requestAnimationFrame(loop);
+  function loop() { update(); drawScene(); requestAnimationFrame(loop); }
+  for (const level of stages) for (const bee of level.bees) bee.cooldown=80+(bee.x%90);
+  updateHud(); requestAnimationFrame(loop);
 </script>
 </body>
 </html>
