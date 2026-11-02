@@ -6,7 +6,7 @@
   <title>Sonic True Levels</title>
   <style>
     :root {
-      --panel: rgba(15, 23, 42, 0.88);
+      --panel: rgba(15, 23, 42, .88);
       --panel-border: rgba(255,255,255,.2);
       --text: #edf6ff;
     }
@@ -30,7 +30,7 @@
     h1 { margin: 0 0 12px; text-align: center; font-size: clamp(26px, 4vw, 40px); }
     .hud { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 12px; font-weight: 700; }
     .hud span { padding: 8px 14px; min-width: 120px; text-align: center; background: rgba(15,23,42,.9); border: 2px solid rgba(148,163,184,.42); border-radius: 9px; }
-    canvas { display: block; width: 100%; height: auto; border: 2px solid rgba(255,255,255,.85); border-radius: 7px; background: #7fd7ff; }
+    canvas { display: block; width: 100%; height: auto; border: 2px solid rgba(255,255,255,.85); border-radius: 7px; background: #0000ff; }
     .controls { margin-top: 12px; text-align: center; color: #dfe7ef; font-size: 14px; line-height: 1.6; }
   </style>
 </head>
@@ -43,7 +43,7 @@
       <span>Lives: <b id="lives">3</b></span>
     </div>
     <canvas id="game" width="960" height="420" aria-label="Sonic platform game"></canvas>
-    <div class="controls">Move: ← / → or A / D · Jump: Space / ↑ / W · Spin: Shift / S<br>Press 1 for Green Hill or 2 for Marble Zone. There is no wooden platform in Green Hill.</div>
+    <div class="controls">Move: ← / → or A / D · Jump: Space / ↑ / W · Spin: Shift / S<br>Press 1 for Green Hill or 2 for Marble Zone. GHZ trees and totems stay fixed in place.</div>
   </main>
 <script>
   const canvas = document.getElementById('game');
@@ -56,10 +56,10 @@
 
   const stages = [
     {
-      name: 'Green Hill', skyTop: '#08a8f4', skyBottom: '#b8efff',
+      name: 'Green Hill', skyTop: '#0000ff', skyBottom: '#087df0',
       grass: '#27c840', grassLight: '#70e546', grassDark: '#138a32',
       dirt: '#9b542b', dirtDark: '#542b1c', dirtLight: '#c87a3b',
-      hillFar: '#d58a27', hillNear: '#55bd39', palm: true, cave: false,
+      hillFar: '#7651a5', hillNear: '#55bd39', palm: true, cave: false,
       bees: [{x: 510, y: 205}, {x: 1120, y: 190}, {x: 1870, y: 210}], bats: []
     },
     {
@@ -73,7 +73,7 @@
 
   const game = {
     stage: 0, camera: 0, time: 0, rings: 0, lives: 3,
-    player: { x: 90, y: GROUND_Y - 42, vx: 0, vy: 0, w: 30, h: 42, grounded: true, spin: false },
+    player: { x: 90, y: GROUND_Y - 46, vx: 0, vy: 0, w: 34, h: 46, grounded: true, spin: false },
     ringObjects: Array.from({length: 24}, (_, i) => ({x: 170 + i * 96, y: 270 - (i % 3) * 24, collected: false}))
   };
 
@@ -84,18 +84,20 @@
 
   function drawCloud(x, y, scale = 1) {
     ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale);
-    ctx.fillStyle = 'rgba(255,255,255,.78)';
-    ctx.beginPath(); ctx.arc(0, 0, 20, 0, Math.PI * 2); ctx.arc(23, -8, 26, 0, Math.PI * 2); ctx.arc(52, 1, 19, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.88)';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 31, 14, 0, 0, Math.PI * 2);
+    ctx.ellipse(25, -9, 28, 16, 0, 0, Math.PI * 2);
+    ctx.ellipse(53, 1, 32, 14, 0, 0, Math.PI * 2);
+    ctx.fill();
     ctx.restore();
   }
 
   function drawPalm(x, baseY, scale = 1) {
     ctx.save(); ctx.translate(x, baseY); ctx.scale(scale, scale);
-    // Straight, long brown rectangular trunk.
     ctx.fillStyle = '#87451f'; ctx.fillRect(-8, -102, 16, 102);
     ctx.fillStyle = '#aa6330'; ctx.fillRect(-5, -101, 5, 98);
     const crownY = -98;
-    // Five broad classic fan leaves. Each frond is a parallelogram with a pointed triangle tip.
     const fronds = [
       {a: -2.72, len: 88}, {a: -2.12, len: 94}, {a: -1.57, len: 84},
       {a: -1.02, len: 94}, {a: -0.42, len: 88}
@@ -103,8 +105,7 @@
     for (let i = 0; i < fronds.length; i++) {
       const {a, len} = fronds[i];
       const ux = Math.cos(a), uy = Math.sin(a), px = -uy, py = ux;
-      const sx = 0, sy = crownY;
-      const shoulder = len * .69, width = 12;
+      const sx = 0, sy = crownY, shoulder = len * .69, width = 12;
       const bx = sx + ux * shoulder, by = sy + uy * shoulder;
       const tx = sx + ux * len, ty = sy + uy * len;
       ctx.fillStyle = i % 2 ? '#0da943' : '#18bd43';
@@ -124,60 +125,99 @@
     ctx.restore();
   }
 
+  function drawTotem(x, baseY, scale = 1) {
+    ctx.save(); ctx.translate(x, baseY); ctx.scale(scale, scale);
+    // Short, patterned GHZ stone pillars, kept static with the palms.
+    ctx.fillStyle = '#8f552e'; ctx.fillRect(-13, -54, 26, 54);
+    ctx.fillStyle = '#d89135'; ctx.fillRect(-13, -54, 26, 7);
+    ctx.fillStyle = '#2c923d'; ctx.fillRect(-16, -39, 32, 8);
+    ctx.fillStyle = '#f2b83d';
+    for (const [px, py] of [[-6,-30],[6,-30],[-6,-15],[6,-15]]) {
+      ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#583b29'; ctx.beginPath(); ctx.arc(px, py, 1.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#f2b83d';
+    }
+    ctx.fillStyle = '#5c351f'; ctx.fillRect(-16, -5, 32, 5);
+    ctx.restore();
+  }
+
+  function drawWater() {
+    // A broad bright lagoon and little waterfall sit behind the playable ground.
+    ctx.fillStyle = '#087fd0';
+    ctx.beginPath();
+    ctx.moveTo(0, 302); ctx.quadraticCurveTo(145, 282, 275, 302);
+    ctx.quadraticCurveTo(405, 326, 530, 301); ctx.lineTo(530, 338);
+    ctx.lineTo(0, 338); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#5bd7f4';
+    ctx.beginPath(); ctx.moveTo(0, 307); ctx.quadraticCurveTo(145, 288, 275, 307);
+    ctx.quadraticCurveTo(405, 330, 530, 306); ctx.lineTo(530, 313);
+    ctx.quadraticCurveTo(405, 337, 275, 314); ctx.quadraticCurveTo(145, 296, 0, 315); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#86e9ff';
+    for (let i = 0; i < 10; i++) {
+      const x = (i * 67 - game.camera * .28) % 530;
+      ctx.beginPath(); ctx.ellipse(x < 0 ? x + 530 : x, 310 + (i % 3) * 5, 15, 3, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    ctx.fillStyle = '#20a9e3'; ctx.fillRect(505, 283, 25, 55);
+    ctx.fillStyle = '#8be9ff'; ctx.fillRect(510, 288, 5, 46); ctx.fillRect(522, 292, 3, 40);
+  }
+
   function drawBackdrop(level) {
     const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
     sky.addColorStop(0, level.skyTop); sky.addColorStop(1, level.skyBottom);
     ctx.fillStyle = sky; ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    for (let i = 0; i < 7; i++) {
-      const x = ((i * 190 - game.camera * .12) % 1320 + 1320) % 1320 - 120;
-      drawCloud(x, 58 + (i % 3) * 34, .72 + (i % 2) * .16);
+    for (let i = 0; i < 10; i++) {
+      const x = ((i * 145 - game.camera * .08) % 1280 + 1280) % 1280 - 100;
+      drawCloud(x, 48 + (i % 4) * 32, .62 + (i % 3) * .12);
     }
 
-    // Distant, jagged GHZ-style mountain ridge adds depth behind the rolling hills.
+    // Cooler distant ridge rather than a wall of brown hills.
     ctx.fillStyle = level.hillFar;
-    ctx.beginPath(); ctx.moveTo(0, 275);
-    for (let x = -30; x <= canvas.width + 30; x += 38) {
-      const worldX = x + game.camera * .18;
-      const peak = 205 + Math.sin(worldX * .018) * 20 + Math.sin(worldX * .043) * 11;
-      ctx.lineTo(x, peak); ctx.lineTo(x + 19, peak + 28);
+    ctx.beginPath(); ctx.moveTo(0, 270);
+    for (let x = -30; x <= canvas.width + 30; x += 42) {
+      const wx = x + game.camera * .12;
+      const peak = 218 + Math.sin(wx * .017) * 16 + Math.sin(wx * .041) * 8;
+      ctx.lineTo(x, peak); ctx.lineTo(x + 21, peak + 24);
     }
     ctx.lineTo(canvas.width, 342); ctx.lineTo(0, 342); ctx.closePath(); ctx.fill();
 
-    // More rounded hills at several scales, scrolling at different parallax speeds.
+    // Rolling green hills add depth without covering the soil with brown shapes.
     for (let layer = 0; layer < 2; layer++) {
       ctx.fillStyle = layer === 0 ? level.hillNear : level.hillFar;
       const spacing = layer === 0 ? 230 : 310;
-      const speed = layer === 0 ? .30 : .16;
-      const base = layer === 0 ? 335 : 305;
+      const speed = layer === 0 ? .24 : .12;
+      const base = layer === 0 ? 328 : 300;
       for (let i = -2; i < 8; i++) {
         const x = i * spacing - ((game.camera * speed) % spacing);
         const w = layer === 0 ? 250 : 330;
-        const h = (layer === 0 ? 75 : 95) + ((i + 2) % 3) * 14;
+        const h = (layer === 0 ? 52 : 70) + ((i + 2) % 3) * 10;
         ctx.beginPath(); ctx.moveTo(x, base);
         ctx.quadraticCurveTo(x + w * .5, base - h * 2, x + w, base);
-        ctx.lineTo(x + w, 355); ctx.lineTo(x, 355); ctx.closePath(); ctx.fill();
+        ctx.lineTo(x + w, 342); ctx.lineTo(x, 342); ctx.closePath(); ctx.fill();
       }
     }
 
     if (level.palm) {
-      for (let i = -1; i < 7; i++) {
-        const x = i * 260 - (game.camera % 260) + 145;
-        drawPalm(x, GROUND_Y, .78 + ((i + 1) % 3) * .12);
-      }
+      drawWater();
+      // Fixed viewport positions: trees and totems do not scroll with Sonic/camera.
+      const treePositions = [[38, .82], [300, 1.02], [566, .90], [828, 1.03], [1080, .88]];
+      for (const [x, scale] of treePositions) drawPalm(x, GROUND_Y, scale);
+      const totemPositions = [[190, .9], [470, 1], [730, .92], [990, 1.02]];
+      for (const [x, scale] of totemPositions) drawTotem(x, GROUND_Y, scale);
     }
   }
 
   function drawTerrain(level) {
     const y = GROUND_Y;
+    // Continuous patterned soil reaches the bottom edge; no bare background gap.
     ctx.fillStyle = level.dirt; ctx.fillRect(0, y, canvas.width, canvas.height - y);
     const tile = 24, offset = game.camera % tile;
     for (let x = -tile; x < canvas.width + tile; x += tile) {
       const col = Math.floor((x + offset) / tile);
       ctx.fillStyle = ((col % 2 + 2) % 2 === 0) ? level.dirt : level.dirtDark;
-      ctx.fillRect(x - offset, y, tile, 28);
+      ctx.fillRect(x - offset, y, tile, canvas.height - y);
       ctx.fillStyle = level.dirtLight;
-      ctx.fillRect(x - offset + 3, y + 3, 5, 5);
+      ctx.fillRect(x - offset + 3, y + 4, 5, 5);
     }
     ctx.fillStyle = level.grass; ctx.fillRect(0, y - 15, canvas.width, 15);
     ctx.fillStyle = level.grassLight; ctx.fillRect(0, y - 15, canvas.width, 5);
@@ -185,7 +225,6 @@
     for (let x = 0; x < canvas.width + 14; x += 14) ctx.fillRect(x, y - 7, 8, 4);
 
     if (level.cave) {
-      // Openings are recessed below the main path, with visible lava and stone ledges.
       const holes = [{x: 370, w: 120}, {x: 980, w: 150}, {x: 1580, w: 130}, {x: 2200, w: 150}];
       for (const hole of holes) {
         const hx = hole.x - game.camera;
@@ -217,19 +256,33 @@
     const facing = p.vx < -.2 ? -1 : 1;
     ctx.scale(facing, 1);
 
-    // Quills silhouette, head, body, gloves and unmistakable red shoes.
+    // Back quills and head silhouette.
     ctx.fillStyle = '#0750bd';
     ctx.beginPath();
-    ctx.moveTo(-5, -16); ctx.lineTo(-27, -27); ctx.lineTo(-18, -9);
-    ctx.lineTo(-31, -8); ctx.lineTo(-18, 1); ctx.lineTo(-25, 12);
-    ctx.lineTo(-8, 9); ctx.lineTo(9, 6); ctx.lineTo(12, -9); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = '#1684ff'; ctx.beginPath(); ctx.ellipse(2, -10, 13, 14, -.1, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#f4c49a'; ctx.beginPath(); ctx.ellipse(8, -6, 8, 7, .15, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(7, -13, 4, 6, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#101827'; ctx.fillRect(8, -14, 2, 4);
-    ctx.fillStyle = '#e53b35'; ctx.fillRect(-7, 13, 15, 7); ctx.fillRect(6, 13, 13, 7);
-    ctx.fillStyle = '#fff'; ctx.fillRect(-6, 13, 13, 2); ctx.fillRect(7, 13, 11, 2);
-    ctx.fillStyle = '#f4c49a'; ctx.beginPath(); ctx.arc(-7, 3, 4, 0, Math.PI * 2); ctx.fill();
+    ctx.moveTo(-5, -13); ctx.lineTo(-27, -25); ctx.lineTo(-19, -8);
+    ctx.lineTo(-32, -6); ctx.lineTo(-18, 2); ctx.lineTo(-24, 12);
+    ctx.lineTo(-8, 10); ctx.lineTo(11, 5); ctx.lineTo(12, -9); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#1684ff'; ctx.beginPath(); ctx.ellipse(3, -11, 13, 14, -.1, 0, Math.PI * 2); ctx.fill();
+
+    // Body, belly, arms and hands.
+    ctx.fillStyle = '#1684ff'; ctx.beginPath(); ctx.ellipse(1, 5, 9, 13, -.15, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#f4c49a'; ctx.beginPath(); ctx.ellipse(5, 7, 6, 8, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = '#1684ff'; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(-3, 3); ctx.lineTo(-11, 8); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-12, 9, 4, 0, Math.PI * 2); ctx.fill();
+
+    // Face, eye, and pointed nose.
+    ctx.fillStyle = '#f4c49a'; ctx.beginPath(); ctx.ellipse(9, -5, 8, 7, .12, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(7, -14, 4, 7, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#101827'; ctx.fillRect(8, -15, 2, 5);
+    ctx.fillStyle = '#1684ff'; ctx.beginPath(); ctx.moveTo(14, -7); ctx.lineTo(22, -4); ctx.lineTo(14, -1); ctx.closePath(); ctx.fill();
+
+    // Separate legs, socks, and signature red shoes.
+    ctx.strokeStyle = '#0750bd'; ctx.lineWidth = 5; ctx.beginPath();
+    ctx.moveTo(-3, 12); ctx.lineTo(-7, 18); ctx.moveTo(6, 12); ctx.lineTo(8, 18); ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.fillRect(-11, 16, 10, 3); ctx.fillRect(5, 16, 10, 3);
+    ctx.fillStyle = '#e53b35'; ctx.beginPath(); ctx.ellipse(-6, 21, 10, 5, -.08, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(10, 21, 10, 5, .08, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.fillRect(-14, 19, 13, 2); ctx.fillRect(2, 19, 13, 2);
     ctx.restore();
   }
 
