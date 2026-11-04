@@ -6,115 +6,58 @@
   <title>Sonic Run</title>
   <style>
     * { box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #071824; font-family: Arial, Helvetica, sans-serif; }
-    iframe { display: block; width: 100%; height: 100%; border: 0; }
-    .back-link { position: fixed; z-index: 5; top: 10px; right: 12px; padding: 8px 12px; color: #fff; background: rgba(15,23,42,.8); border: 1px solid rgba(255,255,255,.35); border-radius: 8px; text-decoration: none; }
+    html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#071824; font-family:Arial,Helvetica,sans-serif; }
+    iframe { display:block; width:100%; height:100%; border:0; }
+    .back-link { position:fixed; z-index:5; top:10px; right:12px; padding:8px 12px; color:#fff; background:rgba(15,23,42,.8); border:1px solid rgba(255,255,255,.35); border-radius:8px; text-decoration:none; }
   </style>
 </head>
 <body>
   <a class="back-link" href="games.html">← Games</a>
   <iframe id="sonicGame" src="sonic-true-levels.html" title="Sonic Run" tabindex="0"></iframe>
   <script>
-    const frame = document.getElementById('sonicGame');
-    frame.addEventListener('load', () => {
-      const w = frame.contentWindow;
-      const d = frame.contentDocument;
-      const style = d.createElement('style');
-      style.textContent = `
-        html, body { width:100%; height:100%; min-height:0; margin:0; padding:0; overflow:hidden; }
-        body { display:block; padding:0; }
-        .wrap { position:relative; width:100%; height:100%; max-width:none; padding:0; border:0; border-radius:0; }
-        h1 { display:none !important; }
-        .controls { position:absolute; z-index:4; left:0; right:0; bottom:10px; margin:0; font-size:14px; text-shadow:0 2px 4px #000; }
-        .hud { position:absolute; z-index:2; top:8px; left:50%; transform:translateX(-50%); width:max-content; max-width:calc(100% - 100px); margin:0; gap:5px; }
-        .hud span { min-width:0; padding:6px 9px; font-size:clamp(11px,2.4vw,16px); }
-        canvas { position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:0; }
-        .mobile-controls { position:absolute; z-index:3; left:0; right:0; bottom:max(10px, env(safe-area-inset-bottom)); width:min(540px,94vw); margin:0 auto; }
-        .mobile-btn { touch-action:none; }
-        @media (pointer:coarse), (max-width:700px) {
-          .controls { display:none !important; }
-          canvas { inset:0 0 118px; width:100%; height:calc(100% - 118px); }
-          .mobile-controls { bottom:max(12px, env(safe-area-inset-bottom)); }
-          .hud { max-width:calc(100% - 16px); }
-        }
+    const frame=document.getElementById('sonicGame');
+    frame.addEventListener('load',()=>{
+      const w=frame.contentWindow,d=frame.contentDocument;
+      const style=d.createElement('style');
+      style.textContent=`
+        html,body{width:100%;height:100%;min-height:0;margin:0;padding:0;overflow:hidden}
+        body{display:block;padding:0}.wrap{position:relative;width:100%;height:100%;max-width:none;padding:0;border:0;border-radius:0}
+        h1{display:none!important}.controls{position:absolute;z-index:4;left:0;right:0;bottom:10px;margin:0;font-size:14px;text-shadow:0 2px 4px #000}
+        .hud{position:absolute;z-index:2;top:8px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 100px);margin:0;gap:5px}
+        .hud span{min-width:0;padding:6px 9px;font-size:clamp(11px,2.4vw,16px)}
+        canvas{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0}
+        .mobile-controls{position:absolute;z-index:3;left:0;right:0;bottom:max(10px,env(safe-area-inset-bottom));width:min(540px,94vw);margin:0 auto}
+        .mobile-btn{touch-action:none}
+        @media(pointer:coarse),(max-width:700px){.controls{display:none!important}canvas{inset:0 0 118px;width:100%;height:calc(100% - 118px)}.mobile-controls{bottom:max(12px,env(safe-area-inset-bottom))}.hud{max-width:calc(100% - 16px)}}
       `;
       d.head.appendChild(style);
-      w.eval(`(function () {
-        let titleUntil = performance.now() + 3000;
-        let titleValue = game.title;
-        let gameOver = false;
-        let won = false;
-        let livesValue = game.lives;
-        Object.defineProperty(game, 'title', { configurable:true, get:() => titleValue, set(value) { if(value===false&&titleValue&&performance.now()<titleUntil)return; titleValue=value; } });
-        Object.defineProperty(game, 'lives', { configurable:true, get:() => livesValue, set(value) { if(value===1&&livesValue===1)livesValue=0; else livesValue=value; } });
-
-        const originalUpdate = update;
-        update = function () {
-          if (gameOver || won) return;
-          if (game.title && performance.now() >= titleUntil) game.title = false;
-          const p=game.player, oldVx=p.vx;
-          const left=keys.has('arrowleft')||keys.has('left')||keys.has('a');
-          const right=keys.has('arrowright')||keys.has('right')||keys.has('d');
+      w.eval(`(function(){
+        let titleUntil=performance.now()+3000,titleValue=game.title,gameOver=false,won=false,livesValue=game.lives;
+        Object.defineProperty(game,'title',{configurable:true,get:()=>titleValue,set(value){if(value===false&&titleValue&&performance.now()<titleUntil)return;titleValue=value;}});
+        Object.defineProperty(game,'lives',{configurable:true,get:()=>livesValue,set(value){if(value===1&&livesValue===1)livesValue=0;else livesValue=value;}});
+        const originalUpdate=update;
+        update=function(){
+          if(gameOver||won)return;
+          if(game.title&&performance.now()>=titleUntil)game.title=false;
+          const p=game.player,oldVx=p.vx,left=keys.has('arrowleft')||keys.has('left')||keys.has('a'),right=keys.has('arrowright')||keys.has('right')||keys.has('d');
           originalUpdate();
-          // Hold Sonic near the center of the playfield, leaving a separate area for touch controls.
+          if(!game.title&&!p.loop){const direction=(right?1:0)-(left?1:0);let vx=oldVx;if(direction)vx=Math.max(-5,Math.min(5,vx+direction*(p.grounded?.18:.11)));else vx=Math.abs(vx)<.08?0:vx*.94;p.x+=vx-p.vx;p.vx=vx;}
+          // Center Sonic in the visible play area; controls sit in their own reserved strip on phones.
           game.camera=Math.max(0,Math.min(level().width-canvas.width,p.x+p.w/2-canvas.width/2));
-          // Keep the existing collision/loop physics while easing acceleration and coasting.
-          if(!game.title&&!p.loop){
-            const direction=(right?1:0)-(left?1:0);
-            let vx=oldVx;
-            if(direction) vx=Math.max(-5,Math.min(5,vx+direction*(p.grounded?.18:.11)));
-            else vx=Math.abs(vx)<.08?0:vx*.94;
-            p.x+=vx-p.vx;
-            p.vx=vx;
-          }
           if(game.lives<=0)gameOver=true;
         };
-        const originalShowTitle=showTitle;
-        showTitle=function(){originalShowTitle();titleUntil=performance.now()+3000;};
-        const originalAdvanceAct=advanceAct;
-        advanceAct=function(){if(game.stage===stages.length-1){won=true;game.title=false;return;}originalAdvanceAct();titleUntil=performance.now()+3000;};
-
-        // Fixed screen-space scenery: level colors vary by zone, but clouds and distant shapes do not scroll or animate.
-        drawBackdrop=function(){
-          const l=level(), gradient=ctx.createLinearGradient(0,0,0,canvas.height);
-          gradient.addColorStop(0,l.skyTop);gradient.addColorStop(1,l.skyBottom);ctx.fillStyle=gradient;ctx.fillRect(0,0,canvas.width,canvas.height);
-          ctx.fillStyle=l.hillFar||'#30466e';ctx.beginPath();ctx.moveTo(0,canvas.height*.58);
-          for(let x=0;x<=canvas.width+40;x+=40){const peak=canvas.height*(.43+((Math.floor(x/40)%3)*.035));ctx.lineTo(x,peak);ctx.lineTo(x+20,peak+30);}
-          ctx.lineTo(canvas.width,canvas.height*.82);ctx.lineTo(0,canvas.height*.82);ctx.closePath();ctx.fill();
-          ctx.fillStyle=l.hillNear||'#287a46';ctx.beginPath();ctx.moveTo(0,canvas.height*.72);
-          for(let x=0;x<=canvas.width+30;x+=30){const y=canvas.height*(.68+((Math.floor(x/30)%2)*.025));ctx.lineTo(x,y);ctx.lineTo(x+15,y-18);}
-          ctx.lineTo(canvas.width,canvas.height*.86);ctx.lineTo(0,canvas.height*.86);ctx.closePath();ctx.fill();
-          for(const [x,y,r] of [[.12,.15,26],[.43,.1,19],[.77,.18,25],[.91,.09,15]]){ctx.fillStyle='rgba(235,247,255,.78)';ctx.beginPath();ctx.arc(canvas.width*x,canvas.height*y,r,0,Math.PI*2);ctx.arc(canvas.width*x+r*.8,canvas.height*y-5,r*.72,0,Math.PI*2);ctx.arc(canvas.width*x+r*1.5,canvas.height*y,r*.85,0,Math.PI*2);ctx.fill();}
-        };
-        drawTitleScreen=function(){
-          const cw=canvas.width,ch=canvas.height,cx=cw/2;ctx.fillStyle='#07122f';ctx.fillRect(0,0,cw,ch);
-          ctx.fillStyle='#f7e842';ctx.fillRect(cw*.08,ch*.12,cw*.84,ch*.76);ctx.fillStyle='#e52827';ctx.fillRect(cw*.1,ch*.15,cw*.25,ch*.7);ctx.fillStyle='#243be0';ctx.fillRect(cw*.35,ch*.15,cw*.55,ch*.7);
-          ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='bold 22px Arial';ctx.fillText('SONIC THE HEDGEHOG',cx,ch*.34);ctx.font='bold 46px Arial';ctx.fillText(level().name.toUpperCase()+' ZONE',cx,ch*.51);ctx.font='bold 30px Arial';ctx.fillText('ACT '+level().act,cx,ch*.63);
-          ctx.fillStyle='rgba(255,255,255,.35)';ctx.fillRect(cw*.25,ch*.74,cw*.5,8);ctx.fillStyle='#f7e842';const progress=Math.max(0,Math.min(1,1-(titleUntil-performance.now())/3000));ctx.fillRect(cw*.25,ch*.74,cw*.5*progress,8);ctx.textAlign='start';
-        };
-        const originalDrawScene=drawScene;
-        drawScene=function(){originalDrawScene();if(!gameOver&&!won)return;ctx.fillStyle='rgba(0,0,0,.84)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.textAlign='center';ctx.fillStyle=won?'#f7e842':'#ff6868';ctx.font='bold 58px Arial';ctx.fillText(won?'YOU WIN!':'GAME OVER',canvas.width/2,canvas.height*.45);ctx.fillStyle='#fff';ctx.font='bold 22px Arial';ctx.fillText('Rings: '+game.rings,canvas.width/2,canvas.height*.55);ctx.font='bold 18px Arial';ctx.fillText('Tap or press a key to play again',canvas.width/2,canvas.height*.64);ctx.textAlign='start';};
+        const originalShowTitle=showTitle;showTitle=function(){originalShowTitle();titleUntil=performance.now()+3000;};
+        const originalAdvanceAct=advanceAct;advanceAct=function(){if(game.stage===stages.length-1){won=true;game.title=false;return;}originalAdvanceAct();titleUntil=performance.now()+3000;};
+        drawTitleScreen=function(){const cw=canvas.width,ch=canvas.height,cx=cw/2;ctx.fillStyle='#07122f';ctx.fillRect(0,0,cw,ch);ctx.fillStyle='#f7e842';ctx.fillRect(cw*.08,ch*.12,cw*.84,ch*.76);ctx.fillStyle='#e52827';ctx.fillRect(cw*.1,ch*.15,cw*.25,ch*.7);ctx.fillStyle='#243be0';ctx.fillRect(cw*.35,ch*.15,cw*.55,ch*.7);ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='bold 22px Arial';ctx.fillText('SONIC THE HEDGEHOG',cx,ch*.34);ctx.font='bold 46px Arial';ctx.fillText(level().name.toUpperCase()+' ZONE',cx,ch*.51);ctx.font='bold 30px Arial';ctx.fillText('ACT '+level().act,cx,ch*.63);ctx.fillStyle='rgba(255,255,255,.35)';ctx.fillRect(cw*.25,ch*.74,cw*.5,8);ctx.fillStyle='#f7e842';ctx.fillRect(cw*.25,ch*.74,cw*.5*Math.max(0,Math.min(1,1-(titleUntil-performance.now())/3000)),8);ctx.textAlign='start';};
+        const originalDrawScene=drawScene;drawScene=function(){originalDrawScene();if(!gameOver&&!won)return;ctx.fillStyle='rgba(0,0,0,.84)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.textAlign='center';ctx.fillStyle=won?'#f7e842':'#ff6868';ctx.font='bold 58px Arial';ctx.fillText(won?'YOU WIN!':'GAME OVER',canvas.width/2,canvas.height*.45);ctx.fillStyle='#fff';ctx.font='bold 22px Arial';ctx.fillText('Rings: '+game.rings,canvas.width/2,canvas.height*.55);ctx.font='bold 18px Arial';ctx.fillText('Tap or press a key to play again',canvas.width/2,canvas.height*.64);ctx.textAlign='start';};
         function restart(){gameOver=false;won=false;livesValue=3;game.lives=3;game.rings=0;game.stage=0;game.save={stage:0,checkpoint:90};for(const s of stages)for(const cp of s.checkpoints)cp.active=false;showTitle();updateHud();}
-
-        // Capture desktop keyboard input even when the parent page, rather than the iframe, has focus.
-        const preventKeys=new Set(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','Space']);
-        function handleKey(event){const key=event.key.toLowerCase();if(gameOver||won){if(event.type==='keydown'){event.preventDefault();restart();}return;}
-          if(preventKeys.has(event.key)||['a','d','w'].includes(key)){if(event.cancelable)event.preventDefault();}
-          if(event.type==='keydown'){if(key===' '||key==='spacebar')keys.add(' ');else keys.add(key);if(game.title&&[' ','arrowup','arrowright','d'].includes(key))keys.delete(key);}
-          else keys.delete(key==='spacebar'?' ':key);
-        }
-        d.addEventListener('keydown',handleKey);d.addEventListener('keyup',handleKey);
-        window.addEventListener('keydown',event=>{if(d.activeElement===d.body||d.activeElement===document.documentElement)handleKey(event);});
-        window.addEventListener('keyup',event=>{if(d.activeElement===d.body||d.activeElement===document.documentElement)handleKey(event);});
-        const oldButtons=[...d.querySelectorAll('.mobile-btn')];
-        for(const old of oldButtons){const button=old.cloneNode(true);old.replaceWith(button);const key=button.dataset.key==='jump'?' ':button.dataset.key,pointers=new Set();
-          const release=e=>{if(e&&pointers.has(e.pointerId))pointers.delete(e.pointerId);if(!pointers.size){keys.delete(key);button.classList.remove('pressed');}};
-          button.addEventListener('pointerdown',e=>{e.preventDefault();if(gameOver||won)return;pointers.add(e.pointerId);try{button.setPointerCapture(e.pointerId);}catch(_){}button.classList.add('pressed');if(!game.title)keys.add(key);});
-          button.addEventListener('pointerup',e=>{e.preventDefault();release(e);});button.addEventListener('pointercancel',release);button.addEventListener('lostpointercapture',release);button.addEventListener('contextmenu',e=>e.preventDefault());
-        }
-        w.addEventListener('blur',()=>keys.clear());d.addEventListener('visibilitychange',()=>{if(d.hidden)keys.clear();});
-        d.addEventListener('pointerdown',e=>{if(!gameOver&&!won)return;e.preventDefault();e.stopImmediatePropagation();restart();},true);
+        const watched=new Set(['arrowleft','arrowright','arrowup','arrowdown',' ','a','d','w']);
+        function keyboard(e){const k=e.key.toLowerCase();if(gameOver||won){if(e.type==='keydown'){e.preventDefault();restart();}return;}if(watched.has(k)&&e.cancelable)e.preventDefault();if(e.type==='keydown'){keys.add(k==='spacebar'?' ':k);if(game.title&&[' ','arrowup','arrowright','d'].includes(k))keys.delete(k);}else keys.delete(k==='spacebar'?' ':k);}
+        d.addEventListener('keydown',keyboard);d.addEventListener('keyup',keyboard);
+        const buttons=[...d.querySelectorAll('.mobile-btn')];for(const old of buttons){const b=old.cloneNode(true);old.replaceWith(b);const key=b.dataset.key==='jump'?' ':b.dataset.key,active=new Set();const up=e=>{if(e&&active.has(e.pointerId))active.delete(e.pointerId);if(!active.size){keys.delete(key);b.classList.remove('pressed');}};b.addEventListener('pointerdown',e=>{e.preventDefault();if(gameOver||won)return;active.add(e.pointerId);try{b.setPointerCapture(e.pointerId);}catch(_){}b.classList.add('pressed');if(!game.title)keys.add(key);});b.addEventListener('pointerup',e=>{e.preventDefault();up(e);});b.addEventListener('pointercancel',up);b.addEventListener('lostpointercapture',up);}
+        w.addEventListener('blur',()=>keys.clear());d.addEventListener('visibilitychange',()=>{if(d.hidden)keys.clear();});d.addEventListener('pointerdown',e=>{if(!gameOver&&!won)return;e.preventDefault();e.stopImmediatePropagation();restart();},true);
       })();`);
+      d.body.focus();
     });
   </script>
 </body>
