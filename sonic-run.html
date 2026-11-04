@@ -8,7 +8,7 @@
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #071824; font-family: Arial, Helvetica, sans-serif; }
     iframe { display: block; width: 100%; height: 100%; border: 0; }
-    .back-link { position: fixed; z-index: 5; top: 10px; right: 12px; padding: 8px 12px; color: #fff; background: rgba(15,23,42,.8); border: 1px solid rgba(255,255,255,.35); border-radius: 8px; text-decoration: none; font-weight: 700; }
+    .back-link { position: fixed; z-index: 5; top: 10px; right: 12px; padding: 8px 12px; color: #fff; background: rgba(15,23,42,.8); border: 1px solid rgba(255,255,255,.35); border-radius: 8px; text-decoration: none; }
   </style>
 </head>
 <body>
@@ -25,7 +25,7 @@
         body { display:block; padding:0; }
         .wrap { position:relative; width:100%; height:100%; max-width:none; padding:0; border:0; border-radius:0; }
         h1, .controls { display:none !important; }
-        .hud { position:absolute; z-index:2; top:8px; left:50%; transform:translateX(-50%); width:max-content; max-width:calc(100% - 100px); margin:0; gap:5px; }
+        .hud { position:absolute; z-index:2; top:8px; left:50%; transform:translateX(-50%); width:max-content; max-width:calc(100% - 24px); margin:0; gap:5px; }
         .hud span { min-width:0; padding:6px 9px; font-size:clamp(11px,2.4vw,16px); }
         canvas { position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:0; }
         .mobile-controls { position:absolute; z-index:3; left:0; right:0; bottom:max(14px, env(safe-area-inset-bottom)); width:min(540px,94vw); margin:0 auto; }
@@ -40,6 +40,8 @@
         let gameOver = false;
         let won = false;
         let livesValue = game.lives;
+
+        // Ignore keyboard/touch attempts to skip the act card until its full three seconds pass.
         Object.defineProperty(game, 'title', {
           configurable: true,
           get: function () { return titleValue; },
@@ -52,10 +54,12 @@
           configurable: true,
           get: function () { return livesValue; },
           set: function (value) {
+            // The game keeps lives at one to allow checkpoint respawns. Treat the next hit as fatal.
             if (value === 1 && livesValue === 1) livesValue = 0;
             else livesValue = value;
           }
         });
+
         const originalUpdate = update;
         update = function () {
           if (gameOver || won) return;
@@ -78,42 +82,53 @@
           originalAdvanceAct();
           titleUntil = performance.now() + 3000;
         };
-        const originalDrawTitle = drawTitleScreen;
+
         drawTitleScreen = function () {
-          ctx.fillStyle = '#061329';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          const cw = canvas.width, ch = canvas.height, cx = cw / 2;
+          ctx.fillStyle = '#07122f';
+          ctx.fillRect(0, 0, cw, ch);
+          // Full-canvas red / blue / yellow act card, scaled to fit the game view.
           ctx.fillStyle = '#f7e842';
-          ctx.font = 'bold 22px Arial';
+          ctx.fillRect(cw * .08, ch * .12, cw * .84, ch * .76);
+          ctx.fillStyle = '#e52827';
+          ctx.fillRect(cw * .1, ch * .15, cw * .25, ch * .7);
+          ctx.fillStyle = '#243be0';
+          ctx.fillRect(cw * .35, ch * .15, cw * .55, ch * .7);
           ctx.textAlign = 'center';
-          ctx.fillText('SONIC THE HEDGEHOG', canvas.width / 2, canvas.height * 0.38);
           ctx.fillStyle = '#fff';
-          ctx.font = 'bold 48px Arial';
-          ctx.fillText(level().name.toUpperCase(), canvas.width / 2, canvas.height * 0.51);
-          ctx.fillStyle = '#f7e842';
+          ctx.font = 'bold 22px Arial';
+          ctx.fillText('SONIC THE HEDGEHOG', cx, ch * .34);
+          ctx.font = 'bold 46px Arial';
+          ctx.fillText(level().name.toUpperCase() + ' ZONE', cx, ch * .51);
+          ctx.fillStyle = '#fff';
           ctx.font = 'bold 30px Arial';
-          ctx.fillText('ACT ' + level().act, canvas.width / 2, canvas.height * 0.61);
-          ctx.fillStyle = 'rgba(255,255,255,.28)';
-          ctx.fillRect(canvas.width * .2, canvas.height * .69, canvas.width * .6, 8);
+          ctx.fillText('ACT ' + level().act, cx, ch * .63);
+          ctx.fillStyle = 'rgba(255,255,255,.35)';
+          ctx.fillRect(cw * .25, ch * .74, cw * .5, 8);
           ctx.fillStyle = '#f7e842';
           const progress = Math.max(0, Math.min(1, 1 - (titleUntil - performance.now()) / 3000));
-          ctx.fillRect(canvas.width * .2, canvas.height * .69, canvas.width * .6 * progress, 8);
+          ctx.fillRect(cw * .25, ch * .74, cw * .5 * progress, 8);
           ctx.textAlign = 'start';
         };
+
         const originalDrawScene = drawScene;
         drawScene = function () {
           originalDrawScene();
           if (!gameOver && !won) return;
-          ctx.fillStyle = 'rgba(0,0,0,.82)';
+          ctx.fillStyle = 'rgba(0,0,0,.84)';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           ctx.textAlign = 'center';
           ctx.fillStyle = won ? '#f7e842' : '#ff6868';
-          ctx.font = 'bold 54px Arial';
-          ctx.fillText(won ? 'YOU WON!' : 'GAME OVER', canvas.width / 2, canvas.height * .45);
+          ctx.font = 'bold 58px Arial';
+          ctx.fillText(won ? 'YOU WIN!' : 'GAME OVER', canvas.width / 2, canvas.height * .45);
           ctx.fillStyle = '#fff';
           ctx.font = 'bold 22px Arial';
-          ctx.fillText('Rings: ' + game.rings + '  ·  Tap or press a key to play again', canvas.width / 2, canvas.height * .56);
+          ctx.fillText('Rings: ' + game.rings, canvas.width / 2, canvas.height * .55);
+          ctx.font = 'bold 18px Arial';
+          ctx.fillText('Tap or press a key to play again', canvas.width / 2, canvas.height * .64);
           ctx.textAlign = 'start';
         };
+
         function restart() {
           gameOver = false;
           won = false;
@@ -126,15 +141,53 @@
           showTitle();
           updateHud();
         }
-        document.addEventListener('pointerdown', function (event) {
+
+        // Replace the page's simple touch handlers with pointer-captured, multi-touch-safe controls.
+        // This keeps a held direction/jump active even if the finger drifts off its button.
+        const oldButtons = [...d.querySelectorAll('.mobile-btn')];
+        for (const oldButton of oldButtons) {
+          const button = oldButton.cloneNode(true);
+          oldButton.replaceWith(button);
+          const key = button.dataset.key === 'jump' ? ' ' : button.dataset.key;
+          const activePointers = new Set();
+          const release = event => {
+            if (event && activePointers.has(event.pointerId)) activePointers.delete(event.pointerId);
+            if (activePointers.size === 0) {
+              keys.delete(key);
+              button.classList.remove('pressed');
+            }
+          };
+          button.addEventListener('pointerdown', event => {
+            event.preventDefault();
+            if (gameOver || won) return;
+            activePointers.add(event.pointerId);
+            try { button.setPointerCapture(event.pointerId); } catch (_) {}
+            button.classList.add('pressed');
+            if (!game.title) keys.add(key);
+          });
+          button.addEventListener('pointerup', event => { event.preventDefault(); release(event); });
+          button.addEventListener('pointercancel', release);
+          button.addEventListener('lostpointercapture', release);
+          button.addEventListener('contextmenu', event => event.preventDefault());
+        }
+        const controls = d.querySelector('.mobile-controls');
+        if (controls) controls.addEventListener('contextmenu', event => event.preventDefault());
+        w.addEventListener('blur', () => keys.clear());
+        d.addEventListener('visibilitychange', () => { if (d.hidden) keys.clear(); });
+
+        d.addEventListener('pointerdown', function (event) {
           if (!gameOver && !won) return;
-          if (event.target.closest('.mobile-btn')) event.preventDefault();
+          event.preventDefault();
+          event.stopImmediatePropagation();
           restart();
         }, true);
-        document.addEventListener('keydown', function (event) {
-          if (gameOver || won) { event.preventDefault(); restart(); }
+        d.addEventListener('keydown', function (event) {
+          if (gameOver || won) {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            restart();
+          }
         }, true);
-        void originalDrawTitle;
       })();`);
     });
   </script>
