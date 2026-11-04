@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Sonic Run</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #071824; font-family: Arial, Helvetica, sans-serif; }
+    iframe { display: block; width: 100%; height: 100%; border: 0; }
+    .back-link { position: fixed; z-index: 5; top: 10px; right: 12px; padding: 8px 12px; color: #fff; background: rgba(15,23,42,.8); border: 1px solid rgba(255,255,255,.35); border-radius: 8px; text-decoration: none; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <a class="back-link" href="games.html">← Games</a>
+  <iframe id="sonicGame" src="sonic-true-levels.html" title="Sonic Run"></iframe>
+  <script>
+    const frame = document.getElementById('sonicGame');
+    frame.addEventListener('load', () => {
+      const w = frame.contentWindow;
+      const d = frame.contentDocument;
+      const style = d.createElement('style');
+      style.textContent = `
+        html, body { width:100%; height:100%; min-height:0; margin:0; padding:0; overflow:hidden; }
+        body { display:block; padding:0; }
+        .wrap { position:relative; width:100%; height:100%; max-width:none; padding:0; border:0; border-radius:0; }
+        h1, .controls { display:none !important; }
+        .hud { position:absolute; z-index:2; top:8px; left:50%; transform:translateX(-50%); width:max-content; max-width:calc(100% - 100px); margin:0; gap:5px; }
+        .hud span { min-width:0; padding:6px 9px; font-size:clamp(11px,2.4vw,16px); }
+        canvas { position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:0; }
+        .mobile-controls { position:absolute; z-index:3; left:0; right:0; bottom:max(14px, env(safe-area-inset-bottom)); width:min(540px,94vw); margin:0 auto; }
+        .mobile-btn { touch-action:none; }
+        @media (pointer:coarse), (max-width:700px) { .mobile-controls { display:flex; } }
+      `;
+      d.head.appendChild(style);
+
+      w.eval(`(function () {
+        let titleUntil = performance.now() + 3000;
+        let titleValue = game.title;
+        let gameOver = false;
+        let won = false;
+        let livesValue = game.lives;
+        Object.defineProperty(game, 'title', {
+          configurable: true,
+          get: function () { return titleValue; },
+          set: function (value) {
+            if (value === false && titleValue && performance.now() < titleUntil) return;
+            titleValue = value;
+          }
+        });
+        Object.defineProperty(game, 'lives', {
+          configurable: true,
+          get: function () { return livesValue; },
+          set: function (value) {
+            if (value === 1 && livesValue === 1) livesValue = 0;
+            else livesValue = value;
+          }
+        });
+        const originalUpdate = update;
+        update = function () {
+          if (gameOver || won) return;
+          if (game.title && performance.now() >= titleUntil) game.title = false;
+          originalUpdate();
+          if (game.lives <= 0) gameOver = true;
+        };
+        const originalShowTitle = showTitle;
+        showTitle = function () {
+          originalShowTitle();
+          titleUntil = performance.now() + 3000;
+        };
+        const originalAdvanceAct = advanceAct;
+        advanceAct = function () {
+          if (game.stage === stages.length - 1) {
+            won = true;
+            game.title = false;
+            return;
+          }
+          originalAdvanceAct();
+          titleUntil = performance.now() + 3000;
+        };
+        const originalDrawTitle = drawTitleScreen;
+        drawTitleScreen = function () {
+          ctx.fillStyle = '#061329';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = '#f7e842';
+          ctx.font = 'bold 22px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText('SONIC THE HEDGEHOG', canvas.width / 2, canvas.height * 0.38);
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 48px Arial';
+          ctx.fillText(level().name.toUpperCase(), canvas.width / 2, canvas.height * 0.51);
+          ctx.fillStyle = '#f7e842';
+          ctx.font = 'bold 30px Arial';
+          ctx.fillText('ACT ' + level().act, canvas.width / 2, canvas.height * 0.61);
+          ctx.fillStyle = 'rgba(255,255,255,.28)';
+          ctx.fillRect(canvas.width * .2, canvas.height * .69, canvas.width * .6, 8);
+          ctx.fillStyle = '#f7e842';
+          const progress = Math.max(0, Math.min(1, 1 - (titleUntil - performance.now()) / 3000));
+          ctx.fillRect(canvas.width * .2, canvas.height * .69, canvas.width * .6 * progress, 8);
+          ctx.textAlign = 'start';
+        };
+        const originalDrawScene = drawScene;
+        drawScene = function () {
+          originalDrawScene();
+          if (!gameOver && !won) return;
+          ctx.fillStyle = 'rgba(0,0,0,.82)';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.textAlign = 'center';
+          ctx.fillStyle = won ? '#f7e842' : '#ff6868';
+          ctx.font = 'bold 54px Arial';
+          ctx.fillText(won ? 'YOU WON!' : 'GAME OVER', canvas.width / 2, canvas.height * .45);
+          ctx.fillStyle = '#fff';
+          ctx.font = 'bold 22px Arial';
+          ctx.fillText('Rings: ' + game.rings + '  ·  Tap or press a key to play again', canvas.width / 2, canvas.height * .56);
+          ctx.textAlign = 'start';
+        };
+        function restart() {
+          gameOver = false;
+          won = false;
+          livesValue = 3;
+          game.lives = 3;
+          game.rings = 0;
+          game.stage = 0;
+          game.save = { stage: 0, checkpoint: 90 };
+          for (const stage of stages) for (const cp of stage.checkpoints) cp.active = false;
+          showTitle();
+          updateHud();
+        }
+        document.addEventListener('pointerdown', function (event) {
+          if (!gameOver && !won) return;
+          if (event.target.closest('.mobile-btn')) event.preventDefault();
+          restart();
+        }, true);
+        document.addEventListener('keydown', function (event) {
+          if (gameOver || won) { event.preventDefault(); restart(); }
+        }, true);
+        void originalDrawTitle;
+      })();`);
+    });
+  </script>
+</body>
+</html>
