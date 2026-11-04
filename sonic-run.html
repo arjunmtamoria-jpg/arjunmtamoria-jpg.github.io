@@ -25,7 +25,7 @@
         body { display:block; padding:0; }
         .wrap { position:relative; width:100%; height:100%; max-width:none; padding:0; border:0; border-radius:0; }
         h1, .controls { display:none !important; }
-        .hud { position:absolute; z-index:2; top:8px; left:50%; transform:translateX(-50%); width:max-content; max-width:calc(100% - 24px); margin:0; gap:5px; }
+        .hud { position:absolute; z-index:2; top:8px; left:50%; transform:translateX(-50%); width:max-content; max-width:calc(100% - 100px); margin:0; gap:5px; }
         .hud span { min-width:0; padding:6px 9px; font-size:clamp(11px,2.4vw,16px); }
         canvas { position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:0; }
         .mobile-controls { position:absolute; z-index:3; left:0; right:0; bottom:max(14px, env(safe-area-inset-bottom)); width:min(540px,94vw); margin:0 auto; }
@@ -40,8 +40,6 @@
         let gameOver = false;
         let won = false;
         let livesValue = game.lives;
-
-        // Ignore keyboard/touch attempts to skip the act card until its full three seconds pass.
         Object.defineProperty(game, 'title', {
           configurable: true,
           get: function () { return titleValue; },
@@ -54,17 +52,34 @@
           configurable: true,
           get: function () { return livesValue; },
           set: function (value) {
-            // The game keeps lives at one to allow checkpoint respawns. Treat the next hit as fatal.
             if (value === 1 && livesValue === 1) livesValue = 0;
             else livesValue = value;
           }
         });
-
         const originalUpdate = update;
         update = function () {
           if (gameOver || won) return;
           if (game.title && performance.now() >= titleUntil) game.title = false;
+          const player = game.player;
+          const previousX = player.x;
+          const previousVx = player.vx;
+          const moving = keys.has('arrowleft') || keys.has('left') || keys.has('a') || keys.has('arrowright') || keys.has('right') || keys.has('d');
           originalUpdate();
+          // Smooth the game's movement into gradual acceleration and momentum. Keep the
+          // original vertical physics, collisions, and loop behavior intact.
+          if (!game.title && !player.loop && moving) {
+            const direction = (keys.has('arrowright') || keys.has('right') || keys.has('d') ? 1 : 0) -
+              (keys.has('arrowleft') || keys.has('left') || keys.has('a') ? 1 : 0);
+            const maxSpeed = 5;
+            const acceleration = player.grounded ? 0.18 : 0.11;
+            const smoothVx = Math.max(-maxSpeed, Math.min(maxSpeed, previousVx + direction * acceleration));
+            player.x += smoothVx - player.vx;
+            player.vx = smoothVx;
+          } else if (!game.title && !player.loop && !moving) {
+            const smoothVx = Math.abs(previousVx) < 0.08 ? 0 : previousVx * 0.94;
+            player.x += smoothVx - player.vx;
+            player.vx = smoothVx;
+          }
           if (game.lives <= 0) gameOver = true;
         };
         const originalShowTitle = showTitle;
@@ -82,111 +97,65 @@
           originalAdvanceAct();
           titleUntil = performance.now() + 3000;
         };
-
         drawTitleScreen = function () {
           const cw = canvas.width, ch = canvas.height, cx = cw / 2;
-          ctx.fillStyle = '#07122f';
-          ctx.fillRect(0, 0, cw, ch);
-          // Full-canvas red / blue / yellow act card, scaled to fit the game view.
-          ctx.fillStyle = '#f7e842';
-          ctx.fillRect(cw * .08, ch * .12, cw * .84, ch * .76);
-          ctx.fillStyle = '#e52827';
-          ctx.fillRect(cw * .1, ch * .15, cw * .25, ch * .7);
-          ctx.fillStyle = '#243be0';
-          ctx.fillRect(cw * .35, ch * .15, cw * .55, ch * .7);
-          ctx.textAlign = 'center';
-          ctx.fillStyle = '#fff';
-          ctx.font = 'bold 22px Arial';
-          ctx.fillText('SONIC THE HEDGEHOG', cx, ch * .34);
-          ctx.font = 'bold 46px Arial';
-          ctx.fillText(level().name.toUpperCase() + ' ZONE', cx, ch * .51);
-          ctx.fillStyle = '#fff';
-          ctx.font = 'bold 30px Arial';
-          ctx.fillText('ACT ' + level().act, cx, ch * .63);
-          ctx.fillStyle = 'rgba(255,255,255,.35)';
-          ctx.fillRect(cw * .25, ch * .74, cw * .5, 8);
+          ctx.fillStyle = '#07122f'; ctx.fillRect(0, 0, cw, ch);
+          ctx.fillStyle = '#f7e842'; ctx.fillRect(cw * .08, ch * .12, cw * .84, ch * .76);
+          ctx.fillStyle = '#e52827'; ctx.fillRect(cw * .1, ch * .15, cw * .25, ch * .7);
+          ctx.fillStyle = '#243be0'; ctx.fillRect(cw * .35, ch * .15, cw * .55, ch * .7);
+          ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
+          ctx.font = 'bold 22px Arial'; ctx.fillText('SONIC THE HEDGEHOG', cx, ch * .34);
+          ctx.font = 'bold 46px Arial'; ctx.fillText(level().name.toUpperCase() + ' ZONE', cx, ch * .51);
+          ctx.font = 'bold 30px Arial'; ctx.fillText('ACT ' + level().act, cx, ch * .63);
+          ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(cw * .25, ch * .74, cw * .5, 8);
           ctx.fillStyle = '#f7e842';
           const progress = Math.max(0, Math.min(1, 1 - (titleUntil - performance.now()) / 3000));
-          ctx.fillRect(cw * .25, ch * .74, cw * .5 * progress, 8);
-          ctx.textAlign = 'start';
+          ctx.fillRect(cw * .25, ch * .74, cw * .5 * progress, 8); ctx.textAlign = 'start';
         };
-
         const originalDrawScene = drawScene;
         drawScene = function () {
           originalDrawScene();
           if (!gameOver && !won) return;
-          ctx.fillStyle = 'rgba(0,0,0,.84)';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.textAlign = 'center';
-          ctx.fillStyle = won ? '#f7e842' : '#ff6868';
-          ctx.font = 'bold 58px Arial';
-          ctx.fillText(won ? 'YOU WIN!' : 'GAME OVER', canvas.width / 2, canvas.height * .45);
-          ctx.fillStyle = '#fff';
-          ctx.font = 'bold 22px Arial';
+          ctx.fillStyle = 'rgba(0,0,0,.84)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.textAlign = 'center'; ctx.fillStyle = won ? '#f7e842' : '#ff6868';
+          ctx.font = 'bold 58px Arial'; ctx.fillText(won ? 'YOU WIN!' : 'GAME OVER', canvas.width / 2, canvas.height * .45);
+          ctx.fillStyle = '#fff'; ctx.font = 'bold 22px Arial';
           ctx.fillText('Rings: ' + game.rings, canvas.width / 2, canvas.height * .55);
-          ctx.font = 'bold 18px Arial';
-          ctx.fillText('Tap or press a key to play again', canvas.width / 2, canvas.height * .64);
+          ctx.font = 'bold 18px Arial'; ctx.fillText('Tap or press a key to play again', canvas.width / 2, canvas.height * .64);
           ctx.textAlign = 'start';
         };
-
         function restart() {
-          gameOver = false;
-          won = false;
-          livesValue = 3;
-          game.lives = 3;
-          game.rings = 0;
-          game.stage = 0;
-          game.save = { stage: 0, checkpoint: 90 };
+          gameOver = false; won = false; livesValue = 3; game.lives = 3;
+          game.rings = 0; game.stage = 0; game.save = { stage: 0, checkpoint: 90 };
           for (const stage of stages) for (const cp of stage.checkpoints) cp.active = false;
-          showTitle();
-          updateHud();
+          showTitle(); updateHud();
         }
-
-        // Replace the page's simple touch handlers with pointer-captured, multi-touch-safe controls.
-        // This keeps a held direction/jump active even if the finger drifts off its button.
         const oldButtons = [...d.querySelectorAll('.mobile-btn')];
         for (const oldButton of oldButtons) {
-          const button = oldButton.cloneNode(true);
-          oldButton.replaceWith(button);
+          const button = oldButton.cloneNode(true); oldButton.replaceWith(button);
           const key = button.dataset.key === 'jump' ? ' ' : button.dataset.key;
-          const activePointers = new Set();
+          const pointers = new Set();
           const release = event => {
-            if (event && activePointers.has(event.pointerId)) activePointers.delete(event.pointerId);
-            if (activePointers.size === 0) {
-              keys.delete(key);
-              button.classList.remove('pressed');
-            }
+            if (event && pointers.has(event.pointerId)) pointers.delete(event.pointerId);
+            if (!pointers.size) { keys.delete(key); button.classList.remove('pressed'); }
           };
           button.addEventListener('pointerdown', event => {
-            event.preventDefault();
-            if (gameOver || won) return;
-            activePointers.add(event.pointerId);
-            try { button.setPointerCapture(event.pointerId); } catch (_) {}
-            button.classList.add('pressed');
-            if (!game.title) keys.add(key);
+            event.preventDefault(); if (gameOver || won) return;
+            pointers.add(event.pointerId); try { button.setPointerCapture(event.pointerId); } catch (_) {}
+            button.classList.add('pressed'); if (!game.title) keys.add(key);
           });
           button.addEventListener('pointerup', event => { event.preventDefault(); release(event); });
-          button.addEventListener('pointercancel', release);
-          button.addEventListener('lostpointercapture', release);
+          button.addEventListener('pointercancel', release); button.addEventListener('lostpointercapture', release);
           button.addEventListener('contextmenu', event => event.preventDefault());
         }
-        const controls = d.querySelector('.mobile-controls');
-        if (controls) controls.addEventListener('contextmenu', event => event.preventDefault());
         w.addEventListener('blur', () => keys.clear());
         d.addEventListener('visibilitychange', () => { if (d.hidden) keys.clear(); });
-
-        d.addEventListener('pointerdown', function (event) {
+        d.addEventListener('pointerdown', event => {
           if (!gameOver && !won) return;
-          event.preventDefault();
-          event.stopImmediatePropagation();
-          restart();
+          event.preventDefault(); event.stopImmediatePropagation(); restart();
         }, true);
-        d.addEventListener('keydown', function (event) {
-          if (gameOver || won) {
-            event.preventDefault();
-            event.stopImmediatePropagation();
-            restart();
-          }
+        d.addEventListener('keydown', event => {
+          if (gameOver || won) { event.preventDefault(); event.stopImmediatePropagation(); restart(); }
         }, true);
       })();`);
     });
