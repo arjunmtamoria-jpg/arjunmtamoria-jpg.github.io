@@ -6,11 +6,20 @@
   <title>Cool Site</title>
   <link rel="stylesheet" href="style.css">
   <style>
+    html {
+      scroll-behavior: smooth;
+    }
+
+    .container {
+      scroll-margin-top: 70px;
+    }
+
     .explore-section {
       margin-top: 0;
     }
 
-    .explore-section h2 {
+    .explore-section h2,
+    .content-section h2 {
       color: #333;
       margin-top: 0;
     }
@@ -20,27 +29,37 @@
       max-width: 420px;
       margin: 24px auto 0;
       padding: 24px;
+      border: 1px solid rgba(167, 139, 250, 0.35);
       border-radius: 12px;
-      background: #fff;
-      color: inherit;
+      background: linear-gradient(135deg, #21143f, #25345f);
+      color: #f5f3ff;
       text-align: left;
       text-decoration: none;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 6px 18px rgba(32, 24, 70, 0.22);
       transition: transform 0.2s, box-shadow 0.2s;
     }
 
     .explore-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 10px 24px rgba(32, 24, 70, 0.32);
     }
 
     .explore-card h3 {
       margin: 0 0 8px;
-      color: #333;
+      color: #fff;
     }
 
     .explore-card p {
       margin: 0;
+      color: #d5d8f2;
+    }
+
+    .content-section {
+      text-align: left;
+    }
+
+    .content-section p {
+      margin-bottom: 0;
     }
 
     @media (max-width: 600px) {
@@ -80,6 +99,16 @@
       <p>This is my GitHub Pages website.</p>
     </section>
 
+    <section class="container content-section" id="about">
+      <h2>About Me</h2>
+      <p>[Write a short introduction about yourself, what you enjoy, and what you are learning.]</p>
+    </section>
+
+    <section class="container content-section" id="projects">
+      <h2>Projects</h2>
+      <p>[Add a project you have made, what it does, and a link to learn more.]</p>
+    </section>
+
     <section class="container explore-section" id="explore">
       <h2>Explore</h2>
       <p>Find something fun to play.</p>
@@ -87,6 +116,11 @@
         <h3>🎮 Games</h3>
         <p>Browse the games collection, including Voxel Wilds.</p>
       </a>
+    </section>
+
+    <section class="container content-section" id="contact">
+      <h2>Contact</h2>
+      <p>[Add your preferred contact method or a link to your social profile.]</p>
     </section>
   </main>
 
