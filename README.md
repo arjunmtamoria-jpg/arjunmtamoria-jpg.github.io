@@ -1,2 +1,3 @@
 # arjunmtamoria-jpg.github.io
-My GitHub Pages website
+My GitHub Pages website with games and more!
+
