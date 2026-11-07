@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Voxel Wilds Lite</title>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+
+<style>
+html,body{
+    margin:0;
+    overflow:hidden;
+    background:#87ceeb;
+    font-family:sans-serif;
+}
+
+#ui{
+    position:fixed;
+    top:10px;
+    left:10px;
+    color:white;
+    background:rgba(0,0,0,.5);
+    padding:10px;
+    border-radius:8px;
+}
+
+#crosshair{
+    position:fixed;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    color:white;
+    font-size:28px;
+    pointer-events:none;
+}
+</style>
+</head>
+
+<body>
+
+<div id="ui">
+    WASD Move<br>
+    Space Jump<br>
+    Left Click Break<br>
+    Right Click Place
+</div>
+
+<div id="crosshair">+</div>
+
+<script>
+
+const scene=new THREE.Scene();
+
+scene.background=new THREE.Color(0x87ceeb);
+
+const camera=
+new THREE.PerspectiveCamera(
+70,
+window.innerWidth/window.innerHeight,
+0.1,
+1000
+);
+
+const renderer=
+new THREE.WebGLRenderer({
+antialias:true
+});
+
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
+);
+
+document.body.appendChild(
+renderer.domElement
+);
+
+const light=
+new THREE.DirectionalLight(
+0xffffff,
+1.5
+);
+
+light.position.set(
+20,
+20,
+10
+);
+
+scene.add(light);
+
+scene.add(
+new THREE.AmbientLight(
+0xffffff,
+0.5
+)
+);
+
+const world=new Map();
+
+function key(x,y,z){
+return `${x},${y},${z}`;
+}
+
+function blockColor(type){
+
+switch(type){
+
+case "grass":
+return 0x55aa55;
+
+case "dirt":
+return 0x775533;
+
+case "stone":
+return 0x888888;
+
+default:
+return 0xffffff;
+}
+}
+
+function addBlock(x,y,z,type){
+
+const geo=
+new THREE.BoxGeometry();
+
+const mat=
+new THREE.MeshLambertMaterial({
+color:blockColor(type)
+});
+
+const mesh=
+new THREE.Mesh(geo,mat);
+
+mesh.position.set(
+x+.5,
+y+.5,
+z+.5
+);
+
+scene.add(mesh);
+
+world.set(
+key(x,y,z),
+{
+type,
+mesh
+}
+);
+}
+
+function generateTerrain(){
+
+for(let x=-12;x<12;x++){
+
+for(let z=-12;z<12;z++){
+
+const h=
+Math.floor(
+2+
+Math.sin(x*.4)*1.5+
+Math.cos(z*.4)*1.5
+);
+
+for(let y=0;y<=h;y++){
+
+let type="stone";
+
+if(y===h)
+type="grass";
+else if(y>h-2)
+type="dirt";
+
+addBlock(
+x,
+y,
+z,
+type
+);
+}
+}
+}
+}
+
+generateTerrain();
+
+camera.position.set(
+0,
+8,
+10
+);
+
+const player={
+x:0,
+y:8,
+z:10,
+vy:0,
+yaw:0,
+pitch:0,
+ground:false
+};
+
+const keys={};
+
+document.addEventListener(
+"keydown",
+e=>keys[e.code]=true
+);
+
+document.addEventListener(
+"keyup",
+e=>keys[e.code]=false
+);
+
+document.body.addEventListener(
+"click",
+()=>{
+renderer.domElement.requestPointerLock();
+}
+);
+
+document.addEventListener(
+"mousemove",
+e=>{
+
+if(
+document.pointerLockElement===
+renderer.domElement
+){
+
+player.yaw-=
+e.movementX*0.002;
+
+player.pitch-=
+e.movementY*0.002;
+
+player.pitch=
+Math.max(
+-1.4,
+Math.min(
+1.4,
+player.pitch
+)
+);
+}
+}
+);
+
+function updatePlayer(dt){
+
+const speed=5;
+
+const front=
+new THREE.Vector3(
+-Math.sin(player.yaw),
+0,
+-Math.cos(player.yaw)
+);
+
+const right=
+new THREE.Vector3(
+front.z,
+0,
+-front.x
+);
+
+if(keys.KeyW){
+
+player.x+=front.x*speed*dt;
+player.z+=front.z*speed*dt;
+
+}
+
+if(keys.KeyS){
+
+player.x-=front.x*speed*dt;
+player.z-=front.z*speed*dt;
+
+}
+
+if(keys.KeyA){
+
+player.x-=right.x*speed*dt;
+player.z-=right.z*speed*dt;
+
+}
+
+if(keys.KeyD){
+
+player.x+=right.x*speed*dt;
+player.z+=right.z*speed*dt;
+
+}
+
+player.vy-=20*dt;
+
+player.y+=player.vy*dt;
+
+if(player.y<4){
+
+player.y=4;
+player.vy=0;
+player.ground=true;
+
+}else{
+
+player.ground=false;
+
+}
+
+if(
+keys.Space &&
+player.ground
+){
+
+player.vy=8;
+}
+
+camera.position.set(
+player.x,
+player.y,
+player.z
+);
+
+camera.rotation.order=
+"YXZ";
+
+camera.rotation.y=
+player.yaw;
+
+camera.rotation.x=
+player.pitch;
+}
+
+const raycaster=
+new THREE.Raycaster();
+
+window.addEventListener(
+"contextmenu",
+e=>e.preventDefault()
+);
+
+window.addEventListener(
+"mousedown",
+e=>{
+
+raycaster.setFromCamera(
+{x:0,y:0},
+camera
+);
+
+const hits=
+raycaster.intersectObjects(
+[...world.values()]
+.map(v=>v.mesh)
+);
+
+if(!hits.length)
+return;
+
+const hit=hits[0];
+
+const pos=
+hit.object.position;
+
+const bx=
+Math.floor(pos.x);
+
+const by=
+Math.floor(pos.y);
+
+const bz=
+Math.floor(pos.z);
+
+if(e.button===0){
+
+const id=
+key(bx,by,bz);
+
+const b=
+world.get(id);
+
+if(b){
+
+scene.remove(
+b.mesh
+);
+
+world.delete(id);
+}
+}
+
+if(e.button===2){
+
+const p=
+hit.point
+.clone()
+.add(
+hit.face.normal
+.clone()
+.multiplyScalar(0.51)
+);
+
+addBlock(
+Math.floor(p.x),
+Math.floor(p.y),
+Math.floor(p.z),
+"dirt"
+);
+}
+
+});
+
+let last=0;
+
+function animate(t){
+
+requestAnimationFrame(
+animate
+);
+
+const dt=
+(t-last)/1000;
+
+last=t;
+
+updatePlayer(dt);
+
+renderer.render(
+scene,
+camera
+);
+}
+
+animate();
+
+window.addEventListener(
+"resize",
+()=>{
+
+camera.aspect=
+window.innerWidth/
+window.innerHeight;
+
+camera.updateProjectionMatrix();
+
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
+);
+
+}
+);
+
+</script>
+
+</body>
+</html>
