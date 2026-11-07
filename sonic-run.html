@@ -8,10 +8,11 @@
     * { box-sizing: border-box; }
     html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #071824; font-family: Arial, Helvetica, sans-serif; }
     iframe { display: block; width: 100%; height: 100%; border: 0; }
-    .back-link { position: fixed; z-index: 5; top: 10px; right: 12px; padding: 8px 12px; color: #fff; background: rgba(15,23,42,.8); border: 1px solid rgba(255,255,255,.35); border-radius: 8px; text-decoration: none; font-weight: 700; }
+    .back-link { position: fixed; z-index: 5; top: 10px; right: 12px; padding: 8px 12px; color: #fff; background: rgba(15,23,42,.8); border: 1px solid rgba(255,255,255,.35); border-radius: 8px; text-decoration: none; }
+    .back-link:focus-visible { outline: 3px solid #f7e842; outline-offset: 2px; }
   </style>
 </head>
-<body tabindex="0">
+<body>
   <a class="back-link" href="games.html">← Games</a>
   <iframe id="sonicGame" src="sonic-true-levels.html" title="Sonic Run" tabindex="0"></iframe>
   <script>
@@ -27,7 +28,7 @@
           gameWindow.eval(`keys.add(${JSON.stringify(key)})`);
           gameWindow.eval('if (game.title) game.title = false');
         } catch (_) {
-          // The game may still be loading; its own keyboard handler remains active.
+          // The game's own keyboard handler remains available if it is still loading.
         }
       }, { capture: true });
 
@@ -44,31 +45,29 @@
       const gameDocument = frame.contentDocument;
       const style = gameDocument.createElement('style');
       style.textContent = `
-        html, body { width:100%; height:100%; min-height:0; margin:0; padding:0; overflow:hidden; }
-        body { display:block; padding:0; }
-        .wrap { position:relative; width:100%; height:100%; max-width:none; padding:0; border:0; border-radius:0; }
-        h1 { display:none!important; }
-        .controls { position:absolute; z-index:4; left:0; right:0; bottom:10px; margin:0; font-size:14px; text-shadow:0 2px 4px #000; }
-        .hud { position:absolute; z-index:2; top:8px; left:50%; transform:translateX(-50%); width:max-content; max-width:calc(100% - 100px); margin:0; gap:5px; }
-        .hud span { min-width:0; padding:6px 9px; font-size:clamp(11px,2.4vw,16px); }
-        canvas { position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:0; }
-        .mobile-controls { position:absolute; z-index:3; left:0; right:0; bottom:max(10px,env(safe-area-inset-bottom)); width:min(540px,94vw); margin:0 auto; }
-        .mobile-btn { touch-action:none; }
-        @media(pointer:coarse),(max-width:700px) { .controls { display:none!important; } canvas { inset:0 0 118px; width:100%; height:calc(100% - 118px); } .mobile-controls { bottom:max(12px,env(safe-area-inset-bottom)); } }
+        html, body { width: 100%; height: 100%; min-height: 0; margin: 0; padding: 0; overflow: hidden; }
+        body { display: block; padding: 0; }
+        .wrap { position: relative; width: 100%; height: 100%; max-width: none; padding: 0; border: 0; border-radius: 0; }
+        h1 { display: none !important; }
+        .controls { position: absolute; z-index: 4; left: 0; right: 0; bottom: 10px; margin: 0; font-size: 14px; text-shadow: 0 2px 4px #000; }
+        .hud { position: absolute; z-index: 2; top: 8px; left: 50%; transform: translateX(-50%); width: max-content; max-width: calc(100% - 100px); margin: 0; gap: 5px; }
+        .hud span { min-width: 0; padding: 6px 9px; font-size: clamp(11px, 2.4vw, 16px); }
+        canvas { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; border-radius: 0; }
+        .mobile-controls { position: absolute; z-index: 3; left: 0; right: 0; bottom: max(10px, env(safe-area-inset-bottom)); width: min(540px, 94vw); margin: 0 auto; }
+        .mobile-btn { touch-action: none; user-select: none; -webkit-user-select: none; }
+        @media (pointer: coarse), (max-width: 700px) {
+          .controls { display: none !important; }
+          canvas { inset: 0 0 118px; width: 100%; height: calc(100% - 118px); }
+          .mobile-controls { bottom: max(12px, env(safe-area-inset-bottom)); }
+        }
       `;
       gameDocument.head.appendChild(style);
 
-      // Listen both outside and inside the iframe: keyboard works whether the
-      // browser focus is on this page or on the game canvas.
+      // Relay keyboard input whether focus is on the page or inside the game.
       bindKeyboard(document, gameWindow);
       bindKeyboard(gameDocument, gameWindow);
       document.body.addEventListener('pointerdown', () => frame.focus());
       gameDocument.body.focus();
-
-      // The embedded game starts with a title overlay; enter the run after its intro.
-      setTimeout(() => {
-        try { gameWindow.eval('if (game.title) game.title = false'); } catch (_) {}
-      }, 3000);
     });
   </script>
 </body>
