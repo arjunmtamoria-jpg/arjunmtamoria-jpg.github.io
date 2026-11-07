@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tic-Tac-Toe</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#08111f;color:#eef6ff;font:16px Arial,sans-serif;display:grid;place-items:center;padding:20px}.game{text-align:center;width:min(100%,420px)}h1{margin:8px}p{color:#bdcbe0}.board{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:24px auto;max-width:330px}.cell{aspect-ratio:1;border:1px solid #536b8a;border-radius:10px;background:#101d2e;color:#fff;font-size:clamp(2rem,14vw,4rem);font-weight:bold;cursor:pointer}.cell:hover{background:#1b2c43}.status{min-height:24px;color:#7dd3fc;font-weight:bold}button,.back{display:inline-block;border:0;border-radius:8px;padding:12px 18px;background:#245b8f;color:#fff;font-size:16px;text-decoration:none;cursor:pointer}a{color:#7dd3fc}
+  </style>
+</head>
+<body>
+  <main class="game">
+    <h1>⭕ Tic-Tac-Toe</h1>
+    <p>Two players take turns. Get three marks in a row to win.</p>
+    <div class="status" id="status" aria-live="polite">X's turn</div>
+    <div class="board" id="board" aria-label="Tic-Tac-Toe board"></div>
+    <button id="reset">New game</button>
+    <p><a class="back" href="games.html">← Back to games</a></p>
+  </main>
+  <script>
+    const board = document.getElementById('board');
+    const status = document.getElementById('status');
+    let cells = Array(9).fill('');
+    let turn = 'X';
+    let finished = false;
+    const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    function draw() {
+      board.replaceChildren();
+      cells.forEach((value, index) => {
+        const button = document.createElement('button');
+        button.className = 'cell';
+        button.textContent = value;
+        button.setAttribute('aria-label', `Square ${index + 1}${value ? `, ${value}` : ', empty'}`);
+        button.disabled = Boolean(value) || finished;
+        button.addEventListener('click', () => play(index));
+        board.append(button);
+      });
+    }
+    function play(index) {
+      if (finished || cells[index]) return;
+      cells[index] = turn;
+      const winner = wins.some(line => line.every(i => cells[i] === turn));
+      if (winner) { status.textContent = `${turn} wins!`; finished = true; }
+      else if (cells.every(Boolean)) { status.textContent = "It's a draw!"; finished = true; }
+      else { turn = turn === 'X' ? 'O' : 'X'; status.textContent = `${turn}'s turn`; }
+      draw();
+    }
+    document.getElementById('reset').addEventListener('click', () => {
+      cells = Array(9).fill(''); turn = 'X'; finished = false; status.textContent = "X's turn"; draw();
+    });
+    draw();
+  </script>
+</body>
+</html>

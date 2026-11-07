@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Reaction Test</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:#08111f;color:#eef6ff;font:16px Arial,sans-serif;display:grid;place-items:center;padding:20px}.game{text-align:center;width:min(100%,520px)}h1{margin:8px}p{color:#bdcbe0;line-height:1.5}.target{width:100%;min-height:230px;border:0;border-radius:16px;background:#245b8f;color:#fff;font-size:clamp(1.3rem,5vw,2rem);font-weight:bold;cursor:pointer;touch-action:manipulation}.target.waiting{background:#9f1239}.target.ready{background:#15803d}.target.done{background:#4338ca}.result{min-height:28px;margin:18px 0;color:#7dd3fc;font-weight:bold}.back{display:inline-block;padding:12px 18px;border-radius:8px;background:#1f5181;color:#fff;text-decoration:none}
+  </style>
+</head>
+<body>
+  <main class="game">
+    <h1>⚡ Reaction Test</h1>
+    <p>Press start, wait for the button to turn green, then tap it as quickly as you can. Don't click early!</p>
+    <button class="target" id="target">Start test</button>
+    <div class="result" id="result" aria-live="polite">Your best time is saved on this device.</div>
+    <p><a class="back" href="games.html">← Back to games</a></p>
+  </main>
+  <script>
+    const target = document.getElementById('target');
+    const result = document.getElementById('result');
+    let state = 'idle', timer, startedAt;
+    const bestKey = 'reactionTestBest';
+    function showBest() {
+      const best = Number(localStorage.getItem(bestKey));
+      result.textContent = best ? `Best time: ${best} ms` : 'Your best time is saved on this device.';
+    }
+    target.addEventListener('click', () => {
+      if (state === 'idle' || state === 'done' || state === 'early') {
+        clearTimeout(timer); state = 'waiting'; target.className = 'target waiting'; target.textContent = 'Wait for green…'; result.textContent = 'Get ready…';
+        timer = setTimeout(() => { state = 'ready'; startedAt = performance.now(); target.className = 'target ready'; target.textContent = 'TAP NOW!'; }, 1200 + Math.random() * 2800);
+      } else if (state === 'waiting') {
+        clearTimeout(timer); state = 'early'; target.className = 'target waiting'; target.textContent = 'Too soon!'; result.textContent = 'Wait until green, then tap. Click here to retry.';
+      } else if (state === 'ready') {
+        const ms = Math.round(performance.now() - startedAt); state = 'done'; target.className = 'target done'; target.textContent = `${ms} ms — Play again`;
+        const best = Number(localStorage.getItem(bestKey));
+        if (!best || ms < best) localStorage.setItem(bestKey, String(ms));
+        showBest();
+      }
+    });
+    showBest();
+  </script>
+</body>
+</html>
