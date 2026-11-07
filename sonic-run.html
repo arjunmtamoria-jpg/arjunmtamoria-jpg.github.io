@@ -6,58 +6,69 @@
   <title>Sonic Run</title>
   <style>
     * { box-sizing: border-box; }
-    html, body { width:100%; height:100%; margin:0; overflow:hidden; background:#071824; font-family:Arial,Helvetica,sans-serif; }
-    iframe { display:block; width:100%; height:100%; border:0; }
-    .back-link { position:fixed; z-index:5; top:10px; right:12px; padding:8px 12px; color:#fff; background:rgba(15,23,42,.8); border:1px solid rgba(255,255,255,.35); border-radius:8px; text-decoration:none; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: #071824; font-family: Arial, Helvetica, sans-serif; }
+    iframe { display: block; width: 100%; height: 100%; border: 0; }
+    .back-link { position: fixed; z-index: 5; top: 10px; right: 12px; padding: 8px 12px; color: #fff; background: rgba(15,23,42,.8); border: 1px solid rgba(255,255,255,.35); border-radius: 8px; text-decoration: none; font-weight: 700; }
   </style>
 </head>
-<body>
+<body tabindex="0">
   <a class="back-link" href="games.html">← Games</a>
   <iframe id="sonicGame" src="sonic-true-levels.html" title="Sonic Run" tabindex="0"></iframe>
   <script>
-    const frame=document.getElementById('sonicGame');
-    frame.addEventListener('load',()=>{
-      const w=frame.contentWindow,d=frame.contentDocument;
-      const style=d.createElement('style');
-      style.textContent=`
-        html,body{width:100%;height:100%;min-height:0;margin:0;padding:0;overflow:hidden}
-        body{display:block;padding:0}.wrap{position:relative;width:100%;height:100%;max-width:none;padding:0;border:0;border-radius:0}
-        h1{display:none!important}.controls{position:absolute;z-index:4;left:0;right:0;bottom:10px;margin:0;font-size:14px;text-shadow:0 2px 4px #000}
-        .hud{position:absolute;z-index:2;top:8px;left:50%;transform:translateX(-50%);width:max-content;max-width:calc(100% - 100px);margin:0;gap:5px}
-        .hud span{min-width:0;padding:6px 9px;font-size:clamp(11px,2.4vw,16px)}
-        canvas{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:0}
-        .mobile-controls{position:absolute;z-index:3;left:0;right:0;bottom:max(10px,env(safe-area-inset-bottom));width:min(540px,94vw);margin:0 auto}
-        .mobile-btn{touch-action:none}
-        @media(pointer:coarse),(max-width:700px){.controls{display:none!important}canvas{inset:0 0 118px;width:100%;height:calc(100% - 118px)}.mobile-controls{bottom:max(12px,env(safe-area-inset-bottom))}.hud{max-width:calc(100% - 16px)}}
+    const frame = document.getElementById('sonicGame');
+    const controls = new Set(['arrowleft', 'arrowright', 'arrowup', 'arrowdown', ' ', 'a', 'd', 'w']);
+
+    function bindKeyboard(target, gameWindow) {
+      target.addEventListener('keydown', event => {
+        const key = event.key.toLowerCase();
+        if (!controls.has(key)) return;
+        if (event.cancelable) event.preventDefault();
+        try {
+          gameWindow.eval(`keys.add(${JSON.stringify(key)})`);
+          gameWindow.eval('if (game.title) game.title = false');
+        } catch (_) {
+          // The game may still be loading; its own keyboard handler remains active.
+        }
+      }, { capture: true });
+
+      target.addEventListener('keyup', event => {
+        const key = event.key.toLowerCase();
+        if (!controls.has(key)) return;
+        if (event.cancelable) event.preventDefault();
+        try { gameWindow.eval(`keys.delete(${JSON.stringify(key)})`); } catch (_) {}
+      }, { capture: true });
+    }
+
+    frame.addEventListener('load', () => {
+      const gameWindow = frame.contentWindow;
+      const gameDocument = frame.contentDocument;
+      const style = gameDocument.createElement('style');
+      style.textContent = `
+        html, body { width:100%; height:100%; min-height:0; margin:0; padding:0; overflow:hidden; }
+        body { display:block; padding:0; }
+        .wrap { position:relative; width:100%; height:100%; max-width:none; padding:0; border:0; border-radius:0; }
+        h1 { display:none!important; }
+        .controls { position:absolute; z-index:4; left:0; right:0; bottom:10px; margin:0; font-size:14px; text-shadow:0 2px 4px #000; }
+        .hud { position:absolute; z-index:2; top:8px; left:50%; transform:translateX(-50%); width:max-content; max-width:calc(100% - 100px); margin:0; gap:5px; }
+        .hud span { min-width:0; padding:6px 9px; font-size:clamp(11px,2.4vw,16px); }
+        canvas { position:absolute; inset:0; width:100%; height:100%; border:0; border-radius:0; }
+        .mobile-controls { position:absolute; z-index:3; left:0; right:0; bottom:max(10px,env(safe-area-inset-bottom)); width:min(540px,94vw); margin:0 auto; }
+        .mobile-btn { touch-action:none; }
+        @media(pointer:coarse),(max-width:700px) { .controls { display:none!important; } canvas { inset:0 0 118px; width:100%; height:calc(100% - 118px); } .mobile-controls { bottom:max(12px,env(safe-area-inset-bottom)); } }
       `;
-      d.head.appendChild(style);
-      w.eval(`(function(){
-        let titleUntil=performance.now()+3000,titleValue=game.title,gameOver=false,won=false,livesValue=game.lives;
-        Object.defineProperty(game,'title',{configurable:true,get:()=>titleValue,set(value){if(value===false&&titleValue&&performance.now()<titleUntil)return;titleValue=value;}});
-        Object.defineProperty(game,'lives',{configurable:true,get:()=>livesValue,set(value){if(value===1&&livesValue===1)livesValue=0;else livesValue=value;}});
-        const originalUpdate=update;
-        update=function(){
-          if(gameOver||won)return;
-          if(game.title&&performance.now()>=titleUntil)game.title=false;
-          const p=game.player,oldVx=p.vx,left=keys.has('arrowleft')||keys.has('left')||keys.has('a'),right=keys.has('arrowright')||keys.has('right')||keys.has('d');
-          originalUpdate();
-          if(!game.title&&!p.loop){const direction=(right?1:0)-(left?1:0);let vx=oldVx;if(direction)vx=Math.max(-5,Math.min(5,vx+direction*(p.grounded?.18:.11)));else vx=Math.abs(vx)<.08?0:vx*.94;p.x+=vx-p.vx;p.vx=vx;}
-          // Center Sonic in the visible play area; controls sit in their own reserved strip on phones.
-          game.camera=Math.max(0,Math.min(level().width-canvas.width,p.x+p.w/2-canvas.width/2));
-          if(game.lives<=0)gameOver=true;
-        };
-        const originalShowTitle=showTitle;showTitle=function(){originalShowTitle();titleUntil=performance.now()+3000;};
-        const originalAdvanceAct=advanceAct;advanceAct=function(){if(game.stage===stages.length-1){won=true;game.title=false;return;}originalAdvanceAct();titleUntil=performance.now()+3000;};
-        drawTitleScreen=function(){const cw=canvas.width,ch=canvas.height,cx=cw/2;ctx.fillStyle='#07122f';ctx.fillRect(0,0,cw,ch);ctx.fillStyle='#f7e842';ctx.fillRect(cw*.08,ch*.12,cw*.84,ch*.76);ctx.fillStyle='#e52827';ctx.fillRect(cw*.1,ch*.15,cw*.25,ch*.7);ctx.fillStyle='#243be0';ctx.fillRect(cw*.35,ch*.15,cw*.55,ch*.7);ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='bold 22px Arial';ctx.fillText('SONIC THE HEDGEHOG',cx,ch*.34);ctx.font='bold 46px Arial';ctx.fillText(level().name.toUpperCase()+' ZONE',cx,ch*.51);ctx.font='bold 30px Arial';ctx.fillText('ACT '+level().act,cx,ch*.63);ctx.fillStyle='rgba(255,255,255,.35)';ctx.fillRect(cw*.25,ch*.74,cw*.5,8);ctx.fillStyle='#f7e842';ctx.fillRect(cw*.25,ch*.74,cw*.5*Math.max(0,Math.min(1,1-(titleUntil-performance.now())/3000)),8);ctx.textAlign='start';};
-        const originalDrawScene=drawScene;drawScene=function(){originalDrawScene();if(!gameOver&&!won)return;ctx.fillStyle='rgba(0,0,0,.84)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.textAlign='center';ctx.fillStyle=won?'#f7e842':'#ff6868';ctx.font='bold 58px Arial';ctx.fillText(won?'YOU WIN!':'GAME OVER',canvas.width/2,canvas.height*.45);ctx.fillStyle='#fff';ctx.font='bold 22px Arial';ctx.fillText('Rings: '+game.rings,canvas.width/2,canvas.height*.55);ctx.font='bold 18px Arial';ctx.fillText('Tap or press a key to play again',canvas.width/2,canvas.height*.64);ctx.textAlign='start';};
-        function restart(){gameOver=false;won=false;livesValue=3;game.lives=3;game.rings=0;game.stage=0;game.save={stage:0,checkpoint:90};for(const s of stages)for(const cp of s.checkpoints)cp.active=false;showTitle();updateHud();}
-        const watched=new Set(['arrowleft','arrowright','arrowup','arrowdown',' ','a','d','w']);
-        function keyboard(e){const k=e.key.toLowerCase();if(gameOver||won){if(e.type==='keydown'){e.preventDefault();restart();}return;}if(watched.has(k)&&e.cancelable)e.preventDefault();if(e.type==='keydown'){keys.add(k==='spacebar'?' ':k);if(game.title&&[' ','arrowup','arrowright','d'].includes(k))keys.delete(k);}else keys.delete(k==='spacebar'?' ':k);}
-        d.addEventListener('keydown',keyboard);d.addEventListener('keyup',keyboard);
-        const buttons=[...d.querySelectorAll('.mobile-btn')];for(const old of buttons){const b=old.cloneNode(true);old.replaceWith(b);const key=b.dataset.key==='jump'?' ':b.dataset.key,active=new Set();const up=e=>{if(e&&active.has(e.pointerId))active.delete(e.pointerId);if(!active.size){keys.delete(key);b.classList.remove('pressed');}};b.addEventListener('pointerdown',e=>{e.preventDefault();if(gameOver||won)return;active.add(e.pointerId);try{b.setPointerCapture(e.pointerId);}catch(_){}b.classList.add('pressed');if(!game.title)keys.add(key);});b.addEventListener('pointerup',e=>{e.preventDefault();up(e);});b.addEventListener('pointercancel',up);b.addEventListener('lostpointercapture',up);}
-        w.addEventListener('blur',()=>keys.clear());d.addEventListener('visibilitychange',()=>{if(d.hidden)keys.clear();});d.addEventListener('pointerdown',e=>{if(!gameOver&&!won)return;e.preventDefault();e.stopImmediatePropagation();restart();},true);
-      })();`);
-      d.body.focus();
+      gameDocument.head.appendChild(style);
+
+      // Listen both outside and inside the iframe: keyboard works whether the
+      // browser focus is on this page or on the game canvas.
+      bindKeyboard(document, gameWindow);
+      bindKeyboard(gameDocument, gameWindow);
+      document.body.addEventListener('pointerdown', () => frame.focus());
+      gameDocument.body.focus();
+
+      // The embedded game starts with a title overlay; enter the run after its intro.
+      setTimeout(() => {
+        try { gameWindow.eval('if (game.title) game.title = false'); } catch (_) {}
+      }, 3000);
     });
   </script>
 </body>
