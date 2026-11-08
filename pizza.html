@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>I-Ready Pizza</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    :root {
+      --bg: #120c0a;
+      --panel: rgba(35, 22, 17, 0.96);
+      --panel-2: rgba(54, 34, 28, 0.9);
+      --border: rgba(255, 215, 102, 0.45);
+      --text: #fff8ef;
+      --muted: #f5d0a8;
+      --accent: #ffb703;
+      --accent-2: #ff7f50;
+      --good: #73d472;
+      --bad: #ff5d6c;
+      --shadow: rgba(0,0,0,0.35);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: radial-gradient(circle at top, #381b14 0%, var(--bg) 42%, #090706 100%);
+      color: var(--text);
+    }
+
+    nav {
+      background-color: #1c120f;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.28);
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    nav ul li a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 15px 20px;
+      transition: background-color 0.2s ease;
+    }
+
+    nav ul li a:hover {
+      background-color: rgba(255,255,255,0.08);
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 30px auto 50px;
+      padding: 0 18px;
+    }
+
+    .game-shell {
+      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 18px 40px var(--shadow);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: clamp(2rem, 3vw, 3rem);
+      letter-spacing: 0.02em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .hud {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .stat {
+      min-width: 120px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px 14px;
+      text-align: center;
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 0.74rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .stat-value {
+      font-weight: 700;
+      font-size: 1.35rem;
+      margin-top: 4px;
+      display: block;
+    }
+
+    canvas {
+      width: 100%;
+      max-width: 100%;
+      display: block;
+      border-radius: 16px;
+      border: 2px solid rgba(255, 197, 84, 0.45);
+      background: linear-gradient(180deg, #f7d9a3 0%, #fff3d6 36%, #ffc66a 100%);
+      box-shadow: inset 0 0 24px rgba(255,255,255,0.2);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #2b140d;
+    }
+
+    .secondary {
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .tips {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .status {
+      min-height: 24px;
+      font-weight: 700;
+      color: #ffe3a0;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 700px) {
+      .header, .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .hud {
+        justify-content: flex-start;
+      }
+
+      .stat {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="games.html">Games</a></li>
+    </ul>
+  </nav>
+
+  <main class="page">
+    <div class="game-shell">
+      <div class="header">
+        <div>
+          <h1>🍕 I-Ready Pizza</h1>
+          <p class="subtitle">No math. Just speed, style, and endless pizza power.</p>
+        </div>
+
+        <div class="hud">
+          <div class="stat">
+            <span class="stat-label">Score</span>
+            <span id="score" class="stat-value">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Combo</span>
+            <span id="combo" class="stat-value">1x</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Best</span>
+            <span id="best" class="stat-value">0</span>
+          </div>
+        </div>
+      </div>
+
+      <canvas id="gameCanvas" width="900" height="500" aria-label="Game canvas"></canvas>
+
+      <div class="controls">
+        <div class="button-row">
+          <button id="startBtn" class="primary">Start run</button>
+          <button id="restartBtn" class="secondary">Restart</button>
+          <button id="exportBtn" class="secondary">Export progress</button>
+        </div>
+        <div class="tips">Move with arrow keys or WASD. Grab pizzas. Dodge the burnt crusts.</div>
+      </div>
+      <div id="status" class="status">Ready for a pizza rush.</div>
+    </div>
+  </main>
+
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreEl = document.getElementById('score');
+    const comboEl = document.getElementById('combo');
+    const bestEl = document.getElementById('best');
+    const statusEl = document.getElementById('status');
+
+    const STORAGE_KEY = 'pizza-game-progress';
+
+    const game = {
+      running: false,
+      score: 0,
+      combo: 1,
+      best: 0,
+      level: 1,
+      lastTime: 0,
+      spawnTimer: 0,
+      speed: 1,
+      player: {
+        x: 430,
+        y: 420,
+        width: 118,
+        height: 54,
+        speed: 6.8,
+        dx: 0,
+        dy: 0,
+      },
+      pizzas: [],
+      hazards: [],
+      particles: [],
+      keys: {},
+      progress: {
+        highScore: 0,
+        totalPizzas: 0,
+        totalRuns: 0,
+        bestCombo: 1,
+      }
+    };
+
+    function loadProgress() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        game.progress = { ...game.progress, ...parsed };
+      } catch (error) {
+        console.warn('No saved pizza progress yet.', error);
+      }
+    }
+
+    function saveProgress() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(game.progress));
+    }
+
+    function updateHUD() {
+      scoreEl.textContent = String(game.score);
+      comboEl.textContent = `${game.combo}x`;
+      bestEl.textContent = String(game.progress.highScore || 0);
+    }
+
+    function resetRun() {
+      game.running = true;
+      game.score = 0;
+      game.combo = 1;
+      game.level = 1;
+      game.speed = 1;
+      game.spawnTimer = 0;
+      game.pizzas = [];
+      game.hazards = [];
+      game.particles = [];
+      game.player.x = canvas.width / 2 - game.player.width / 2;
+      game.player.y = canvas.height - 70;
+      statusEl.textContent = 'Pizza rush in motion!';
+      updateHUD();
+    }
+
+    function endRun() {
+      game.running = false;
+      game.progress.highScore = Math.max(game.progress.highScore || 0, game.score);
+      game.progress.totalRuns = (game.progress.totalRuns || 0) + 1;
+      game.progress.bestCombo = Math.max(game.progress.bestCombo || 1, game.combo);
+      saveProgress();
+      statusEl.textContent = `Run over! You served ${game.score} pizzas. Tap Start run to go again.`;
+      updateHUD();
+    }
+
+    function addParticle(x, y, color, amount = 12) {
+      for (let i = 0; i < amount; i++) {
+        game.particles.push({
+          x, y,
+          radius: 3 + Math.random() * 5,
+          dx: (Math.random() - 0.5) * 4,
+          dy: (Math.random() - 0.5) * 4,
+          color,
+          life: 0.8 + Math.random() * 0.8,
+        });
+      }
+    }
+
+    function spawnPickup() {
+      const chance = Math.random();
+      const isHazard = chance < 0.22;
+
+      const item = {
+        x: Math.random() * (canvas.width - 60),
+        y: -30,
+        width: 38,
+        height: 38,
+        speed: 2.4 + Math.random() * 2.1 + game.level * 0.28,
+        drift: (Math.random() - 0.5) * 1.4,
+        type: isHazard ? 'hazard' : 'pizza',
+      };
+
+      if (isHazard) {
+        item.size = 28 + Math.random() * 16;
+        item.rotation = Math.random() * Math.PI * 2;
+        game.hazards.push(item);
+      } else {
+        item.size = 34 + Math.random() * 16;
+        game.pizzas.push(item);
+      }
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function updatePlayer(delta) {
+      const p = game.player;
+      if (game.keys.ArrowLeft || game.keys.a) p.x -= p.speed * delta * 60;
+      if (game.keys.ArrowRight || game.keys.d) p.x += p.speed * delta * 60;
+      if (game.keys.ArrowUp || game.keys.w) p.y -= p.speed * delta * 60;
+      if (game.keys.ArrowDown || game.keys.s) p.y += p.speed * delta * 60;
+
+      p.x = clamp(p.x, 0, canvas.width - p.width);
+      p.y = clamp(p.y, 30, canvas.height - p.height);
+    }
+
+    function updateObjects(delta) {
+      const dt = delta * 60;
+      game.level = 1 + Math.floor(game.score / 40);
+      game.speed = 1 + game.level * 0.14;
+
+      for (const pizza of game.pizzas) {
+        pizza.y += pizza.speed * dt * 0.75;
+        pizza.x += pizza.drift * dt;
+
+        if (pizza.x < -20) pizza.x = -20;
+        if (pizza.x > canvas.width - pizza.width) pizza.x = canvas.width - pizza.width;
+
+        const hit = (
+          pizza.x < game.player.x + game.player.width &&
+          pizza.x + pizza.width > game.player.x &&
+          pizza.y < game.player.y + game.player.height &&
+          pizza.y + pizza.height > game.player.y
+        );
+
+        if (hit) {
+          game.score += 10 * game.combo;
+          game.progress.totalPizzas = (game.progress.totalPizzas || 0) + 1;
+          game.combo = Math.min(game.combo + 1, 20);
+          addParticle(pizza.x + pizza.width / 2, pizza.y + pizza.height / 2, '#ffdd66', 18);
+          pizza.hit = true;
+          statusEl.textContent = 'Fresh pizza! Keep the streak going!';
+          saveProgress();
+        }
+      }
+
+      for (const hazard of game.hazards) {
+        hazard.y += hazard.speed * dt * 0.9;
+        hazard.x += Math.sin((hazard.y + hazard.x) / 20) * 1.4 * dt;
+        hazard.rotation += 0.08 * dt;
+
+        const hit = (
+          hazard.x < game.player.x + game.player.width &&
+          hazard.x + hazard.size > game.player.x &&
+          hazard.y < game.player.y + game.player.height &&
+          hazard.y + hazard.size > game.player.y
+        );
+
+        if (hit) {
+          hazard.hit = true;
+          addParticle(game.player.x + game.player.width / 2, game.player.y + 20, '#ff5d6c', 40);
+          endRun();
+          break;
+        }
+      }
+
+      game.pizzas = game.pizzas.filter((pizza) => !pizza.hit && pizza.y < canvas.height + 50);
+      game.hazards = game.hazards.filter((hazard) => !hazard.hit && hazard.y < canvas.height + 50);
+
+      for (const particle of game.particles) {
+        particle.x += particle.dx * dt;
+        particle.y += particle.dy * dt;
+        particle.life -= 0.015 * dt;
+      }
+      game.particles = game.particles.filter((particle) => particle.life > 0);
+
+      if (game.score && game.score % 100 === 0) {
+        game.combo = Math.max(1, game.combo - 1);
+      }
+    }
+
+    function updateSpawns(delta) {
+      const dt = delta * 60;
+      game.spawnTimer += dt;
+      const spawnGap = Math.max(12, 52 - game.level * 2.5);
+
+      if (game.spawnTimer >= spawnGap) {
+        spawnPickup();
+        game.spawnTimer = 0;
+      }
+    }
+
+    function drawBackground() {
+      // Sky
+      ctx.fillStyle = '#f6d299';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Sun
+      ctx.fillStyle = '#ffed99';
+      ctx.beginPath();
+      ctx.arc(780, 90, 56, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Clouds
+      for (let i = 0; i < 5; i++) {
+        const x = (i * 190 + (performance.now() * 0.02) % 200) - 50;
+        const y = 50 + (i % 2) * 35;
+        ctx.fillStyle = 'rgba(255,255,255,0.55)';
+        ctx.beginPath();
+        ctx.arc(x, y, 22, 0, Math.PI * 2);
+        ctx.arc(x + 18, y - 8, 25, 0, Math.PI * 2);
+        ctx.arc(x + 42, y, 22, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Ground
+      ctx.fillStyle = '#d3923c';
+      ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
+      ctx.fillStyle = '#9d5e2e';
+      for (let x = 0; x < canvas.width; x += 32) {
+        ctx.fillRect(x, canvas.height - 40, 18, 5);
+      }
+    }
+
+    function drawPizza(x, y, width, height, color = '#ffd166') {
+      ctx.fillStyle = '#f9d65b';
+      ctx.fillRect(x + 4, y + 4, width - 8, height - 8);
+      ctx.fillStyle = '#f4b942';
+      ctx.fillRect(x + 8, y + 8, width - 16, height - 16);
+      ctx.fillStyle = '#8f3f1d';
+      ctx.fillRect(x + 8, y + 10, width - 16, 10);
+      ctx.fillStyle = '#ff7f50';
+      ctx.fillRect(x + 8, y + 22, width - 16, 8);
+      ctx.fillStyle = '#8edb72';
+      ctx.fillRect(x + 14, y + 32, 12, 10);
+      ctx.fillRect(x + width - 26, y + 32, 12, 10);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x + width / 2 - 4, y + 8, 8, 16);
+    }
+
+    function drawHazard(item) {
+      ctx.save();
+      ctx.translate(item.x + item.size / 2, item.y + item.size / 2);
+      ctx.rotate(item.rotation);
+      ctx.fillStyle = '#7d3b2a';
+      ctx.beginPath();
+      ctx.arc(0, 0, item.size / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#f2d4b4';
+      ctx.fillRect(-item.size * 0.22, -item.size * 0.18, item.size * 0.44, item.size * 0.36);
+      ctx.restore();
+    }
+
+    function drawPlayer() {
+      const { x, y, width, height } = game.player;
+      ctx.fillStyle = '#ff8a5b';
+      ctx.fillRect(x, y, width, height);
+      ctx.fillStyle = '#ffbf69';
+      ctx.fillRect(x + 14, y + 10, width - 28, 18);
+      ctx.fillStyle = '#3b2a2a';
+      ctx.fillRect(x + 18, y + 30, 18, 10);
+      ctx.fillRect(x + width - 36, y + 30, 18, 10);
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x + 24, y + 6, 12, 6);
+      ctx.fillRect(x + width - 36, y + 6, 12, 6);
+    }
+
+    function drawParticles() {
+      for (const particle of game.particles) {
+        ctx.fillStyle = particle.color;
+        ctx.globalAlpha = Math.max(0.12, particle.life);
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function draw() {
+      drawBackground();
+
+      for (const pizza of game.pizzas) {
+        drawPizza(pizza.x, pizza.y, pizza.width, pizza.height);
+      }
+
+      for (const hazard of game.hazards) {
+        drawHazard(hazard);
+      }
+
+      drawPlayer();
+      drawParticles();
+    }
+
+    function loop(timestamp) {
+      const delta = (timestamp - (game.lastTime || timestamp)) / 1000;
+      game.lastTime = timestamp;
+
+      if (game.running) {
+        updatePlayer(delta);
+        updateSpawns(delta);
+        updateObjects(delta);
+      }
+
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    document.getElementById('startBtn').addEventListener('click', function () {
+      resetRun();
+    });
+
+    document.getElementById('restartBtn').addEventListener('click', function () {
+      resetRun();
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', function () {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        highScore: game.progress.highScore || game.score,
+        totalPizzas: game.progress.totalPizzas || 0,
+        totalRuns: game.progress.totalRuns || 0,
+        bestCombo: game.progress.bestCombo || game.combo,
+        currentScore: game.score,
+        currentCombo: game.combo,
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'pizza-progress.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      statusEl.textContent = 'Progress exported as pizza-progress.json';
+    });
+
+    window.addEventListener('keydown', (event) => {
+      game.keys[event.key] = true;
+      game.keys[event.key.toLowerCase()] = true;
+    });
+
+    window.addEventListener('keyup', (event) => {
+      game.keys[event.key] = false;
+      game.keys[event.key.toLowerCase()] = false;
+    });
+
+    loadProgress();
+    updateHUD();
+    resetRun();
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
