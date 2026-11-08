@@ -6,345 +6,137 @@
   <meta name="theme-color" content="#24130e">
   <title>I-Ready Pizza Shop</title>
   <style>
-    :root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#fff8ed;background:#160e0b;--panel:#291a14;--panel2:#352119;--line:#64402d;--gold:#ffc65c;--orange:#ff8755;--green:#9cda87;--muted:#d9bda6}
+    :root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#fff8ed;background:#160e0b;--panel:#291a14;--line:#64402d;--gold:#ffc65c;--orange:#ff8755;--muted:#d9bda6}
     *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,#65351e 0,#24130e 48%,#100a08 100%)}
     nav{position:sticky;top:0;z-index:5;background:#1a100c;border-bottom:1px solid #543421;padding:12px max(16px,calc((100vw - 1180px)/2));display:flex;gap:20px}nav a{color:#ffe0a6;text-decoration:none;font-weight:700}nav a:hover{text-decoration:underline}
-    main{max-width:1180px;margin:22px auto 50px;padding:0 16px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.brand h1{font-size:clamp(1.7rem,4vw,2.6rem);margin:0;line-height:1}.brand p{margin:6px 0 0;color:var(--muted)}
-    .logo{width:58px;height:58px;flex:none;filter:drop-shadow(0 5px 8px #0006)}.top-actions,.button-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.stats{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:10px;margin:16px 0}.stat,.panel{background:linear-gradient(145deg,#322017,#241711);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 22px #0003}.stat{padding:10px 14px}.stat small{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}.stat strong{font-size:1.35rem;color:#fff3d4}
-    .layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:14px;align-items:start}.left,.right{display:grid;gap:14px}.panel{padding:17px}.panel h2{font-size:1.18rem;margin:0 0 12px}.panel h3{margin:0 0 8px;font-size:1rem}.muted{color:var(--muted)}
-    .customer{display:flex;gap:12px;align-items:center;background:#1e130f;border:1px solid #543421;border-radius:12px;padding:13px;margin:9px 0}.avatar{width:48px;height:48px;display:grid;place-items:center;flex:none;font-size:1.8rem;border-radius:50%;background:#51301e}.customer-info{min-width:0;flex:1}.customer-info strong{display:block}.ticket{color:#ffe0a6;font-size:.92rem;margin-top:3px}.tag{display:inline-block;color:#21130b;background:var(--gold);font-size:.72rem;font-weight:800;border-radius:99px;padding:3px 8px;margin-left:5px}.empty{padding:18px;border:1px dashed #714b33;border-radius:12px;color:var(--muted);text-align:center}
-    .inventory,.recipe-grid,.vendor-grid,.upgrade-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}.stock{border:1px solid #61452f;background:#21150f;border-radius:10px;padding:10px}.stock strong{display:block}.stock small{color:var(--muted)}.ingredient{display:flex;gap:7px;align-items:center;justify-content:space-between;margin-top:8px;font-size:.9rem}.ingredient label{display:flex;gap:6px;align-items:center}.ingredient input{accent-color:var(--orange);width:18px;height:18px}
-    .vendor,.upgrade{border:1px solid #61452f;background:#21150f;border-radius:11px;padding:11px}.vendor p,.upgrade p{margin:5px 0 10px;color:var(--muted);font-size:.86rem}.vendor-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:5px 0;font-size:.88rem}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.btn{border:1px solid transparent;border-radius:10px;padding:10px 13px;font:inherit;font-weight:750;cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--orange));color:#32180e;transition:transform .15s,filter .15s}.btn:hover{transform:translateY(-1px);filter:brightness(1.08)}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}.btn.secondary{background:#493023;color:#fff3e3;border-color:#70513a}.btn.danger{background:#662c27;color:#ffe9e2;border-color:#8f493e}.btn.small{font-size:.82rem;padding:7px 9px}.status{min-height:25px;margin:10px 0 0;color:#ffe0a6;font-weight:700}.oven{border-radius:12px;background:linear-gradient(180deg,#291711,#140b08);border:2px solid #80502e;padding:16px;text-align:center}.oven-window{max-width:250px;height:100px;margin:auto auto 12px;border:8px solid #63351f;border-radius:14px;background:radial-gradient(circle,#ffdc6b 0,#f37d30 35%,#422016 72%);display:grid;place-items:center;font-size:2.5rem;box-shadow:inset 0 0 22px #ff9a37}.progress{height:12px;background:#120b08;border-radius:20px;overflow:hidden;margin:10px 0}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff9d38,#ffe27c);transition:width .2s}.log{max-height:160px;overflow:auto;padding-left:20px;margin:0;color:#e8cdb5;font-size:.88rem}.log li{margin:6px 0}input[type=file]{display:none}.footnote{font-size:.82rem;color:#c9ae96;margin-top:12px}
-    @media(max-width:820px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){main{padding:0 10px}.panel{padding:13px}.top-actions{width:100%}.top-actions .btn{flex:1}.brand{align-items:flex-start}.logo{width:45px;height:45px}.inventory,.recipe-grid,.vendor-grid,.upgrade-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.customer{align-items:flex-start}}
+    main{max-width:1180px;margin:20px auto 50px;padding:0 16px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px}.brand{display:flex;gap:12px;align-items:center}.brand h1{font-size:clamp(1.7rem,4vw,2.5rem);margin:0;line-height:1}.brand p{margin:5px 0 0;color:var(--muted)}.logo{width:50px;height:50px;flex:none}.top-actions,.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.stats{display:grid;grid-template-columns:repeat(4,minmax(100px,1fr));gap:9px;margin:12px 0}.stat,.panel{background:linear-gradient(145deg,#322017,#241711);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 22px #0003}.stat{padding:9px 13px}.stat small{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}.stat strong{font-size:1.28rem;color:#fff3d4}
+    .map-panel{overflow:hidden;padding:0;background:#c9d5bd;border:2px solid #96643d;border-radius:16px;box-shadow:0 16px 35px #0006}.map-heading{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:11px 15px;background:#302016;color:#ffe8b5}.map-heading strong{font-size:1.05rem}.map-heading span{font-size:.83rem;color:#e3c4a0}.map-wrap{position:relative}.map-wrap canvas{display:block;width:100%;height:auto;touch-action:manipulation}.map-label{position:absolute;left:12px;bottom:12px;background:#21160ddd;color:#fff2cf;border:1px solid #fff5;border-radius:9px;padding:7px 10px;font-size:.82rem;pointer-events:none}.map-links{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:10px;background:#302016}.map-links button{border:1px solid #735239;background:#493023;color:#ffe9ca;border-radius:9px;padding:9px;font-weight:700;cursor:pointer}.map-links button:hover{background:#65412b}
+    .layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(290px,.9fr);gap:13px;margin-top:13px;align-items:start}.left,.right{display:grid;gap:13px}.panel{padding:15px;scroll-margin-top:70px}.panel h2{font-size:1.13rem;margin:0 0 10px}.muted{color:var(--muted);margin:0 0 10px;font-size:.92rem}.customer-list,.ingredient-grid,.vendor-grid,.upgrade-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}.customer{border:1px solid #60442f;background:#21150f;border-radius:11px;padding:10px;text-align:center}.customer .face{font-size:2rem;display:block}.ticket{font-size:.84rem;color:#ffe0a6;margin:4px 0 8px}.item,.vendor,.upgrade{border:1px solid #61452f;background:#21150f;border-radius:10px;padding:10px}.item strong,.upgrade strong{display:block}.item small,.vendor p,.upgrade p{color:var(--muted);font-size:.82rem}.vendor h3,.upgrade h3{margin:0 0 5px;font-size:.96rem}.vendor p,.upgrade p{margin:0 0 8px}.vendor-row{display:flex;justify-content:space-between;align-items:center;gap:5px;margin:5px 0;font-size:.83rem}.recipe-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:7px}.recipe-item{display:flex;align-items:center;gap:7px;padding:8px;background:#21150f;border:1px solid #61452f;border-radius:9px;font-size:.88rem}.recipe-item input{width:18px;height:18px;accent-color:var(--orange)}.btn{border:1px solid transparent;border-radius:9px;padding:9px 12px;font:inherit;font-weight:750;cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--orange));color:#32180e}.btn:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}.btn:disabled{opacity:.42;cursor:not-allowed}.btn.secondary{background:#493023;color:#fff3e3;border-color:#70513a}.btn.danger{background:#62372d;color:#ffe9e2;border-color:#95604b}.btn.small{font-size:.79rem;padding:6px 8px}.status{min-height:23px;margin:10px 0 0;color:#ffe0a6;font-weight:700}.oven{border-radius:10px;padding:11px;text-align:center;background:radial-gradient(circle,#6a321e,#24130d);border:1px solid #80502e}.oven-art{font-size:2rem}.bar{height:9px;background:#140b08;border-radius:15px;overflow:hidden;margin:8px}.bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff9d38,#ffe27c)}.journal{max-height:140px;overflow:auto;padding-left:18px;margin:0;color:#e8cdb5;font-size:.85rem}.journal li{margin:5px 0}.danger-zone{margin-top:16px;border:1px solid #765045;border-radius:12px;background:#21130f}.danger-zone summary{cursor:pointer;padding:11px;color:#e8b7a5;font-weight:700}.danger-content{padding:0 12px 12px}.danger-content p{color:#d9bda6;font-size:.86rem}.danger-content input{max-width:160px;padding:8px;border-radius:7px;border:1px solid #765045;background:#130d0a;color:white}.danger-content .btn{margin-left:6px}.footnote{font-size:.8rem;color:#c9ae96;margin-top:12px}input[type=file]{display:none}
+    @media(max-width:800px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){main{padding:0 9px}.map-heading span{font-size:.72rem}.map-links{grid-template-columns:1fr}.top-actions{width:100%}.top-actions .btn{flex:1}.panel{padding:12px}.customer-list,.ingredient-grid,.vendor-grid,.upgrade-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   </style>
 </head>
 <body>
   <nav><a href="index.html">Home</a><a href="games.html">Games</a></nav>
   <main>
     <header class="topbar">
-      <div class="brand">
-        <svg class="logo" viewBox="0 0 80 80" role="img" aria-label="A slice of pizza"><circle cx="40" cy="40" r="37" fill="#d45c2f"/><path d="M18 18 68 13 54 68Z" fill="#ffd66d" stroke="#9b451f" stroke-width="5" stroke-linejoin="round"/><path d="m25 24 35-4-10 38Z" fill="#f7b84a"/><circle cx="42" cy="34" r="4" fill="#d94f38"/><circle cx="51" cy="45" r="4" fill="#d94f38"/><circle cx="40" cy="48" r="3" fill="#72a94d"/><circle cx="53" cy="30" r="3" fill="#72a94d"/></svg>
-        <div><h1>I-Ready Pizza Shop</h1><p>Take orders, stock up, bake your way, and grow your little pizza place.</p></div>
-      </div>
-      <div class="top-actions">
-        <button class="btn secondary" id="exportBtn">Export save</button>
-        <button class="btn secondary" id="importBtn">Import save</button>
-        <input id="importFile" type="file" accept="application/json,.json">
-        <button class="btn danger" id="resetBtn">Reset progress</button>
-      </div>
+      <div class="brand"><svg class="logo" viewBox="0 0 80 80" role="img" aria-label="Pizza slice"><circle cx="40" cy="40" r="37" fill="#d45c2f"/><path d="M18 18 68 13 54 68Z" fill="#ffd66d" stroke="#9b451f" stroke-width="5" stroke-linejoin="round"/><circle cx="42" cy="34" r="4" fill="#d94f38"/><circle cx="51" cy="45" r="4" fill="#d94f38"/><circle cx="40" cy="48" r="3" fill="#72a94d"/></svg><div><h1>I-Ready Pizza Shop</h1><p>Run the shop, serve the crowd, and build your neighborhood.</p></div></div>
+      <div class="top-actions"><button class="btn secondary" id="exportBtn">Export save</button><button class="btn secondary" id="importBtn">Import save</button><input id="importFile" type="file" accept="application/json,.json"></div>
     </header>
+    <section class="stats" aria-label="Shop progress"><div class="stat"><small>Cash</small><strong id="money">$0</strong></div><div class="stat"><small>Shop score</small><strong id="score">0</strong></div><div class="stat"><small>Customers served</small><strong id="served">0</strong></div><div class="stat"><small>Shop / shift</small><strong id="day">1 · Open</strong></div></section>
 
-    <section class="stats" aria-label="Shop progress">
-      <div class="stat"><small>Cash</small><strong id="money">$0</strong></div>
-      <div class="stat"><small>Shop score</small><strong id="score">0</strong></div>
-      <div class="stat"><small>Customers served</small><strong id="served">0</strong></div>
-      <div class="stat"><small>Shop / shift</small><strong id="day">1 · Open</strong></div>
+    <section class="map-panel" aria-label="Isometric neighborhood map">
+      <div class="map-heading"><strong>🏘️ Your neighborhood</strong><span>Click your shop, the upgrade store, or a street vendor</span></div>
+      <div class="map-wrap"><canvas id="townMap" width="900" height="500" aria-label="Isometric map showing the pizza shop interior, customers, your character, upgrade shop, and street vendors"></canvas><span class="map-label">Your character is the little green-capped shopkeeper.</span></div>
+      <div class="map-links"><button data-jump="orders">🍕 Inside the pizza shop</button><button data-jump="upgrades">🪴 Upgrade shop</button><button data-jump="vendors">🛒 Street vendors</button></div>
     </section>
 
     <div class="layout">
       <div class="left">
-        <section class="panel">
-          <h2>🧑‍🍳 Customers & orders</h2>
-          <p class="muted" id="queueIntro">Pick an order to prepare. Customers wait while you choose what to do.</p>
-          <div id="customerQueue"></div>
-        </section>
-
-        <section class="panel">
-          <h2>🧀 Your kitchen</h2>
-          <div class="inventory" id="inventory"></div>
-        </section>
-
-        <section class="panel">
-          <h2>🍕 Make a pizza</h2>
-          <p class="muted" id="selectedOrderText">Choose a customer order above, or make a house special.</p>
-          <div class="recipe-grid" id="recipe"></div>
-          <div class="actions">
-            <button class="btn" id="makeBtn">Make pizza</button>
-            <button class="btn secondary" id="bakeBtn" disabled>Put in oven</button>
-            <button class="btn secondary" id="serveBtn" disabled>Serve pizza</button>
-          </div>
-          <p class="status" id="status" role="status" aria-live="polite">Welcome! Your shop is open.</p>
-        </section>
+        <section class="panel" id="orders"><h2>🍕 Inside the shop · customer orders</h2><p class="muted">Customers are shown by their look, not by name. Select an order to cook it.</p><div class="customer-list" id="customerList"></div><p class="status" id="status" role="status" aria-live="polite">Welcome! Your shop is open.</p></section>
+        <section class="panel" id="kitchen"><h2>👩‍🍳 Kitchen & oven</h2><p class="muted" id="selectedText">Select an order, choose toppings, then make and bake the pizza.</p><div class="recipe-grid" id="recipe"></div><div class="actions" style="margin-top:10px"><button class="btn" id="makeBtn">Make pizza</button><button class="btn secondary" id="bakeBtn" disabled>Bake pizza</button><button class="btn secondary" id="serveBtn" disabled>Serve customer</button></div><div class="oven" style="margin-top:10px"><div class="oven-art" id="ovenArt">🍕</div><strong id="ovenText">Oven ready</strong><div class="bar"><span id="bakeBar"></span></div></div></section>
+        <section class="panel"><h2>📦 Pantry</h2><div class="ingredient-grid" id="inventory"></div></section>
       </div>
-
       <aside class="right">
-        <section class="panel">
-          <h2>🛒 Ingredient vendors</h2>
-          <p class="muted">Prices vary by vendor. Buy ingredients whenever you need them.</p>
-          <div class="vendor-grid" id="vendors"></div>
-        </section>
-
-        <section class="panel">
-          <h2>🔥 Oven</h2>
-          <div class="oven"><div class="oven-window" id="ovenArt">🍕</div><strong id="ovenText">Ready for a pizza</strong><div class="progress"><span id="bakeProgress"></span></div><button class="btn small secondary" id="finishBakeBtn" hidden>Finish baking</button></div>
-        </section>
-
-        <section class="panel">
-          <h2>🪴 Shop upgrades</h2>
-          <p class="muted">Invest your earnings in a better shop.</p>
-          <div class="upgrade-grid" id="upgrades"></div>
-        </section>
-
-        <section class="panel">
-          <h2>🏪 Shift</h2>
-          <p class="muted" id="shiftText">Your shop is open. Close whenever you like; your progress is saved automatically.</p>
-          <div class="actions"><button class="btn secondary" id="shiftBtn">Close shop</button><button class="btn" id="playAgainBtn" hidden>Play Again · Open next shift</button></div>
-        </section>
-
-        <section class="panel"><h2>📋 Shop journal</h2><ul class="log" id="journal"></ul></section>
+        <section class="panel" id="vendors"><h2>🛒 Street vendors · below your shop</h2><p class="muted">The stalls along the lower street have different bundle prices.</p><div class="vendor-grid" id="vendorGrid"></div></section>
+        <section class="panel" id="upgrades"><h2>🪴 Upgrade shop</h2><p class="muted">Visit this little shop to improve your oven, storefront, and neighborhood reputation.</p><div class="upgrade-grid" id="upgradeGrid"></div></section>
+        <section class="panel"><h2>🏪 Shop shift</h2><p class="muted" id="shiftText">Your shop is open. Close it whenever you like; all progress saves automatically.</p><div class="actions"><button class="btn secondary" id="shiftBtn">Close shop</button><button class="btn" id="playAgainBtn" hidden>Play Again · Open next shift</button></div></section>
+        <section class="panel"><h2>📋 Shop journal</h2><ul class="journal" id="journal"></ul></section>
       </aside>
     </div>
-    <p class="footnote">Progress saves automatically in this browser on this device. Use Export/Import to move a save to another browser. This game is self-contained and uses original inline artwork.</p>
+    <details class="danger-zone"><summary>⚠️ Danger zone · progress reset</summary><div class="danger-content"><p>Reset permanently removes this browser’s money, inventory, shop upgrades, and score. Export your save first if you may want it later. To enable reset, type <strong>RESET</strong> below.</p><input id="resetPhrase" type="text" autocomplete="off" placeholder="Type RESET" aria-label="Type RESET to enable reset"><button class="btn danger" id="resetBtn" disabled>Reset all progress</button></div></details>
+    <p class="footnote">Progress saves automatically in this browser on this device. Export/Import moves a save between browsers. Original isometric map artwork is drawn locally; no external game assets or services are used.</p>
   </main>
-
   <script>
     (() => {
       'use strict';
-      const SAVE_KEY = 'iready-pizza-shop-save-v1';
-      const INGREDIENTS = [
-        { id: 'dough', name: 'Dough', icon: '🥯' },
-        { id: 'sauce', name: 'Tomato sauce', icon: '🍅' },
-        { id: 'cheese', name: 'Cheese', icon: '🧀' },
-        { id: 'pepperoni', name: 'Pepperoni', icon: '🍖' },
-        { id: 'mushroom', name: 'Mushrooms', icon: '🍄' },
-        { id: 'olive', name: 'Olives', icon: '🫒' },
-        { id: 'pineapple', name: 'Pineapple', icon: '🍍' }
-      ];
-      const VENDORS = [
-        { id: 'market', name: 'Mia’s Market', note: 'Friendly neighborhood prices', multiplier: 1 },
-        { id: 'farm', name: 'Sunny Farm Co.', note: 'Fresh, a little pricier', multiplier: 1.22 },
-        { id: 'bulk', name: 'Big Box Bulk', note: 'Cheap bundles', multiplier: .78 }
-      ];
-      const CUSTOMER_TYPES = [
-        { name: 'Skater Sam', avatar: '🛹', likes: ['pepperoni', 'olive'], tip: 3 },
-        { name: 'Garden Gia', avatar: '👩🏽‍🌾', likes: ['mushroom', 'olive'], tip: 4 },
-        { name: 'Pineapple Pat', avatar: '🧑🏼‍🍳', likes: ['pineapple', 'cheese'], tip: 5 },
-        { name: 'Movie Max', avatar: '🧑🏻‍🎤', likes: ['pepperoni', 'mushroom'], tip: 3 },
-        { name: 'Sunny Sol', avatar: '👩🏾‍🎨', likes: ['olive', 'pineapple'], tip: 6 },
-        { name: 'Cozy Casey', avatar: '🧑🏽‍🦱', likes: ['cheese', 'mushroom'], tip: 4 }
-      ];
-      const UPGRADE_INFO = {
-        oven: { name: 'Quick-bake oven', icon: '🔥', description: 'Bakes pizzas faster.', base: 45, max: 5 },
-        decor: { name: 'Cozy decor', icon: '🪴', description: 'More generous tips and a nicer shop.', base: 55, max: 5 },
-        sign: { name: 'Bright sign', icon: '✨', description: 'Attracts customers more often.', base: 65, max: 5 }
-      };
-      const freshState = () => ({
-        version: 1, money: 80, score: 0, served: 0, day: 1, open: true,
-        inventory: { dough: 5, sauce: 5, cheese: 6, pepperoni: 3, mushroom: 3, olive: 2, pineapple: 2 },
-        upgrades: { oven: 0, decor: 0, sign: 0 },
-        queue: [], selectedId: null, prepared: null, oven: null,
-        journal: ['Your pizza shop is open! Check out the orders and vendors.'],
-        nextOrderId: 1
-      });
-      let state = freshState();
-      let orderClock = 0;
-      let lastTime = performance.now();
+      const SAVE_KEY='iready-pizza-shop-save-v1';
+      const ING=[{id:'dough',name:'Dough',icon:'🥯'},{id:'sauce',name:'Sauce',icon:'🍅'},{id:'cheese',name:'Cheese',icon:'🧀'},{id:'pepperoni',name:'Pepperoni',icon:'🍖'},{id:'mushroom',name:'Mushrooms',icon:'🍄'},{id:'olive',name:'Olives',icon:'🫒'},{id:'pineapple',name:'Pineapple',icon:'🍍'}];
+      const VENDORS=[{id:'market',name:'Corner Grocer',icon:'🧺',mult:1},{id:'farm',name:'Farm Cart',icon:'🌻',mult:1.25},{id:'bulk',name:'Bulk Stand',icon:'📦',mult:.78}];
+      const FACES=['👩🏻','👨🏽','👩🏾‍🦱','🧑🏼','👨🏻‍🦰','👩🏽‍🦰','🧔🏾','👩🏼‍🦳','🧑🏿'];
+      const TOPPING_SETS=[['pepperoni'],['mushroom'],['olive'],['pineapple'],['pepperoni','olive'],['mushroom','olive'],['pepperoni','mushroom'],['pineapple','olive']];
+      const UP={oven:{name:'Faster oven',icon:'🔥',desc:'Bake orders faster.',base:45,max:5},decor:{name:'Cozy shop decor',icon:'🪴',desc:'Earn bigger tips.',base:55,max:5},sign:{name:'Bright street sign',icon:'✨',desc:'Bring in more customers.',base:65,max:5}};
+      const fresh=()=>({version:1,money:80,score:0,served:0,day:1,open:true,inventory:{dough:5,sauce:5,cheese:6,pepperoni:3,mushroom:3,olive:2,pineapple:2},upgrades:{oven:0,decor:0,sign:0},queue:[],selectedId:null,prepared:null,oven:null,journal:['Your pizza shop is open!'],nextOrderId:1});
+      let s=fresh(),orderClock=0,last=performance.now(),bakeTotal=5;
+      const $=id=>document.getElementById(id), cash=n=>'$'+Math.max(0,Math.floor(n));
+      const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      function normalize(x){if(!x||x.version!==1)throw Error('That is not a pizza shop save.');const n=fresh();n.money=Math.max(0,Math.floor(+x.money||0));n.score=Math.max(0,Math.floor(+x.score||0));n.served=Math.max(0,Math.floor(+x.served||0));n.day=Math.max(1,Math.floor(+x.day||1));n.open=x.open!==false;ING.forEach(i=>n.inventory[i.id]=Math.max(0,Math.min(999,Math.floor(+x.inventory?.[i.id]||0))));Object.keys(UP).forEach(k=>n.upgrades[k]=Math.max(0,Math.min(UP[k].max,Math.floor(+x.upgrades?.[k]||0))));n.queue=Array.isArray(x.queue)?x.queue.slice(0,5).map(o=>({id:Math.max(1,+o.id||1),face:FACES.includes(o.face)?o.face:FACES[0],recipe:Array.isArray(o.recipe)?[...new Set(o.recipe.filter(id=>ING.some(i=>i.id===id)))]:['dough','sauce','cheese'],tip:Math.max(0,Math.min(30,+o.tip||0)),patience:Math.max(1,Math.min(240,+o.patience||180))})):[];n.selectedId=n.queue.some(o=>o.id===+x.selectedId)?+x.selectedId:null;n.prepared=x.prepared&&Array.isArray(x.prepared.recipe)?{recipe:x.prepared.recipe.filter(id=>ING.some(i=>i.id===id)),orderId:n.selectedId}:null;n.oven=x.oven&&n.prepared?{remaining:Math.max(0,Math.min(15,+x.oven.remaining||0))}:null;n.journal=Array.isArray(x.journal)?x.journal.filter(t=>typeof t==='string').slice(0,12):n.journal;n.nextOrderId=Math.max(1,+x.nextOrderId||1);return n;}
+      function say(t,bad=false){$('status').textContent=t;$('status').style.color=bad?'#ffaaa0':'#ffe0a6'}
+      function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(s))}catch(e){say('Could not autosave. Please export a backup.',true)}}
+      function log(t){s.journal.unshift(t);s.journal=s.journal.slice(0,12)}
+      function order(){return s.queue.find(o=>o.id===s.selectedId)||null}
+      function toppingNames(r){return r.filter(x=>!['dough','sauce','cheese'].includes(x)).map(x=>ING.find(i=>i.id===x)?.name).join(' + ')||'cheese'}
+      function render(){ $('money').textContent=cash(s.money);$('score').textContent=s.score.toLocaleString();$('served').textContent=s.served.toLocaleString();$('day').textContent=`${s.day} · ${s.open?'Open':'Closed'}`;$('shiftBtn').hidden=!s.open;$('playAgainBtn').hidden=s.open;$('shiftText').textContent=s.open?'Your shop is open. Close it whenever you like; all progress saves automatically.':`Shift ${s.day} is over. Your money, stock, upgrades, and score are saved.`;
+        renderCustomers();renderRecipe();renderInventory();renderVendors();renderUpgrades();renderOven();$('journal').innerHTML=s.journal.map(t=>`<li>${esc(t)}</li>`).join('');$('makeBtn').disabled=!s.open||!!s.prepared;$('bakeBtn').disabled=!s.open||!s.prepared||!!s.oven;$('serveBtn').disabled=!s.open||!s.prepared||!!s.oven;
+      }
+      function renderCustomers(){const el=$('customerList');if(!s.queue.length){el.innerHTML='<div class="item">No customers are waiting right now. New customers will arrive soon.</div>';return}el.innerHTML=s.queue.map(o=>`<button class="customer" data-order="${o.id}" ${!s.open?'disabled':''} style="color:inherit;font:inherit;cursor:pointer"><span class="face" aria-hidden="true">${esc(o.face)}</span><strong>Customer</strong><div class="ticket">🍕 ${esc(toppingNames(o.recipe))}<br>Tip ${cash(o.tip)} · ${Math.ceil(o.patience)}s</div><span class="btn small ${s.selectedId===o.id?'':'secondary'}">${s.selectedId===o.id?'Selected':'Take order'}</span></button>`).join('');el.querySelectorAll('[data-order]').forEach(b=>b.onclick=()=>{s.selectedId=+b.dataset.order;s.prepared=null;s.oven=null;render();save();say('Order selected. Make the requested pizza in the kitchen.');drawMap()})}
+      function renderRecipe(){const o=order();$('selectedText').textContent=o?'Prepare the selected customer’s toppings exactly for a perfect tip.':'Select a customer first to start an order.';$('recipe').innerHTML=ING.map(i=>{const check=o?o.recipe.includes(i.id):['dough','sauce','cheese'].includes(i.id);const locked=['dough','sauce'].includes(i.id);return `<label class="recipe-item"><input type="checkbox" data-top="${i.id}" ${check?'checked':''} ${locked||!s.open||!!s.prepared?'disabled':''}>${i.icon} ${i.name}</label>`}).join('')}
+      function renderInventory(){$('inventory').innerHTML=ING.map(i=>`<div class="item"><strong>${i.icon} ${i.name}</strong><small>In stock</small><br><b>${s.inventory[i.id]}</b></div>`).join('')}
+      function renderVendors(){$('vendorGrid').innerHTML=VENDORS.map(v=>`<div class="vendor"><h3>${v.icon} ${v.name}</h3><p>Ingredients sold in bundles of 3</p>${ING.map(i=>{const unit=Math.max(1,Math.round((['cheese','pepperoni'].includes(i.id)?7:5)*v.mult));return `<div class="vendor-row"><span>${i.icon} ${i.name}</span><button class="btn small secondary" data-buy="${i.id}" data-vendor="${v.id}" data-cost="${unit*3}" ${!s.open?'disabled':''}>3 · ${cash(unit*3)}</button></div>`}).join('')}</div>`).join('');$('vendorGrid').querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>buy(b.dataset.buy,b.dataset.vendor,+b.dataset.cost))}
+      function renderUpgrades(){$('upgradeGrid').innerHTML=Object.entries(UP).map(([id,u])=>{const level=s.upgrades[id],cost=u.base*(level+1);return `<div class="upgrade"><h3>${u.icon} ${u.name}</h3><p>${u.desc}</p><p><strong>Level ${level}/${u.max}</strong></p><button class="btn small secondary" data-up="${id}" ${!s.open||level>=u.max||s.money<cost?'disabled':''}>${level>=u.max?'Fully upgraded':'Upgrade · '+cash(cost)}</button></div>`}).join('');$('upgradeGrid').querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>upgrade(b.dataset.up))}
+      function renderOven(){const active=!!s.oven;$('ovenText').textContent=active?`Baking · ${Math.ceil(s.oven.remaining)} sec`:s.prepared?'Pizza is hot and ready!':'Oven ready';$('ovenArt').textContent=active?'🔥🍕':s.prepared?'🍕✨':'🍕';$('bakeBar').style.width=active?`${Math.max(0,100-s.oven.remaining/bakeTotal*100)}%`:s.prepared?'100%':'0%'}
+      function buy(id,vid,cost){if(!s.open)return;if(s.money<cost){say('Not enough cash for that bundle.',true);return}s.money-=cost;s.inventory[id]=Math.min(999,s.inventory[id]+3);log(`Restocked ${ING.find(i=>i.id===id).name} from ${VENDORS.find(v=>v.id===vid).name}.`);say('Your pantry has been restocked.');save();render()}
+      function upgrade(id){const u=UP[id];if(!u)return;const cost=u.base*(s.upgrades[id]+1);if(s.money<cost||s.upgrades[id]>=u.max)return;s.money-=cost;s.upgrades[id]++;log(`${u.name} upgraded to level ${s.upgrades[id]}.`);say('Shop upgrade complete!');save();render();drawMap()}
+      function make(){const o=order();if(!s.open||!o||s.prepared)return say('Choose a customer order first.',true);const recipe=[...o.recipe];const missing=recipe.find(id=>s.inventory[id]<=0);if(missing)return say(`Out of ${ING.find(i=>i.id===missing).name}. Visit a street vendor to restock.`,true);recipe.forEach(id=>s.inventory[id]--);s.prepared={recipe,orderId:o.id};say('Pizza assembled! Put it in the oven when you’re ready.');save();render()}
+      function bake(){if(!s.prepared||s.oven||!s.open)return;bakeTotal=Math.max(2,5-s.upgrades.oven*.6);s.oven={remaining:bakeTotal};say('Pizza is baking…');save();render()}
+      function serve(){if(!s.prepared||s.oven)return;const o=order();if(!o){s.prepared=null;render();return}const perfect=s.prepared.recipe.length===o.recipe.length&&s.prepared.recipe.every(id=>o.recipe.includes(id));const reward=18+(perfect?o.tip+s.upgrades.decor*2:0);s.money+=reward;s.score+=perfect?100:45;s.served++;log(`${perfect?'Perfect order served':'Pizza served'} · +${cash(reward)}.`);s.queue=s.queue.filter(x=>x.id!==o.id);s.selectedId=null;s.prepared=null;s.oven=null;say(`${perfect?'Perfect!':'Nice work!'} You earned ${cash(reward)}.`);save();render();drawMap()}
+      function newOrder(){const toppings=TOPPING_SETS[Math.floor(Math.random()*TOPPING_SETS.length)];const o={id:s.nextOrderId++,face:FACES[Math.floor(Math.random()*FACES.length)],recipe:['dough','sauce','cheese',...toppings],tip:3+Math.floor(Math.random()*5)+s.upgrades.decor,patience:180};s.queue.push(o);log('A customer came into the shop with a new pizza order.');save();render();drawMap()}
+      function closeShop(){s.open=false;s.oven=null;log('The shop closed for the shift.');say('Shop closed. Your progress is saved.');save();render();drawMap()}
+      function playAgain(){s.day++;s.open=true;s.queue=[];s.selectedId=null;s.prepared=null;s.oven=null;orderClock=0;log('A new shift is open.');save();newOrder();say('Welcome back! The shop is open again.');render();drawMap()}
+      function exportSave(){const blob=new Blob([JSON.stringify({app:'iready-pizza-shop',version:1,exportedAt:new Date().toISOString(),save:s},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='pizza-shop-progress.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);say('Progress exported as pizza-shop-progress.json.')}
+      async function importSave(file){try{const data=JSON.parse(await file.text());const imported=normalize(data.save||data);if(!confirm('Replace this browser’s pizza shop progress with the imported save?'))return;s=imported;save();render();drawMap();say('Progress imported successfully.')}catch(e){say(e.message||'Could not import that file.',true)}}
+      function reset(){if($('resetPhrase').value.trim()!=='RESET')return;if(prompt('Final safety check: type RESET again to permanently erase this shop save.')!=='RESET')return;localStorage.removeItem(SAVE_KEY);s=fresh();orderClock=0;$('resetPhrase').value='';$('resetBtn').disabled=true;newOrder();say('Progress reset. Your new shop is ready.');render();drawMap()}
 
-      const $ = id => document.getElementById(id);
-      const money = n => `$${Math.max(0, Math.floor(n))}`;
-      const escapeHTML = value => String(value).replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
-      function normalizeSave(candidate) {
-        if (!candidate || candidate.version !== 1 || typeof candidate !== 'object') throw new Error('That file is not a valid pizza shop save.');
-        const clean = freshState();
-        clean.money = Math.max(0, Math.floor(Number(candidate.money) || 0));
-        clean.score = Math.max(0, Math.floor(Number(candidate.score) || 0));
-        clean.served = Math.max(0, Math.floor(Number(candidate.served) || 0));
-        clean.day = Math.max(1, Math.floor(Number(candidate.day) || 1));
-        clean.open = candidate.open !== false;
-        INGREDIENTS.forEach(item => clean.inventory[item.id] = Math.max(0, Math.min(999, Math.floor(Number(candidate.inventory?.[item.id]) || 0))));
-        Object.keys(clean.upgrades).forEach(key => clean.upgrades[key] = Math.max(0, Math.min(UPGRADE_INFO[key].max, Math.floor(Number(candidate.upgrades?.[key]) || 0))));
-        clean.queue = Array.isArray(candidate.queue) ? candidate.queue.slice(0, 6).filter(order => order && typeof order === 'object').map(order => ({
-          id: Math.max(1, Math.floor(Number(order.id) || 1)), customer: String(order.customer || 'New customer').slice(0, 40), avatar: String(order.avatar || '🙂').slice(0, 8),
-          recipe: Array.isArray(order.recipe) ? [...new Set(order.recipe.filter(id => INGREDIENTS.some(ingredient => ingredient.id === id)))] : ['dough','sauce','cheese'],
-          tip: Math.max(0, Math.min(30, Number(order.tip) || 0)), patience: Math.max(0, Math.min(300, Number(order.patience) || 180))
-        })) : [];
-        clean.selectedId = clean.queue.some(order => order.id === Number(candidate.selectedId)) ? Number(candidate.selectedId) : null;
-        clean.prepared = candidate.prepared && Array.isArray(candidate.prepared.recipe) ? { recipe: candidate.prepared.recipe.filter(id => INGREDIENTS.some(item => item.id === id)), orderId: clean.selectedId } : null;
-        clean.oven = candidate.oven && clean.prepared ? { remaining: Math.max(0, Math.min(15, Number(candidate.oven.remaining) || 0)) } : null;
-        clean.journal = Array.isArray(candidate.journal) ? candidate.journal.filter(line => typeof line === 'string').slice(0, 14) : clean.journal;
-        clean.nextOrderId = Math.max(1, Math.floor(Number(candidate.nextOrderId) || 1));
-        return clean;
+      // Locally drawn isometric neighborhood: open-roof shop, visible customers and player, upgrade store, road, and stalls.
+      const canvas=$('townMap'),ctx=canvas.getContext('2d');
+      const poly=(pts,fill,stroke='#ffffff35')=>{ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);pts.slice(1).forEach(p=>ctx.lineTo(p[0],p[1]));ctx.closePath();ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.5;ctx.stroke()}};
+      function text(t,x,y,size=12,color='#fff',align='center'){ctx.font=`700 ${size}px system-ui`;ctx.textAlign=align;ctx.fillStyle='rgba(20,12,8,.65)';ctx.fillText(t,x+1,y+2);ctx.fillStyle=color;ctx.fillText(t,x,y)}
+      function person(x,y,shirt,face='🙂',scale=1){ctx.fillStyle='#0003';ctx.beginPath();ctx.ellipse(x,y+13*scale,9*scale,4*scale,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=shirt;ctx.fillRect(x-6*scale,y-2*scale,12*scale,15*scale);ctx.fillStyle='#f0bd91';ctx.beginPath();ctx.arc(x,y-8*scale,6*scale,0,Math.PI*2);ctx.fill();ctx.fillStyle='#4b2a1b';ctx.fillRect(x-6*scale,y-14*scale,12*scale,4*scale);ctx.font=`${13*scale}px sans-serif`;ctx.textAlign='center';ctx.fillText(face,x,y-5*scale)}
+      function tree(x,y){ctx.fillStyle='#806040';ctx.fillRect(x-4,y-15,8,22);ctx.fillStyle='#66bb4d';ctx.fillRect(x-18,y-37,36,25);ctx.fillStyle='#91d94e';ctx.fillRect(x-13,y-43,25,18)}
+      function building(x,y,w,h,top,label,color='#e8dfd1',upgrade=false){ctx.fillStyle='#0003';ctx.beginPath();ctx.ellipse(x+w*.5,y+h+14,w*.64,15,0,0,Math.PI*2);ctx.fill();poly([[x,y],[x+w*.48,y+24],[x+w*.48,y+h+24],[x,y+h]],upgrade?'#a65c3e':'#f1eee5');poly([[x+w*.48,y+24],[x+w,y],[x+w,y+h],[x+w*.48,y+h+24]],upgrade?'#80412f':'#c6c1b6');poly([[x,y],[x+w*.48,y-28],[x+w,y],[x+w*.48,y+24]],top);text(label,x+w*.5,y+h+43,12,'#fff2d6')}
+      function drawMap(){if(!ctx)return;ctx.clearRect(0,0,900,500);ctx.fillStyle='#cbd7be';ctx.fillRect(0,0,900,500);
+        // city blocks and sidewalks
+        for(let row=0;row<8;row++)for(let col=0;col<16;col++){const x=col*60+(row%2)*2,y=row*62;ctx.fillStyle=(row+col)%2?'#d8ded1':'#c9d5c6';ctx.fillRect(x,y,58,60);ctx.strokeStyle='#bac8b8';ctx.strokeRect(x,y,58,60)}
+        // angled street across front of shop
+        poly([[0,315],[445,270],[900,390],[900,500],[405,375],[0,430]],'#737c7c','#edf0e3');poly([[0,329],[440,286],[900,404],[900,423],[438,307],[0,350]],'#d2d1c2','#ffffff40');
+        for(let i=0;i<8;i++){const x=42+i*118,y=372-i*9;poly([[x,y],[x+42,y-4],[x+65,y+3],[x+23,y+8]],i%2?'#f5e9be':'#e9dfbc','#fff8')}
+        // neighboring houses
+        building(28,78,130,92,'#ad7460','Corner home','#d6b7a0');building(715,35,135,88,'#849b82','Green house','#d9e3d2');
+        tree(190,107);tree(660,95);tree(76,255);tree(824,304);
+        // main pizza shop footprint and cutaway interior
+        ctx.fillStyle='#0003';ctx.beginPath();ctx.ellipse(452,259,220,72,0,0,Math.PI*2);ctx.fill();
+        // shop exterior walls and red brick side
+        poly([[248,170],[421,112],[638,170],[463,232]],'#a74635','#773a2b');
+        poly([[248,170],[463,232],[463,348],[248,284]],'#eee9dc','#a99e8d');
+        poly([[463,232],[638,170],[638,284],[463,348]],'#bc5540','#883e30');
+        // cutaway open roof/floor shows inside
+        poly([[266,171],[422,124],[620,174],[462,222]],'#d4b68f','#543b2d');
+        // interior tiles
+        for(let i=0;i<5;i++)for(let j=0;j<4;j++){const xx=284+i*32+j*30, yy=169-i*9+j*9;poly([[xx,yy],[xx+30,yy-9],[xx+58,yy],[xx+28,yy+9]],(i+j)%2?'#e7d8bd':'#d7c6a9','#a99578')}
+        // counter, ovens and kitchen details
+        poly([[300,166],[380,142],[405,150],[325,176]],'#934c32');poly([[325,176],[405,150],[405,165],[325,191]],'#673923');poly([[334,158],[361,150],[361,168],[334,176]],'#34373a');poly([[366,147],[391,140],[391,159],[366,167]],'#34373a');
+        poly([[485,198],[552,178],[586,187],[520,208]],'#b85f38');poly([[520,208],[586,187],[586,201],[520,222]],'#83432d');
+        // tables, pizza and customers visible through open roof
+        ctx.fillStyle='#70442c';ctx.fillRect(420,156,24,17);ctx.fillStyle='#deb77d';ctx.fillRect(416,151,32,7);person(445,148,'#4c83bc','🙂',.9);person(477,166,'#cc5671','🙂',.9);person(388,193,'#7d9952','🙂',.9);
+        ctx.fillStyle='#ffd770';ctx.beginPath();ctx.arc(430,154,4,0,Math.PI*2);ctx.fill();
+        // shop windows and door
+        poly([[274,238],[310,252],[310,283],[274,270]],'#83c8d3','#74604d');poly([[330,259],[359,270],[359,310],[330,299]],'#684235','#493128');poly([[497,292],[531,280],[531,312],[497,324]],'#8bd0d4','#655448');
+        text('PIZZA',439,238,12,'#ffe79d');
+        // the player's shopkeeper, outside the entrance
+        person(381,331,'#4e9b55','🙂',1.25);ctx.fillStyle='#74d45c';ctx.fillRect(373,307,16,5);text('YOU',381,355,9,'#fff');
+        // upgrade shop building on right sidewalk
+        building(682,222,132,67,'#d7a93e','UPGRADE SHOP','#e8d5b3',true);poly([[704,232],[736,241],[736,278],[704,268]],'#84cbd0','#67553d');poly([[756,246],[782,238],[782,275],[756,284]],'#423127');text('🪴  ✨',750,214,15,'#fff');
+        // lower street vendor row: small stalls below the shop frontage
+        const stalls=[{x:222,c:'#bd5744',t:'GROCER',e:'🥫'},{x:382,c:'#e0a33d',t:'FARM CART',e:'🥬'},{x:542,c:'#55976b',t:'BULK STAND',e:'📦'}];
+        stalls.forEach((v,i)=>{const y=417;poly([[v.x,y],[v.x+57,y-18],[v.x+107,y-1],[v.x+49,y+19]],'#78543b');poly([[v.x+8,y-22],[v.x+54,y-36],[v.x+103,y-20],[v.x+57,y-5]],v.c);poly([[v.x+8,y-22],[v.x+8,y-4],[v.x+57,y+13],[v.x+57,y-5]],'#8e5435');poly([[v.x+57,y-5],[v.x+103,y-20],[v.x+103,y-3],[v.x+57,y+13]],'#70412e');text(v.e,v.x+56,y-19,16);text(v.t,v.x+56,y+30,9,'#fff4d6');person(v.x+110,y+1,['#bd6541','#5392a3','#8c7557'][i],'🙂',.8)});
+        // small signpost and neighborhood props
+        ctx.fillStyle='#65422e';ctx.fillRect(625,323,5,39);ctx.fillStyle='#ffe18c';ctx.fillRect(608,317,39,14);text('MARKET',628,328,7,'#4a2b19');
       }
-      function save() {
-        try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
-        catch (error) { setStatus('Could not save in this browser. Export your progress as a backup.', true); }
-      }
-      function load() {
-        try {
-          const saved = localStorage.getItem(SAVE_KEY);
-          if (saved) state = normalizeSave(JSON.parse(saved));
-        } catch (error) { state = freshState(); setStatus('A saved game could not be read, so a fresh shop was started.'); }
-      }
-      function setStatus(message, bad = false) { const el = $('status'); el.textContent = message; el.style.color = bad ? '#ffaaa0' : '#ffe0a6'; }
-      function journal(message) { state.journal.unshift(message); state.journal = state.journal.slice(0, 12); }
-      function getOrder(id = state.selectedId) { return state.queue.find(order => order.id === id) || null; }
-      function recipeName(recipe) { return recipe.filter(id => id !== 'dough' && id !== 'sauce').map(id => INGREDIENTS.find(item => item.id === id)?.name || id).join(' + ') || 'Cheese'; }
-      function recipeValue(recipe) { return 16 + recipe.filter(id => !['dough','sauce','cheese'].includes(id)).length * 5 + (recipe.includes('cheese') ? 4 : 0); }
-      function sameRecipe(a, b) { return a.length === b.length && a.every(item => b.includes(item)); }
-      function render() {
-        $('money').textContent = money(state.money); $('score').textContent = state.score.toLocaleString(); $('served').textContent = state.served.toLocaleString();
-        $('day').textContent = `${state.day} · ${state.open ? 'Open' : 'Closed'}`;
-        $('queueIntro').textContent = state.open ? 'Pick an order to prepare. Customers wait while you choose what to do.' : 'The shop is closed for this shift. Your orders will be here when you open again.';
-        renderQueue(); renderInventory(); renderRecipe(); renderVendors(); renderUpgrades(); renderOven(); renderJournal();
-        $('shiftBtn').hidden = !state.open; $('playAgainBtn').hidden = state.open;
-        $('shiftText').textContent = state.open ? 'Your shop is open. Close whenever you like; your progress is saved automatically.' : `Shift ${state.day} is complete. Your cash, inventory, upgrades, and score are saved.`;
-        $('makeBtn').disabled = !state.open || Boolean(state.prepared);
-      }
-      function renderQueue() {
-        const container = $('customerQueue');
-        if (!state.queue.length) { container.innerHTML = `<div class="empty">${state.open ? 'No customers right now. A new customer will arrive soon!' : 'No customers are waiting.'}</div>`; return; }
-        container.innerHTML = state.queue.map(order => `<div class="customer"><div class="avatar" aria-hidden="true">${escapeHTML(order.avatar)}</div><div class="customer-info"><strong>${escapeHTML(order.customer)} <span class="tag">Tip ${money(order.tip)}</span></strong><div class="ticket">Wants: ${escapeHTML(recipeName(order.recipe))} pizza · patience ${Math.ceil(order.patience)}s</div></div><button class="btn small ${state.selectedId === order.id ? '' : 'secondary'}" data-select="${order.id}" ${!state.open ? 'disabled' : ''}>${state.selectedId === order.id ? 'Selected' : 'Select order'}</button></div>`).join('');
-        container.querySelectorAll('[data-select]').forEach(button => button.addEventListener('click', () => { state.selectedId = Number(button.dataset.select); state.prepared = null; state.oven = null; render(); save(); setStatus(`Order selected for ${getOrder()?.customer || 'your customer'}.`); }));
-      }
-      function renderInventory() {
-        $('inventory').innerHTML = INGREDIENTS.map(item => `<div class="stock"><strong>${item.icon} ${item.name}</strong><small>In stock</small><div class="stat-value">${state.inventory[item.id]}</div></div>`).join('');
-      }
-      function renderRecipe() {
-        const order = getOrder();
-        $('selectedOrderText').textContent = order ? `${order.customer} ordered ${recipeName(order.recipe)} pizza. Match their order for a perfect score and tip!` : 'No order selected: make a house special and a customer will be paired with it.';
-        $('recipe').innerHTML = INGREDIENTS.map(item => {
-          const checked = order ? order.recipe.includes(item.id) : ['dough','sauce','cheese'].includes(item.id);
-          const locked = ['dough','sauce'].includes(item.id);
-          return `<div class="stock"><label class="ingredient"><span>${item.icon} ${item.name}</span><input type="checkbox" data-ingredient="${item.id}" ${checked ? 'checked' : ''} ${locked || state.prepared || !state.open ? 'disabled' : ''} aria-label="Add ${item.name}"></label>${locked ? '<small>Required</small>' : '<small>Optional topping</small>'}</div>`;
-        }).join('');
-        $('bakeBtn').disabled = !state.prepared || Boolean(state.oven) || !state.open;
-        $('serveBtn').disabled = !state.prepared || Boolean(state.oven) || !state.open;
-        $('recipe').querySelectorAll('[data-ingredient]').forEach(input => input.addEventListener('change', () => { if (!state.prepared) save(); }));
-      }
-      function renderVendors() {
-        $('vendors').innerHTML = VENDORS.map(vendor => `<div class="vendor"><h3>${vendor.id === 'market' ? '🧺' : vendor.id === 'farm' ? '🌻' : '📦'} ${vendor.name}</h3><p>${vendor.note}</p>${INGREDIENTS.map(item => { const cost = Math.max(1, Math.round((item.id === 'cheese' || item.id === 'pepperoni' ? 7 : 5) * vendor.multiplier)); return `<div class="vendor-row"><span>${item.icon} ${item.name}</span><button class="btn small secondary" data-buy="${item.id}" data-vendor="${vendor.id}" data-cost="${cost}" ${!state.open ? 'disabled' : ''}>+3 · ${money(cost * 3)}</button></div>`; }).join('')}</div>`).join('');
-        $('vendors').querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', () => buy(button.dataset.buy, button.dataset.vendor, Number(button.dataset.cost))));
-      }
-      function renderUpgrades() {
-        $('upgrades').innerHTML = Object.entries(UPGRADE_INFO).map(([id, upgrade]) => {
-          const level = state.upgrades[id], cost = upgrade.base * (level + 1), maxed = level >= upgrade.max;
-          return `<div class="upgrade"><h3>${upgrade.icon} ${upgrade.name}</h3><p>${upgrade.description}</p><p><strong>Level ${level}/${upgrade.max}</strong></p><button class="btn small secondary" data-upgrade="${id}" ${maxed || state.money < cost || !state.open ? 'disabled' : ''}>${maxed ? 'Fully upgraded' : `Upgrade · ${money(cost)}`}</button></div>`;
-        }).join('');
-        $('upgrades').querySelectorAll('[data-upgrade]').forEach(button => button.addEventListener('click', () => upgradeShop(button.dataset.upgrade)));
-      }
-      function renderOven() {
-        const active = state.oven && state.oven.remaining > 0;
-        $('ovenText').textContent = active ? `Baking… ${Math.ceil(state.oven.remaining)} sec` : state.prepared ? 'Pizza is ready to serve!' : 'Ready for a pizza';
-        $('ovenArt').textContent = active ? '🔥🍕🔥' : state.prepared ? '🍕✨' : '🍕';
-        $('bakeProgress').style.width = active ? `${Math.max(0, 100 - state.oven.remaining / (5 - state.upgrades.oven * .65) * 100)}%` : state.prepared ? '100%' : '0%';
-        $('finishBakeBtn').hidden = !active;
-      }
-      function renderJournal() { $('journal').innerHTML = state.journal.map(line => `<li>${escapeHTML(line)}</li>`).join(''); }
-      function buy(id, vendorId, cost) {
-        if (!state.open) return;
-        const vendor = VENDORS.find(item => item.id === vendorId);
-        if (!vendor || state.money < cost * 3) { setStatus('Not enough cash for that ingredient bundle.', true); return; }
-        state.money -= cost * 3; state.inventory[id] = Math.min(999, state.inventory[id] + 3);
-        journal(`Bought 3 ${INGREDIENTS.find(item => item.id === id).name.toLowerCase()} from ${vendor.name}.`);
-        setStatus(`Restocked ${INGREDIENTS.find(item => item.id === id).name}.`); save(); render();
-      }
-      function upgradeShop(id) {
-        const upgrade = UPGRADE_INFO[id], level = state.upgrades[id], cost = upgrade.base * (level + 1);
-        if (!upgrade || level >= upgrade.max || state.money < cost || !state.open) return;
-        state.money -= cost; state.upgrades[id]++; journal(`${upgrade.name} upgraded to level ${state.upgrades[id]}.`);
-        setStatus(`${upgrade.name} upgraded!`); save(); render();
-      }
-      function currentRecipe() { return [...new Set(['dough','sauce', ...[...document.querySelectorAll('[data-ingredient]:checked')].map(input => input.dataset.ingredient)])]; }
-      function hasIngredients(recipe) { return recipe.every(id => state.inventory[id] > 0); }
-      function makePizza() {
-        if (!state.open || state.prepared) return;
-        const order = getOrder();
-        const recipe = order ? [...order.recipe] : currentRecipe();
-        if (!hasIngredients(recipe)) { setStatus('You are out of an ingredient. Restock with a vendor first!', true); return; }
-        recipe.forEach(id => state.inventory[id]--);
-        state.prepared = { recipe, orderId: order?.id || null, matched: Boolean(order) };
-        if (!order) {
-          const customer = createOrder(recipe);
-          state.queue.unshift(customer); state.selectedId = customer.id; state.prepared.orderId = customer.id; state.prepared.matched = true;
-          journal(`${customer.customer} ordered your house special!`);
-        }
-        setStatus(`Pizza assembled for ${getOrder(state.prepared.orderId)?.customer || 'a customer'}. Put it in the oven when ready.`);
-        save(); render();
-      }
-      function startBake() {
-        if (!state.prepared || state.oven || !state.open) return;
-        state.oven = { remaining: Math.max(1.5, 5 - state.upgrades.oven * .65) };
-        setStatus('Pizza is baking. You can wait, or finish the bake when the timer is done.'); save(); render();
-      }
-      function servePizza() {
-        if (!state.prepared || state.oven || !state.open) return;
-        const order = getOrder(state.prepared.orderId);
-        if (!order) { state.prepared = null; state.selectedId = null; render(); save(); return; }
-        const perfect = sameRecipe(state.prepared.recipe, order.recipe);
-        const points = perfect ? 100 : 45;
-        const basePrice = recipeValue(state.prepared.recipe);
-        const tip = perfect ? order.tip + state.upgrades.decor * 2 : 0;
-        const earned = basePrice + tip;
-        state.money += earned; state.score += points + (perfect ? tip * 2 : 0); state.served++;
-        journal(`${order.customer} ${perfect ? 'loved' : 'tried'} the pizza · +${money(earned)}${perfect ? ' perfect order!' : ''}`);
-        state.queue = state.queue.filter(item => item.id !== order.id); state.selectedId = null; state.prepared = null; state.oven = null;
-        setStatus(`${perfect ? 'Perfect order!' : 'Pizza served!'} You earned ${money(earned)}${perfect ? ' including a tip.' : '.'}`); save(); render();
-      }
-      function createOrder(recipeOverride = null) {
-        const customer = CUSTOMER_TYPES[Math.floor(Math.random() * CUSTOMER_TYPES.length)];
-        const toppings = recipeOverride ? recipeOverride.filter(id => !['dough','sauce'].includes(id)) : [...new Set([...customer.likes.slice(0, 1 + (Math.random() < .35 ? 1 : 0)), ...(Math.random() < .22 ? ['cheese'] : [])])];
-        const recipe = ['dough','sauce','cheese', ...toppings.filter(id => id !== 'cheese')];
-        const order = { id: state.nextOrderId++, customer: customer.name, avatar: customer.avatar, recipe: [...new Set(recipe)], tip: customer.tip + state.upgrades.decor, patience: 180 };
-        state.queue.push(order); journal(`${customer.name} arrived and ordered ${recipeName(order.recipe)}.`); save(); render();
-        return order;
-      }
-      function closeShop() {
-        if (!state.open) return;
-        state.open = false; state.oven = null; journal(`Closed shift ${state.day}. The shop progress is saved.`); setStatus(`Shop closed. You served ${state.served} customers so far.`); save(); render();
-      }
-      function playAgain() {
-        state.day++; state.open = true; state.queue = []; state.selectedId = null; state.prepared = null; state.oven = null; orderClock = 0;
-        journal(`Opened shift ${state.day}. Your shop upgrades and cash carry over.`); setStatus(`Welcome back! Shift ${state.day} is open.`); save(); render(); createOrder();
-      }
-      function exportSave() {
-        const blob = new Blob([JSON.stringify({ app: 'iready-pizza-shop', version: 1, exportedAt: new Date().toISOString(), save: state }, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = 'pizza-shop-progress.json'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
-        setStatus('Progress exported as pizza-shop-progress.json.');
-      }
-      async function importSave(file) {
-        try {
-          const data = JSON.parse(await file.text());
-          const imported = normalizeSave(data.save || data);
-          if (!confirm('Import this save and replace the progress in this browser?')) return;
-          state = imported; save(); render(); setStatus('Save imported successfully. Welcome back to your shop!');
-        } catch (error) { setStatus(error.message || 'Could not import that save file.', true); }
-      }
-      function resetProgress() {
-        if (!confirm('Reset all pizza shop progress, money, inventory, and upgrades? This cannot be undone. Export a save first if you want a backup.')) return;
-        localStorage.removeItem(SAVE_KEY); state = freshState(); orderClock = 0; setStatus('Progress reset. Your new pizza shop is ready!'); render(); createOrder(); save();
-      }
-      $('makeBtn').addEventListener('click', makePizza); $('bakeBtn').addEventListener('click', startBake); $('serveBtn').addEventListener('click', servePizza);
-      $('finishBakeBtn').addEventListener('click', () => { if (state.oven) state.oven.remaining = 0; state.oven = null; setStatus('Ding! Your pizza is hot and ready to serve.'); render(); save(); });
-      $('shiftBtn').addEventListener('click', closeShop); $('playAgainBtn').addEventListener('click', playAgain);
-      $('exportBtn').addEventListener('click', exportSave); $('importBtn').addEventListener('click', () => $('importFile').click());
-      $('importFile').addEventListener('change', event => { const file = event.target.files[0]; if (file) importSave(file); event.target.value = ''; });
-      $('resetBtn').addEventListener('click', resetProgress);
-      function tick(now) {
-        const delta = Math.min(1, Math.max(0, (now - lastTime) / 1000)); lastTime = now;
-        if (state.open) {
-          if (!state.queue.length) orderClock += delta;
-          else orderClock += delta;
-          const arrivalGap = Math.max(8, 24 - state.upgrades.sign * 2.5);
-          if (orderClock >= arrivalGap && state.queue.length < 5) { orderClock = 0; createOrder(); }
-          if (state.oven) {
-            state.oven.remaining -= delta * (1 + state.upgrades.oven * .15);
-            if (state.oven.remaining <= 0) { state.oven = null; setStatus('Ding! Your pizza is hot and ready to serve.'); save(); }
-            renderOven();
-          }
-          let patienceChanged = false;
-          state.queue.forEach(order => { if (order.id !== state.selectedId) { order.patience -= delta; patienceChanged = true; } });
-          const left = state.queue.filter(order => order.patience <= 0);
-          if (left.length) {
-            state.queue = state.queue.filter(order => order.patience > 0); state.score = Math.max(0, state.score - left.length * 10);
-            if (left.some(order => order.id === state.selectedId)) { state.selectedId = null; state.prepared = null; state.oven = null; }
-            left.forEach(order => journal(`${order.customer} left before their order was served.`)); setStatus('A customer got tired of waiting. Keep an eye on the queue.', true); save(); render();
-          } else if (patienceChanged && Math.floor(now / 5000) !== Math.floor((now-delta*1000)/5000)) { renderQueue(); save(); }
-        }
-        requestAnimationFrame(tick);
-      }
-      load(); render();
-      if (state.open && !state.queue.length) createOrder();
-      requestAnimationFrame(tick);
+      canvas.addEventListener('click',e=>{const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)*900/r.width,y=(e.clientY-r.top)*500/r.height;if(y>380&&x>185&&x<680){$('vendors').scrollIntoView({behavior:'smooth'});return}if(x>660&&y>195&&y<340){$('upgrades').scrollIntoView({behavior:'smooth'});return}if(x>235&&x<645&&y>100&&y<355){$('orders').scrollIntoView({behavior:'smooth'});return}});
+      document.querySelectorAll('[data-jump]').forEach(b=>b.onclick=()=>$(b.dataset.jump).scrollIntoView({behavior:'smooth'}));
+      $('makeBtn').onclick=make;$('bakeBtn').onclick=bake;$('serveBtn').onclick=serve;$('shiftBtn').onclick=closeShop;$('playAgainBtn').onclick=playAgain;$('exportBtn').onclick=exportSave;$('importBtn').onclick=()=>$('importFile').click();$('importFile').onchange=e=>{if(e.target.files[0])importSave(e.target.files[0]);e.target.value=''};$('resetPhrase').oninput=()=>{$('resetBtn').disabled=$('resetPhrase').value.trim()!=='RESET'};$('resetBtn').onclick=reset;
+      function tick(now){const dt=Math.min(.5,(now-last)/1000);last=now;if(s.open){orderClock+=dt;const gap=Math.max(8,22-s.upgrades.sign*2);if(orderClock>=gap&&s.queue.length<5){orderClock=0;newOrder()}if(s.oven){s.oven.remaining-=dt*(1+s.upgrades.oven*.15);if(s.oven.remaining<=0){s.oven=null;say('Ding! Your pizza is ready. Serve it to your customer.');save();render()}else renderOven()}let changed=false;s.queue.forEach(o=>{if(o.id!==s.selectedId){o.patience-=dt;changed=true}});const gone=s.queue.filter(o=>o.patience<=0);if(gone.length){s.queue=s.queue.filter(o=>o.patience>0);s.score=Math.max(0,s.score-gone.length*10);if(gone.some(o=>o.id===s.selectedId)){s.selectedId=null;s.prepared=null;s.oven=null}gone.forEach(()=>log('A customer left after waiting too long.'));say('A customer left before their pizza was ready.',true);save();render();drawMap()}else if(changed&&Math.floor(now/1500)!==Math.floor((now-dt*1000)/1500)){renderCustomers();save()}}requestAnimationFrame(tick)}
+      try{const saved=localStorage.getItem(SAVE_KEY);if(saved)s=normalize(JSON.parse(saved))}catch(e){s=fresh();say('Saved progress could not be read; started a new shop.',true)}
+      render();if(s.open&&!s.queue.length)newOrder();drawMap();requestAnimationFrame(tick);window.addEventListener('resize',drawMap);
     })();
   </script>
 </body>
