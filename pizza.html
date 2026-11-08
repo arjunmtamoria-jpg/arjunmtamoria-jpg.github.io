@@ -1,628 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>I-Ready Pizza</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#24130e">
+  <title>I-Ready Pizza Shop</title>
   <style>
-    :root {
-      --bg: #120c0a;
-      --panel: rgba(35, 22, 17, 0.96);
-      --panel-2: rgba(54, 34, 28, 0.9);
-      --border: rgba(255, 215, 102, 0.45);
-      --text: #fff8ef;
-      --muted: #f5d0a8;
-      --accent: #ffb703;
-      --accent-2: #ff7f50;
-      --good: #73d472;
-      --bad: #ff5d6c;
-      --shadow: rgba(0,0,0,0.35);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: radial-gradient(circle at top, #381b14 0%, var(--bg) 42%, #090706 100%);
-      color: var(--text);
-    }
-
-    nav {
-      background-color: #1c120f;
-      padding: 0;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.28);
-    }
-
-    nav ul {
-      list-style: none;
-      display: flex;
-      align-items: center;
-      margin: 0;
-      padding: 0;
-    }
-
-    nav ul li a {
-      display: block;
-      color: white;
-      text-decoration: none;
-      padding: 15px 20px;
-      transition: background-color 0.2s ease;
-    }
-
-    nav ul li a:hover {
-      background-color: rgba(255,255,255,0.08);
-    }
-
-    .page {
-      max-width: 1100px;
-      margin: 30px auto 50px;
-      padding: 0 18px;
-    }
-
-    .game-shell {
-      background: linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 22px;
-      box-shadow: 0 18px 40px var(--shadow);
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 18px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-
-    h1 {
-      margin: 0 0 4px;
-      font-size: clamp(2rem, 3vw, 3rem);
-      letter-spacing: 0.02em;
-    }
-
-    .subtitle {
-      margin: 0;
-      color: var(--muted);
-      font-size: 1rem;
-    }
-
-    .hud {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .stat {
-      min-width: 120px;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      padding: 10px 14px;
-      text-align: center;
-    }
-
-    .stat-label {
-      display: block;
-      font-size: 0.74rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .stat-value {
-      font-weight: 700;
-      font-size: 1.35rem;
-      margin-top: 4px;
-      display: block;
-    }
-
-    canvas {
-      width: 100%;
-      max-width: 100%;
-      display: block;
-      border-radius: 16px;
-      border: 2px solid rgba(255, 197, 84, 0.45);
-      background: linear-gradient(180deg, #f7d9a3 0%, #fff3d6 36%, #ffc66a 100%);
-      box-shadow: inset 0 0 24px rgba(255,255,255,0.2);
-    }
-
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 18px;
-    }
-
-    .button-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    button {
-      border: none;
-      border-radius: 12px;
-      padding: 12px 18px;
-      font-size: 0.98rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-    }
-
-    .primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #2b140d;
-    }
-
-    .secondary {
-      background: rgba(255,255,255,0.1);
-      color: var(--text);
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-
-    .tips {
-      color: var(--muted);
-      font-size: 0.95rem;
-    }
-
-    .status {
-      min-height: 24px;
-      font-weight: 700;
-      color: #ffe3a0;
-      margin-top: 8px;
-    }
-
-    @media (max-width: 700px) {
-      .header, .controls {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .hud {
-        justify-content: flex-start;
-      }
-
-      .stat {
-        flex: 1;
-      }
-    }
+    :root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:#fff8ed;background:#160e0b;--panel:#291a14;--panel2:#352119;--line:#64402d;--gold:#ffc65c;--orange:#ff8755;--green:#9cda87;--muted:#d9bda6}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -10%,#65351e 0,#24130e 48%,#100a08 100%)}
+    nav{position:sticky;top:0;z-index:5;background:#1a100c;border-bottom:1px solid #543421;padding:12px max(16px,calc((100vw - 1180px)/2));display:flex;gap:20px}nav a{color:#ffe0a6;text-decoration:none;font-weight:700}nav a:hover{text-decoration:underline}
+    main{max-width:1180px;margin:22px auto 50px;padding:0 16px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:16px}.brand{display:flex;gap:12px;align-items:center}.brand h1{font-size:clamp(1.7rem,4vw,2.6rem);margin:0;line-height:1}.brand p{margin:6px 0 0;color:var(--muted)}
+    .logo{width:58px;height:58px;flex:none;filter:drop-shadow(0 5px 8px #0006)}.top-actions,.button-row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.stats{display:grid;grid-template-columns:repeat(4,minmax(110px,1fr));gap:10px;margin:16px 0}.stat,.panel{background:linear-gradient(145deg,#322017,#241711);border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 22px #0003}.stat{padding:10px 14px}.stat small{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}.stat strong{font-size:1.35rem;color:#fff3d4}
+    .layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(300px,.85fr);gap:14px;align-items:start}.left,.right{display:grid;gap:14px}.panel{padding:17px}.panel h2{font-size:1.18rem;margin:0 0 12px}.panel h3{margin:0 0 8px;font-size:1rem}.muted{color:var(--muted)}
+    .customer{display:flex;gap:12px;align-items:center;background:#1e130f;border:1px solid #543421;border-radius:12px;padding:13px;margin:9px 0}.avatar{width:48px;height:48px;display:grid;place-items:center;flex:none;font-size:1.8rem;border-radius:50%;background:#51301e}.customer-info{min-width:0;flex:1}.customer-info strong{display:block}.ticket{color:#ffe0a6;font-size:.92rem;margin-top:3px}.tag{display:inline-block;color:#21130b;background:var(--gold);font-size:.72rem;font-weight:800;border-radius:99px;padding:3px 8px;margin-left:5px}.empty{padding:18px;border:1px dashed #714b33;border-radius:12px;color:var(--muted);text-align:center}
+    .inventory,.recipe-grid,.vendor-grid,.upgrade-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}.stock{border:1px solid #61452f;background:#21150f;border-radius:10px;padding:10px}.stock strong{display:block}.stock small{color:var(--muted)}.ingredient{display:flex;gap:7px;align-items:center;justify-content:space-between;margin-top:8px;font-size:.9rem}.ingredient label{display:flex;gap:6px;align-items:center}.ingredient input{accent-color:var(--orange);width:18px;height:18px}
+    .vendor,.upgrade{border:1px solid #61452f;background:#21150f;border-radius:11px;padding:11px}.vendor p,.upgrade p{margin:5px 0 10px;color:var(--muted);font-size:.86rem}.vendor-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:5px 0;font-size:.88rem}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.btn{border:1px solid transparent;border-radius:10px;padding:10px 13px;font:inherit;font-weight:750;cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--orange));color:#32180e;transition:transform .15s,filter .15s}.btn:hover{transform:translateY(-1px);filter:brightness(1.08)}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}.btn.secondary{background:#493023;color:#fff3e3;border-color:#70513a}.btn.danger{background:#662c27;color:#ffe9e2;border-color:#8f493e}.btn.small{font-size:.82rem;padding:7px 9px}.status{min-height:25px;margin:10px 0 0;color:#ffe0a6;font-weight:700}.oven{border-radius:12px;background:linear-gradient(180deg,#291711,#140b08);border:2px solid #80502e;padding:16px;text-align:center}.oven-window{max-width:250px;height:100px;margin:auto auto 12px;border:8px solid #63351f;border-radius:14px;background:radial-gradient(circle,#ffdc6b 0,#f37d30 35%,#422016 72%);display:grid;place-items:center;font-size:2.5rem;box-shadow:inset 0 0 22px #ff9a37}.progress{height:12px;background:#120b08;border-radius:20px;overflow:hidden;margin:10px 0}.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff9d38,#ffe27c);transition:width .2s}.log{max-height:160px;overflow:auto;padding-left:20px;margin:0;color:#e8cdb5;font-size:.88rem}.log li{margin:6px 0}input[type=file]{display:none}.footnote{font-size:.82rem;color:#c9ae96;margin-top:12px}
+    @media(max-width:820px){.layout{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:480px){main{padding:0 10px}.panel{padding:13px}.top-actions{width:100%}.top-actions .btn{flex:1}.brand{align-items:flex-start}.logo{width:45px;height:45px}.inventory,.recipe-grid,.vendor-grid,.upgrade-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.customer{align-items:flex-start}}
   </style>
 </head>
 <body>
-  <nav>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="games.html">Games</a></li>
-    </ul>
-  </nav>
+  <nav><a href="index.html">Home</a><a href="games.html">Games</a></nav>
+  <main>
+    <header class="topbar">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 80 80" role="img" aria-label="A slice of pizza"><circle cx="40" cy="40" r="37" fill="#d45c2f"/><path d="M18 18 68 13 54 68Z" fill="#ffd66d" stroke="#9b451f" stroke-width="5" stroke-linejoin="round"/><path d="m25 24 35-4-10 38Z" fill="#f7b84a"/><circle cx="42" cy="34" r="4" fill="#d94f38"/><circle cx="51" cy="45" r="4" fill="#d94f38"/><circle cx="40" cy="48" r="3" fill="#72a94d"/><circle cx="53" cy="30" r="3" fill="#72a94d"/></svg>
+        <div><h1>I-Ready Pizza Shop</h1><p>Take orders, stock up, bake your way, and grow your little pizza place.</p></div>
+      </div>
+      <div class="top-actions">
+        <button class="btn secondary" id="exportBtn">Export save</button>
+        <button class="btn secondary" id="importBtn">Import save</button>
+        <input id="importFile" type="file" accept="application/json,.json">
+        <button class="btn danger" id="resetBtn">Reset progress</button>
+      </div>
+    </header>
 
-  <main class="page">
-    <div class="game-shell">
-      <div class="header">
-        <div>
-          <h1>🍕 I-Ready Pizza</h1>
-          <p class="subtitle">No math. Just speed, style, and endless pizza power.</p>
-        </div>
+    <section class="stats" aria-label="Shop progress">
+      <div class="stat"><small>Cash</small><strong id="money">$0</strong></div>
+      <div class="stat"><small>Shop score</small><strong id="score">0</strong></div>
+      <div class="stat"><small>Customers served</small><strong id="served">0</strong></div>
+      <div class="stat"><small>Shop / shift</small><strong id="day">1 · Open</strong></div>
+    </section>
 
-        <div class="hud">
-          <div class="stat">
-            <span class="stat-label">Score</span>
-            <span id="score" class="stat-value">0</span>
+    <div class="layout">
+      <div class="left">
+        <section class="panel">
+          <h2>🧑‍🍳 Customers & orders</h2>
+          <p class="muted" id="queueIntro">Pick an order to prepare. Customers wait while you choose what to do.</p>
+          <div id="customerQueue"></div>
+        </section>
+
+        <section class="panel">
+          <h2>🧀 Your kitchen</h2>
+          <div class="inventory" id="inventory"></div>
+        </section>
+
+        <section class="panel">
+          <h2>🍕 Make a pizza</h2>
+          <p class="muted" id="selectedOrderText">Choose a customer order above, or make a house special.</p>
+          <div class="recipe-grid" id="recipe"></div>
+          <div class="actions">
+            <button class="btn" id="makeBtn">Make pizza</button>
+            <button class="btn secondary" id="bakeBtn" disabled>Put in oven</button>
+            <button class="btn secondary" id="serveBtn" disabled>Serve pizza</button>
           </div>
-          <div class="stat">
-            <span class="stat-label">Combo</span>
-            <span id="combo" class="stat-value">1x</span>
-          </div>
-          <div class="stat">
-            <span class="stat-label">Best</span>
-            <span id="best" class="stat-value">0</span>
-          </div>
-        </div>
+          <p class="status" id="status" role="status" aria-live="polite">Welcome! Your shop is open.</p>
+        </section>
       </div>
 
-      <canvas id="gameCanvas" width="900" height="500" aria-label="Game canvas"></canvas>
+      <aside class="right">
+        <section class="panel">
+          <h2>🛒 Ingredient vendors</h2>
+          <p class="muted">Prices vary by vendor. Buy ingredients whenever you need them.</p>
+          <div class="vendor-grid" id="vendors"></div>
+        </section>
 
-      <div class="controls">
-        <div class="button-row">
-          <button id="startBtn" class="primary">Start run</button>
-          <button id="restartBtn" class="secondary">Restart</button>
-          <button id="exportBtn" class="secondary">Export progress</button>
-        </div>
-        <div class="tips">Move with arrow keys or WASD. Grab pizzas. Dodge the burnt crusts.</div>
-      </div>
-      <div id="status" class="status">Ready for a pizza rush.</div>
+        <section class="panel">
+          <h2>🔥 Oven</h2>
+          <div class="oven"><div class="oven-window" id="ovenArt">🍕</div><strong id="ovenText">Ready for a pizza</strong><div class="progress"><span id="bakeProgress"></span></div><button class="btn small secondary" id="finishBakeBtn" hidden>Finish baking</button></div>
+        </section>
+
+        <section class="panel">
+          <h2>🪴 Shop upgrades</h2>
+          <p class="muted">Invest your earnings in a better shop.</p>
+          <div class="upgrade-grid" id="upgrades"></div>
+        </section>
+
+        <section class="panel">
+          <h2>🏪 Shift</h2>
+          <p class="muted" id="shiftText">Your shop is open. Close whenever you like; your progress is saved automatically.</p>
+          <div class="actions"><button class="btn secondary" id="shiftBtn">Close shop</button><button class="btn" id="playAgainBtn" hidden>Play Again · Open next shift</button></div>
+        </section>
+
+        <section class="panel"><h2>📋 Shop journal</h2><ul class="log" id="journal"></ul></section>
+      </aside>
     </div>
+    <p class="footnote">Progress saves automatically in this browser on this device. Use Export/Import to move a save to another browser. This game is self-contained and uses original inline artwork.</p>
   </main>
 
   <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const scoreEl = document.getElementById('score');
-    const comboEl = document.getElementById('combo');
-    const bestEl = document.getElementById('best');
-    const statusEl = document.getElementById('status');
-
-    const STORAGE_KEY = 'pizza-game-progress';
-
-    const game = {
-      running: false,
-      score: 0,
-      combo: 1,
-      best: 0,
-      level: 1,
-      lastTime: 0,
-      spawnTimer: 0,
-      speed: 1,
-      player: {
-        x: 430,
-        y: 420,
-        width: 118,
-        height: 54,
-        speed: 6.8,
-        dx: 0,
-        dy: 0,
-      },
-      pizzas: [],
-      hazards: [],
-      particles: [],
-      keys: {},
-      progress: {
-        highScore: 0,
-        totalPizzas: 0,
-        totalRuns: 0,
-        bestCombo: 1,
-      }
-    };
-
-    function loadProgress() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        const parsed = JSON.parse(raw);
-        game.progress = { ...game.progress, ...parsed };
-      } catch (error) {
-        console.warn('No saved pizza progress yet.', error);
-      }
-    }
-
-    function saveProgress() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(game.progress));
-    }
-
-    function updateHUD() {
-      scoreEl.textContent = String(game.score);
-      comboEl.textContent = `${game.combo}x`;
-      bestEl.textContent = String(game.progress.highScore || 0);
-    }
-
-    function resetRun() {
-      game.running = true;
-      game.score = 0;
-      game.combo = 1;
-      game.level = 1;
-      game.speed = 1;
-      game.spawnTimer = 0;
-      game.pizzas = [];
-      game.hazards = [];
-      game.particles = [];
-      game.player.x = canvas.width / 2 - game.player.width / 2;
-      game.player.y = canvas.height - 70;
-      statusEl.textContent = 'Pizza rush in motion!';
-      updateHUD();
-    }
-
-    function endRun() {
-      game.running = false;
-      game.progress.highScore = Math.max(game.progress.highScore || 0, game.score);
-      game.progress.totalRuns = (game.progress.totalRuns || 0) + 1;
-      game.progress.bestCombo = Math.max(game.progress.bestCombo || 1, game.combo);
-      saveProgress();
-      statusEl.textContent = `Run over! You served ${game.score} pizzas. Tap Start run to go again.`;
-      updateHUD();
-    }
-
-    function addParticle(x, y, color, amount = 12) {
-      for (let i = 0; i < amount; i++) {
-        game.particles.push({
-          x, y,
-          radius: 3 + Math.random() * 5,
-          dx: (Math.random() - 0.5) * 4,
-          dy: (Math.random() - 0.5) * 4,
-          color,
-          life: 0.8 + Math.random() * 0.8,
-        });
-      }
-    }
-
-    function spawnPickup() {
-      const chance = Math.random();
-      const isHazard = chance < 0.22;
-
-      const item = {
-        x: Math.random() * (canvas.width - 60),
-        y: -30,
-        width: 38,
-        height: 38,
-        speed: 2.4 + Math.random() * 2.1 + game.level * 0.28,
-        drift: (Math.random() - 0.5) * 1.4,
-        type: isHazard ? 'hazard' : 'pizza',
+    (() => {
+      'use strict';
+      const SAVE_KEY = 'iready-pizza-shop-save-v1';
+      const INGREDIENTS = [
+        { id: 'dough', name: 'Dough', icon: '🥯' },
+        { id: 'sauce', name: 'Tomato sauce', icon: '🍅' },
+        { id: 'cheese', name: 'Cheese', icon: '🧀' },
+        { id: 'pepperoni', name: 'Pepperoni', icon: '🍖' },
+        { id: 'mushroom', name: 'Mushrooms', icon: '🍄' },
+        { id: 'olive', name: 'Olives', icon: '🫒' },
+        { id: 'pineapple', name: 'Pineapple', icon: '🍍' }
+      ];
+      const VENDORS = [
+        { id: 'market', name: 'Mia’s Market', note: 'Friendly neighborhood prices', multiplier: 1 },
+        { id: 'farm', name: 'Sunny Farm Co.', note: 'Fresh, a little pricier', multiplier: 1.22 },
+        { id: 'bulk', name: 'Big Box Bulk', note: 'Cheap bundles', multiplier: .78 }
+      ];
+      const CUSTOMER_TYPES = [
+        { name: 'Skater Sam', avatar: '🛹', likes: ['pepperoni', 'olive'], tip: 3 },
+        { name: 'Garden Gia', avatar: '👩🏽‍🌾', likes: ['mushroom', 'olive'], tip: 4 },
+        { name: 'Pineapple Pat', avatar: '🧑🏼‍🍳', likes: ['pineapple', 'cheese'], tip: 5 },
+        { name: 'Movie Max', avatar: '🧑🏻‍🎤', likes: ['pepperoni', 'mushroom'], tip: 3 },
+        { name: 'Sunny Sol', avatar: '👩🏾‍🎨', likes: ['olive', 'pineapple'], tip: 6 },
+        { name: 'Cozy Casey', avatar: '🧑🏽‍🦱', likes: ['cheese', 'mushroom'], tip: 4 }
+      ];
+      const UPGRADE_INFO = {
+        oven: { name: 'Quick-bake oven', icon: '🔥', description: 'Bakes pizzas faster.', base: 45, max: 5 },
+        decor: { name: 'Cozy decor', icon: '🪴', description: 'More generous tips and a nicer shop.', base: 55, max: 5 },
+        sign: { name: 'Bright sign', icon: '✨', description: 'Attracts customers more often.', base: 65, max: 5 }
       };
+      const freshState = () => ({
+        version: 1, money: 80, score: 0, served: 0, day: 1, open: true,
+        inventory: { dough: 5, sauce: 5, cheese: 6, pepperoni: 3, mushroom: 3, olive: 2, pineapple: 2 },
+        upgrades: { oven: 0, decor: 0, sign: 0 },
+        queue: [], selectedId: null, prepared: null, oven: null,
+        journal: ['Your pizza shop is open! Check out the orders and vendors.'],
+        nextOrderId: 1
+      });
+      let state = freshState();
+      let orderClock = 0;
+      let lastTime = performance.now();
 
-      if (isHazard) {
-        item.size = 28 + Math.random() * 16;
-        item.rotation = Math.random() * Math.PI * 2;
-        game.hazards.push(item);
-      } else {
-        item.size = 34 + Math.random() * 16;
-        game.pizzas.push(item);
+      const $ = id => document.getElementById(id);
+      const money = n => `$${Math.max(0, Math.floor(n))}`;
+      const escapeHTML = value => String(value).replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+      function normalizeSave(candidate) {
+        if (!candidate || candidate.version !== 1 || typeof candidate !== 'object') throw new Error('That file is not a valid pizza shop save.');
+        const clean = freshState();
+        clean.money = Math.max(0, Math.floor(Number(candidate.money) || 0));
+        clean.score = Math.max(0, Math.floor(Number(candidate.score) || 0));
+        clean.served = Math.max(0, Math.floor(Number(candidate.served) || 0));
+        clean.day = Math.max(1, Math.floor(Number(candidate.day) || 1));
+        clean.open = candidate.open !== false;
+        INGREDIENTS.forEach(item => clean.inventory[item.id] = Math.max(0, Math.min(999, Math.floor(Number(candidate.inventory?.[item.id]) || 0))));
+        Object.keys(clean.upgrades).forEach(key => clean.upgrades[key] = Math.max(0, Math.min(UPGRADE_INFO[key].max, Math.floor(Number(candidate.upgrades?.[key]) || 0))));
+        clean.queue = Array.isArray(candidate.queue) ? candidate.queue.slice(0, 6).filter(order => order && typeof order === 'object').map(order => ({
+          id: Math.max(1, Math.floor(Number(order.id) || 1)), customer: String(order.customer || 'New customer').slice(0, 40), avatar: String(order.avatar || '🙂').slice(0, 8),
+          recipe: Array.isArray(order.recipe) ? [...new Set(order.recipe.filter(id => INGREDIENTS.some(ingredient => ingredient.id === id)))] : ['dough','sauce','cheese'],
+          tip: Math.max(0, Math.min(30, Number(order.tip) || 0)), patience: Math.max(0, Math.min(300, Number(order.patience) || 180))
+        })) : [];
+        clean.selectedId = clean.queue.some(order => order.id === Number(candidate.selectedId)) ? Number(candidate.selectedId) : null;
+        clean.prepared = candidate.prepared && Array.isArray(candidate.prepared.recipe) ? { recipe: candidate.prepared.recipe.filter(id => INGREDIENTS.some(item => item.id === id)), orderId: clean.selectedId } : null;
+        clean.oven = candidate.oven && clean.prepared ? { remaining: Math.max(0, Math.min(15, Number(candidate.oven.remaining) || 0)) } : null;
+        clean.journal = Array.isArray(candidate.journal) ? candidate.journal.filter(line => typeof line === 'string').slice(0, 14) : clean.journal;
+        clean.nextOrderId = Math.max(1, Math.floor(Number(candidate.nextOrderId) || 1));
+        return clean;
       }
-    }
-
-    function clamp(value, min, max) {
-      return Math.min(Math.max(value, min), max);
-    }
-
-    function updatePlayer(delta) {
-      const p = game.player;
-      if (game.keys.ArrowLeft || game.keys.a) p.x -= p.speed * delta * 60;
-      if (game.keys.ArrowRight || game.keys.d) p.x += p.speed * delta * 60;
-      if (game.keys.ArrowUp || game.keys.w) p.y -= p.speed * delta * 60;
-      if (game.keys.ArrowDown || game.keys.s) p.y += p.speed * delta * 60;
-
-      p.x = clamp(p.x, 0, canvas.width - p.width);
-      p.y = clamp(p.y, 30, canvas.height - p.height);
-    }
-
-    function updateObjects(delta) {
-      const dt = delta * 60;
-      game.level = 1 + Math.floor(game.score / 40);
-      game.speed = 1 + game.level * 0.14;
-
-      for (const pizza of game.pizzas) {
-        pizza.y += pizza.speed * dt * 0.75;
-        pizza.x += pizza.drift * dt;
-
-        if (pizza.x < -20) pizza.x = -20;
-        if (pizza.x > canvas.width - pizza.width) pizza.x = canvas.width - pizza.width;
-
-        const hit = (
-          pizza.x < game.player.x + game.player.width &&
-          pizza.x + pizza.width > game.player.x &&
-          pizza.y < game.player.y + game.player.height &&
-          pizza.y + pizza.height > game.player.y
-        );
-
-        if (hit) {
-          game.score += 10 * game.combo;
-          game.progress.totalPizzas = (game.progress.totalPizzas || 0) + 1;
-          game.combo = Math.min(game.combo + 1, 20);
-          addParticle(pizza.x + pizza.width / 2, pizza.y + pizza.height / 2, '#ffdd66', 18);
-          pizza.hit = true;
-          statusEl.textContent = 'Fresh pizza! Keep the streak going!';
-          saveProgress();
+      function save() {
+        try { localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }
+        catch (error) { setStatus('Could not save in this browser. Export your progress as a backup.', true); }
+      }
+      function load() {
+        try {
+          const saved = localStorage.getItem(SAVE_KEY);
+          if (saved) state = normalizeSave(JSON.parse(saved));
+        } catch (error) { state = freshState(); setStatus('A saved game could not be read, so a fresh shop was started.'); }
+      }
+      function setStatus(message, bad = false) { const el = $('status'); el.textContent = message; el.style.color = bad ? '#ffaaa0' : '#ffe0a6'; }
+      function journal(message) { state.journal.unshift(message); state.journal = state.journal.slice(0, 12); }
+      function getOrder(id = state.selectedId) { return state.queue.find(order => order.id === id) || null; }
+      function recipeName(recipe) { return recipe.filter(id => id !== 'dough' && id !== 'sauce').map(id => INGREDIENTS.find(item => item.id === id)?.name || id).join(' + ') || 'Cheese'; }
+      function recipeValue(recipe) { return 16 + recipe.filter(id => !['dough','sauce','cheese'].includes(id)).length * 5 + (recipe.includes('cheese') ? 4 : 0); }
+      function sameRecipe(a, b) { return a.length === b.length && a.every(item => b.includes(item)); }
+      function render() {
+        $('money').textContent = money(state.money); $('score').textContent = state.score.toLocaleString(); $('served').textContent = state.served.toLocaleString();
+        $('day').textContent = `${state.day} · ${state.open ? 'Open' : 'Closed'}`;
+        $('queueIntro').textContent = state.open ? 'Pick an order to prepare. Customers wait while you choose what to do.' : 'The shop is closed for this shift. Your orders will be here when you open again.';
+        renderQueue(); renderInventory(); renderRecipe(); renderVendors(); renderUpgrades(); renderOven(); renderJournal();
+        $('shiftBtn').hidden = !state.open; $('playAgainBtn').hidden = state.open;
+        $('shiftText').textContent = state.open ? 'Your shop is open. Close whenever you like; your progress is saved automatically.' : `Shift ${state.day} is complete. Your cash, inventory, upgrades, and score are saved.`;
+        $('makeBtn').disabled = !state.open || Boolean(state.prepared);
+      }
+      function renderQueue() {
+        const container = $('customerQueue');
+        if (!state.queue.length) { container.innerHTML = `<div class="empty">${state.open ? 'No customers right now. A new customer will arrive soon!' : 'No customers are waiting.'}</div>`; return; }
+        container.innerHTML = state.queue.map(order => `<div class="customer"><div class="avatar" aria-hidden="true">${escapeHTML(order.avatar)}</div><div class="customer-info"><strong>${escapeHTML(order.customer)} <span class="tag">Tip ${money(order.tip)}</span></strong><div class="ticket">Wants: ${escapeHTML(recipeName(order.recipe))} pizza · patience ${Math.ceil(order.patience)}s</div></div><button class="btn small ${state.selectedId === order.id ? '' : 'secondary'}" data-select="${order.id}" ${!state.open ? 'disabled' : ''}>${state.selectedId === order.id ? 'Selected' : 'Select order'}</button></div>`).join('');
+        container.querySelectorAll('[data-select]').forEach(button => button.addEventListener('click', () => { state.selectedId = Number(button.dataset.select); state.prepared = null; state.oven = null; render(); save(); setStatus(`Order selected for ${getOrder()?.customer || 'your customer'}.`); }));
+      }
+      function renderInventory() {
+        $('inventory').innerHTML = INGREDIENTS.map(item => `<div class="stock"><strong>${item.icon} ${item.name}</strong><small>In stock</small><div class="stat-value">${state.inventory[item.id]}</div></div>`).join('');
+      }
+      function renderRecipe() {
+        const order = getOrder();
+        $('selectedOrderText').textContent = order ? `${order.customer} ordered ${recipeName(order.recipe)} pizza. Match their order for a perfect score and tip!` : 'No order selected: make a house special and a customer will be paired with it.';
+        $('recipe').innerHTML = INGREDIENTS.map(item => {
+          const checked = order ? order.recipe.includes(item.id) : ['dough','sauce','cheese'].includes(item.id);
+          const locked = ['dough','sauce'].includes(item.id);
+          return `<div class="stock"><label class="ingredient"><span>${item.icon} ${item.name}</span><input type="checkbox" data-ingredient="${item.id}" ${checked ? 'checked' : ''} ${locked || state.prepared || !state.open ? 'disabled' : ''} aria-label="Add ${item.name}"></label>${locked ? '<small>Required</small>' : '<small>Optional topping</small>'}</div>`;
+        }).join('');
+        $('bakeBtn').disabled = !state.prepared || Boolean(state.oven) || !state.open;
+        $('serveBtn').disabled = !state.prepared || Boolean(state.oven) || !state.open;
+        $('recipe').querySelectorAll('[data-ingredient]').forEach(input => input.addEventListener('change', () => { if (!state.prepared) save(); }));
+      }
+      function renderVendors() {
+        $('vendors').innerHTML = VENDORS.map(vendor => `<div class="vendor"><h3>${vendor.id === 'market' ? '🧺' : vendor.id === 'farm' ? '🌻' : '📦'} ${vendor.name}</h3><p>${vendor.note}</p>${INGREDIENTS.map(item => { const cost = Math.max(1, Math.round((item.id === 'cheese' || item.id === 'pepperoni' ? 7 : 5) * vendor.multiplier)); return `<div class="vendor-row"><span>${item.icon} ${item.name}</span><button class="btn small secondary" data-buy="${item.id}" data-vendor="${vendor.id}" data-cost="${cost}" ${!state.open ? 'disabled' : ''}>+3 · ${money(cost * 3)}</button></div>`; }).join('')}</div>`).join('');
+        $('vendors').querySelectorAll('[data-buy]').forEach(button => button.addEventListener('click', () => buy(button.dataset.buy, button.dataset.vendor, Number(button.dataset.cost))));
+      }
+      function renderUpgrades() {
+        $('upgrades').innerHTML = Object.entries(UPGRADE_INFO).map(([id, upgrade]) => {
+          const level = state.upgrades[id], cost = upgrade.base * (level + 1), maxed = level >= upgrade.max;
+          return `<div class="upgrade"><h3>${upgrade.icon} ${upgrade.name}</h3><p>${upgrade.description}</p><p><strong>Level ${level}/${upgrade.max}</strong></p><button class="btn small secondary" data-upgrade="${id}" ${maxed || state.money < cost || !state.open ? 'disabled' : ''}>${maxed ? 'Fully upgraded' : `Upgrade · ${money(cost)}`}</button></div>`;
+        }).join('');
+        $('upgrades').querySelectorAll('[data-upgrade]').forEach(button => button.addEventListener('click', () => upgradeShop(button.dataset.upgrade)));
+      }
+      function renderOven() {
+        const active = state.oven && state.oven.remaining > 0;
+        $('ovenText').textContent = active ? `Baking… ${Math.ceil(state.oven.remaining)} sec` : state.prepared ? 'Pizza is ready to serve!' : 'Ready for a pizza';
+        $('ovenArt').textContent = active ? '🔥🍕🔥' : state.prepared ? '🍕✨' : '🍕';
+        $('bakeProgress').style.width = active ? `${Math.max(0, 100 - state.oven.remaining / (5 - state.upgrades.oven * .65) * 100)}%` : state.prepared ? '100%' : '0%';
+        $('finishBakeBtn').hidden = !active;
+      }
+      function renderJournal() { $('journal').innerHTML = state.journal.map(line => `<li>${escapeHTML(line)}</li>`).join(''); }
+      function buy(id, vendorId, cost) {
+        if (!state.open) return;
+        const vendor = VENDORS.find(item => item.id === vendorId);
+        if (!vendor || state.money < cost * 3) { setStatus('Not enough cash for that ingredient bundle.', true); return; }
+        state.money -= cost * 3; state.inventory[id] = Math.min(999, state.inventory[id] + 3);
+        journal(`Bought 3 ${INGREDIENTS.find(item => item.id === id).name.toLowerCase()} from ${vendor.name}.`);
+        setStatus(`Restocked ${INGREDIENTS.find(item => item.id === id).name}.`); save(); render();
+      }
+      function upgradeShop(id) {
+        const upgrade = UPGRADE_INFO[id], level = state.upgrades[id], cost = upgrade.base * (level + 1);
+        if (!upgrade || level >= upgrade.max || state.money < cost || !state.open) return;
+        state.money -= cost; state.upgrades[id]++; journal(`${upgrade.name} upgraded to level ${state.upgrades[id]}.`);
+        setStatus(`${upgrade.name} upgraded!`); save(); render();
+      }
+      function currentRecipe() { return [...new Set(['dough','sauce', ...[...document.querySelectorAll('[data-ingredient]:checked')].map(input => input.dataset.ingredient)])]; }
+      function hasIngredients(recipe) { return recipe.every(id => state.inventory[id] > 0); }
+      function makePizza() {
+        if (!state.open || state.prepared) return;
+        const order = getOrder();
+        const recipe = order ? [...order.recipe] : currentRecipe();
+        if (!hasIngredients(recipe)) { setStatus('You are out of an ingredient. Restock with a vendor first!', true); return; }
+        recipe.forEach(id => state.inventory[id]--);
+        state.prepared = { recipe, orderId: order?.id || null, matched: Boolean(order) };
+        if (!order) {
+          const customer = createOrder(recipe);
+          state.queue.unshift(customer); state.selectedId = customer.id; state.prepared.orderId = customer.id; state.prepared.matched = true;
+          journal(`${customer.customer} ordered your house special!`);
         }
+        setStatus(`Pizza assembled for ${getOrder(state.prepared.orderId)?.customer || 'a customer'}. Put it in the oven when ready.`);
+        save(); render();
       }
-
-      for (const hazard of game.hazards) {
-        hazard.y += hazard.speed * dt * 0.9;
-        hazard.x += Math.sin((hazard.y + hazard.x) / 20) * 1.4 * dt;
-        hazard.rotation += 0.08 * dt;
-
-        const hit = (
-          hazard.x < game.player.x + game.player.width &&
-          hazard.x + hazard.size > game.player.x &&
-          hazard.y < game.player.y + game.player.height &&
-          hazard.y + hazard.size > game.player.y
-        );
-
-        if (hit) {
-          hazard.hit = true;
-          addParticle(game.player.x + game.player.width / 2, game.player.y + 20, '#ff5d6c', 40);
-          endRun();
-          break;
+      function startBake() {
+        if (!state.prepared || state.oven || !state.open) return;
+        state.oven = { remaining: Math.max(1.5, 5 - state.upgrades.oven * .65) };
+        setStatus('Pizza is baking. You can wait, or finish the bake when the timer is done.'); save(); render();
+      }
+      function servePizza() {
+        if (!state.prepared || state.oven || !state.open) return;
+        const order = getOrder(state.prepared.orderId);
+        if (!order) { state.prepared = null; state.selectedId = null; render(); save(); return; }
+        const perfect = sameRecipe(state.prepared.recipe, order.recipe);
+        const points = perfect ? 100 : 45;
+        const basePrice = recipeValue(state.prepared.recipe);
+        const tip = perfect ? order.tip + state.upgrades.decor * 2 : 0;
+        const earned = basePrice + tip;
+        state.money += earned; state.score += points + (perfect ? tip * 2 : 0); state.served++;
+        journal(`${order.customer} ${perfect ? 'loved' : 'tried'} the pizza · +${money(earned)}${perfect ? ' perfect order!' : ''}`);
+        state.queue = state.queue.filter(item => item.id !== order.id); state.selectedId = null; state.prepared = null; state.oven = null;
+        setStatus(`${perfect ? 'Perfect order!' : 'Pizza served!'} You earned ${money(earned)}${perfect ? ' including a tip.' : '.'}`); save(); render();
+      }
+      function createOrder(recipeOverride = null) {
+        const customer = CUSTOMER_TYPES[Math.floor(Math.random() * CUSTOMER_TYPES.length)];
+        const toppings = recipeOverride ? recipeOverride.filter(id => !['dough','sauce'].includes(id)) : [...new Set([...customer.likes.slice(0, 1 + (Math.random() < .35 ? 1 : 0)), ...(Math.random() < .22 ? ['cheese'] : [])])];
+        const recipe = ['dough','sauce','cheese', ...toppings.filter(id => id !== 'cheese')];
+        const order = { id: state.nextOrderId++, customer: customer.name, avatar: customer.avatar, recipe: [...new Set(recipe)], tip: customer.tip + state.upgrades.decor, patience: 180 };
+        state.queue.push(order); journal(`${customer.name} arrived and ordered ${recipeName(order.recipe)}.`); save(); render();
+        return order;
+      }
+      function closeShop() {
+        if (!state.open) return;
+        state.open = false; state.oven = null; journal(`Closed shift ${state.day}. The shop progress is saved.`); setStatus(`Shop closed. You served ${state.served} customers so far.`); save(); render();
+      }
+      function playAgain() {
+        state.day++; state.open = true; state.queue = []; state.selectedId = null; state.prepared = null; state.oven = null; orderClock = 0;
+        journal(`Opened shift ${state.day}. Your shop upgrades and cash carry over.`); setStatus(`Welcome back! Shift ${state.day} is open.`); save(); render(); createOrder();
+      }
+      function exportSave() {
+        const blob = new Blob([JSON.stringify({ app: 'iready-pizza-shop', version: 1, exportedAt: new Date().toISOString(), save: state }, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = 'pizza-shop-progress.json'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+        setStatus('Progress exported as pizza-shop-progress.json.');
+      }
+      async function importSave(file) {
+        try {
+          const data = JSON.parse(await file.text());
+          const imported = normalizeSave(data.save || data);
+          if (!confirm('Import this save and replace the progress in this browser?')) return;
+          state = imported; save(); render(); setStatus('Save imported successfully. Welcome back to your shop!');
+        } catch (error) { setStatus(error.message || 'Could not import that save file.', true); }
+      }
+      function resetProgress() {
+        if (!confirm('Reset all pizza shop progress, money, inventory, and upgrades? This cannot be undone. Export a save first if you want a backup.')) return;
+        localStorage.removeItem(SAVE_KEY); state = freshState(); orderClock = 0; setStatus('Progress reset. Your new pizza shop is ready!'); render(); createOrder(); save();
+      }
+      $('makeBtn').addEventListener('click', makePizza); $('bakeBtn').addEventListener('click', startBake); $('serveBtn').addEventListener('click', servePizza);
+      $('finishBakeBtn').addEventListener('click', () => { if (state.oven) state.oven.remaining = 0; state.oven = null; setStatus('Ding! Your pizza is hot and ready to serve.'); render(); save(); });
+      $('shiftBtn').addEventListener('click', closeShop); $('playAgainBtn').addEventListener('click', playAgain);
+      $('exportBtn').addEventListener('click', exportSave); $('importBtn').addEventListener('click', () => $('importFile').click());
+      $('importFile').addEventListener('change', event => { const file = event.target.files[0]; if (file) importSave(file); event.target.value = ''; });
+      $('resetBtn').addEventListener('click', resetProgress);
+      function tick(now) {
+        const delta = Math.min(1, Math.max(0, (now - lastTime) / 1000)); lastTime = now;
+        if (state.open) {
+          if (!state.queue.length) orderClock += delta;
+          else orderClock += delta;
+          const arrivalGap = Math.max(8, 24 - state.upgrades.sign * 2.5);
+          if (orderClock >= arrivalGap && state.queue.length < 5) { orderClock = 0; createOrder(); }
+          if (state.oven) {
+            state.oven.remaining -= delta * (1 + state.upgrades.oven * .15);
+            if (state.oven.remaining <= 0) { state.oven = null; setStatus('Ding! Your pizza is hot and ready to serve.'); save(); }
+            renderOven();
+          }
+          let patienceChanged = false;
+          state.queue.forEach(order => { if (order.id !== state.selectedId) { order.patience -= delta; patienceChanged = true; } });
+          const left = state.queue.filter(order => order.patience <= 0);
+          if (left.length) {
+            state.queue = state.queue.filter(order => order.patience > 0); state.score = Math.max(0, state.score - left.length * 10);
+            if (left.some(order => order.id === state.selectedId)) { state.selectedId = null; state.prepared = null; state.oven = null; }
+            left.forEach(order => journal(`${order.customer} left before their order was served.`)); setStatus('A customer got tired of waiting. Keep an eye on the queue.', true); save(); render();
+          } else if (patienceChanged && Math.floor(now / 5000) !== Math.floor((now-delta*1000)/5000)) { renderQueue(); save(); }
         }
+        requestAnimationFrame(tick);
       }
-
-      game.pizzas = game.pizzas.filter((pizza) => !pizza.hit && pizza.y < canvas.height + 50);
-      game.hazards = game.hazards.filter((hazard) => !hazard.hit && hazard.y < canvas.height + 50);
-
-      for (const particle of game.particles) {
-        particle.x += particle.dx * dt;
-        particle.y += particle.dy * dt;
-        particle.life -= 0.015 * dt;
-      }
-      game.particles = game.particles.filter((particle) => particle.life > 0);
-
-      if (game.score && game.score % 100 === 0) {
-        game.combo = Math.max(1, game.combo - 1);
-      }
-    }
-
-    function updateSpawns(delta) {
-      const dt = delta * 60;
-      game.spawnTimer += dt;
-      const spawnGap = Math.max(12, 52 - game.level * 2.5);
-
-      if (game.spawnTimer >= spawnGap) {
-        spawnPickup();
-        game.spawnTimer = 0;
-      }
-    }
-
-    function drawBackground() {
-      // Sky
-      ctx.fillStyle = '#f6d299';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      // Sun
-      ctx.fillStyle = '#ffed99';
-      ctx.beginPath();
-      ctx.arc(780, 90, 56, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Clouds
-      for (let i = 0; i < 5; i++) {
-        const x = (i * 190 + (performance.now() * 0.02) % 200) - 50;
-        const y = 50 + (i % 2) * 35;
-        ctx.fillStyle = 'rgba(255,255,255,0.55)';
-        ctx.beginPath();
-        ctx.arc(x, y, 22, 0, Math.PI * 2);
-        ctx.arc(x + 18, y - 8, 25, 0, Math.PI * 2);
-        ctx.arc(x + 42, y, 22, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // Ground
-      ctx.fillStyle = '#d3923c';
-      ctx.fillRect(0, canvas.height - 40, canvas.width, 40);
-      ctx.fillStyle = '#9d5e2e';
-      for (let x = 0; x < canvas.width; x += 32) {
-        ctx.fillRect(x, canvas.height - 40, 18, 5);
-      }
-    }
-
-    function drawPizza(x, y, width, height, color = '#ffd166') {
-      ctx.fillStyle = '#f9d65b';
-      ctx.fillRect(x + 4, y + 4, width - 8, height - 8);
-      ctx.fillStyle = '#f4b942';
-      ctx.fillRect(x + 8, y + 8, width - 16, height - 16);
-      ctx.fillStyle = '#8f3f1d';
-      ctx.fillRect(x + 8, y + 10, width - 16, 10);
-      ctx.fillStyle = '#ff7f50';
-      ctx.fillRect(x + 8, y + 22, width - 16, 8);
-      ctx.fillStyle = '#8edb72';
-      ctx.fillRect(x + 14, y + 32, 12, 10);
-      ctx.fillRect(x + width - 26, y + 32, 12, 10);
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(x + width / 2 - 4, y + 8, 8, 16);
-    }
-
-    function drawHazard(item) {
-      ctx.save();
-      ctx.translate(item.x + item.size / 2, item.y + item.size / 2);
-      ctx.rotate(item.rotation);
-      ctx.fillStyle = '#7d3b2a';
-      ctx.beginPath();
-      ctx.arc(0, 0, item.size / 2, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#f2d4b4';
-      ctx.fillRect(-item.size * 0.22, -item.size * 0.18, item.size * 0.44, item.size * 0.36);
-      ctx.restore();
-    }
-
-    function drawPlayer() {
-      const { x, y, width, height } = game.player;
-      ctx.fillStyle = '#ff8a5b';
-      ctx.fillRect(x, y, width, height);
-      ctx.fillStyle = '#ffbf69';
-      ctx.fillRect(x + 14, y + 10, width - 28, 18);
-      ctx.fillStyle = '#3b2a2a';
-      ctx.fillRect(x + 18, y + 30, 18, 10);
-      ctx.fillRect(x + width - 36, y + 30, 18, 10);
-      ctx.fillStyle = '#fff';
-      ctx.fillRect(x + 24, y + 6, 12, 6);
-      ctx.fillRect(x + width - 36, y + 6, 12, 6);
-    }
-
-    function drawParticles() {
-      for (const particle of game.particles) {
-        ctx.fillStyle = particle.color;
-        ctx.globalAlpha = Math.max(0.12, particle.life);
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-    }
-
-    function draw() {
-      drawBackground();
-
-      for (const pizza of game.pizzas) {
-        drawPizza(pizza.x, pizza.y, pizza.width, pizza.height);
-      }
-
-      for (const hazard of game.hazards) {
-        drawHazard(hazard);
-      }
-
-      drawPlayer();
-      drawParticles();
-    }
-
-    function loop(timestamp) {
-      const delta = (timestamp - (game.lastTime || timestamp)) / 1000;
-      game.lastTime = timestamp;
-
-      if (game.running) {
-        updatePlayer(delta);
-        updateSpawns(delta);
-        updateObjects(delta);
-      }
-
-      draw();
-      requestAnimationFrame(loop);
-    }
-
-    document.getElementById('startBtn').addEventListener('click', function () {
-      resetRun();
-    });
-
-    document.getElementById('restartBtn').addEventListener('click', function () {
-      resetRun();
-    });
-
-    document.getElementById('exportBtn').addEventListener('click', function () {
-      const payload = {
-        exportedAt: new Date().toISOString(),
-        highScore: game.progress.highScore || game.score,
-        totalPizzas: game.progress.totalPizzas || 0,
-        totalRuns: game.progress.totalRuns || 0,
-        bestCombo: game.progress.bestCombo || game.combo,
-        currentScore: game.score,
-        currentCombo: game.combo,
-      };
-
-      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'pizza-progress.json';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      statusEl.textContent = 'Progress exported as pizza-progress.json';
-    });
-
-    window.addEventListener('keydown', (event) => {
-      game.keys[event.key] = true;
-      game.keys[event.key.toLowerCase()] = true;
-    });
-
-    window.addEventListener('keyup', (event) => {
-      game.keys[event.key] = false;
-      game.keys[event.key.toLowerCase()] = false;
-    });
-
-    loadProgress();
-    updateHUD();
-    resetRun();
-    requestAnimationFrame(loop);
+      load(); render();
+      if (state.open && !state.queue.length) createOrder();
+      requestAnimationFrame(tick);
+    })();
   </script>
 </body>
 </html>
