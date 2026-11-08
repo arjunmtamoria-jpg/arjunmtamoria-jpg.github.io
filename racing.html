@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Turbo Duo — Split-Screen Racing</title>
+  <meta name="description" content="A local two-player pseudo-3D endless racing game.">
+  <style>
+    :root{color-scheme:dark;font-family:Arial,sans-serif;background:#07101e;color:#f8fafc}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:radial-gradient(ellipse at top,#18345c,#07101e 68%)}
+    nav{background:#0b1220;display:flex;gap:20px;padding:14px 20px;position:sticky;top:0;z-index:2}
+    nav a{color:#bfdbfe;text-decoration:none;font-weight:bold}
+    main{max-width:1120px;margin:25px auto;padding:0 16px}
+    .panel{background:#101b2c;border:1px solid #334155;border-radius:16px;padding:20px;box-shadow:0 16px 40px #0005}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+    h1{margin:0 0 5px;font-size:clamp(1.7rem,4vw,2.5rem)}
+    p{margin:0;color:#cbd5e1;line-height:1.5}
+    .scores{display:flex;gap:10px;flex-wrap:wrap}
+    .score{background:#1e293b;border:1px solid #475569;border-radius:10px;padding:10px 14px;min-width:130px;text-align:center;font-weight:bold}
+    .score span{display:block;color:#94a3b8;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+    canvas{display:block;width:100%;height:auto;border-radius:12px;background:#8dd8ff;border:1px solid #475569}
+    .actions{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;margin-top:15px}
+    button{border:0;border-radius:10px;padding:12px 18px;background:#38bdf8;color:#082032;font-size:1rem;font-weight:bold;cursor:pointer}
+    button:hover{background:#7dd3fc}
+    .help{font-size:.92rem;color:#cbd5e1}
+    .message{margin-top:10px;min-height:24px;color:#fde68a;font-weight:bold}
+    @media(max-width:650px){.panel{padding:13px}.score{min-width:110px}.actions{align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <nav><a href="index.html">Home</a><a href="games.html">Games</a></nav>
+  <main>
+    <section class="panel">
+      <div class="top">
+        <div><h1>🏁 Turbo Duo</h1><p>Local two-player, split-screen endless racing. No server or online matchmaking required.</p></div>
+        <div class="scores"><div class="score"><span>Player 1 distance</span><strong id="score1">0 m</strong></div><div class="score"><span>Player 2 distance</span><strong id="score2">0 m</strong></div></div>
+      </div>
+      <canvas id="race" width="1000" height="560" aria-label="Split-screen two-player racing game"></canvas>
+      <div class="actions"><button id="start">Start / restart race</button><div class="help">P1: W/A/S/D · P2: arrow keys · Avoid traffic and be the furthest racer!</div></div>
+      <div id="message" class="message" role="status">Press Start / restart race. Player 1 uses WASD; Player 2 uses the arrow keys.</div>
+    </section>
+  </main>
+  <script>
+    const canvas=document.getElementById('race'),ctx=canvas.getContext('2d');
+    const scoreEls=[document.getElementById('score1'),document.getElementById('score2')];
+    const message=document.getElementById('message');
+    const racers=[
+      {name:'Player 1',color:'#ff4d6d',x:-0.35,speed:0,distance:0,keys:{left:'a',right:'d',up:'w',down:'s'}},
+      {name:'Player 2',color:'#43d9ff',x:0.35,speed:0,distance:0,keys:{left:'ArrowLeft',right:'ArrowRight',up:'ArrowUp',down:'ArrowDown'}}
+    ];
+    let obstacles=[],keys={},running=false,last=0,world=0,spawn=0;
+    const clamp=(n,min,max)=>Math.max(min,Math.min(max,n));
+    function restart(){racers.forEach(r=>{r.x=r.name==='Player 1'?-0.35:0.35;r.speed=0;r.distance=0});obstacles=[];world=0;spawn=0;running=true;message.textContent='Race on! Dodge traffic and build speed.';updateScores()}
+    function updateScores(){racers.forEach((r,i)=>scoreEls[i].textContent=Math.floor(r.distance)+' m')}
+    function addObstacle(){obstacles.push({lane:(Math.random()*3|0)-1,z:0.02,color:['#facc15','#a78bfa','#fb7185'][Math.random()*3|0]})}
+    function update(dt){world+=dt;spawn+=dt;if(spawn>0.85){addObstacle();spawn=0}
+      racers.forEach(r=>{const k=r.keys;if(keys[k.left])r.x-=1.7*dt;if(keys[k.right])r.x+=1.7*dt;r.x=clamp(r.x,-0.83,0.83);if(keys[k.up])r.speed=Math.min(1,r.speed+0.9*dt);else r.speed=Math.max(0.35,r.speed-0.18*dt);if(keys[k.down])r.speed=Math.max(0.2,r.speed-1.1*dt);r.distance+=r.speed*42*dt});
+      obstacles.forEach(o=>o.z+=dt*(0.23+racers[0].speed*0.24+racers[1].speed*0.24));
+      for(const o of obstacles){if(o.z>0.78&&!o.hit){for(const r of racers){if(Math.abs(r.x-o.lane*0.62)<0.31){r.speed=Math.max(0.2,r.speed-0.45);message.textContent=r.name+' bumped traffic! Keep racing.'}}o.hit=true}}
+      obstacles=obstacles.filter(o=>o.z<1.1);updateScores();
+    }
+    function roadPoint(cx,cy,w,h,z){return{x:cx+(z-0.5)*w*0.56,y:cy+z*h}}
+    function drawView(index,x,y,w,h){const r=racers[index];
+      const sky=ctx.createLinearGradient(0,y,0,y+h);sky.addColorStop(0,'#55b6f4');sky.addColorStop(.58,'#c7efff');sky.addColorStop(.59,'#66b957');sky.addColorStop(1,'#297b3f');ctx.fillStyle=sky;ctx.fillRect(x,y,w,h);
+      // distant hills
+      ctx.fillStyle='#377b69';ctx.beginPath();ctx.moveTo(x,y+h*.59);ctx.lineTo(x+w*.15,y+h*.4);ctx.lineTo(x+w*.28,y+h*.58);ctx.lineTo(x+w*.45,y+h*.38);ctx.lineTo(x+w*.63,y+h*.59);ctx.lineTo(x+w*.82,y+h*.43);ctx.lineTo(x+w,y+h*.57);ctx.lineTo(x+w,y+h);ctx.lineTo(x,y+h);ctx.fill();
+      const horizon=y+h*.25,bottom=y+h*.97,roadTop=w*.16,roadBottom=w*.48,cx=x+w/2;
+      ctx.fillStyle='#5e6570';ctx.beginPath();ctx.moveTo(cx-roadTop,horizon);ctx.lineTo(cx+roadTop,horizon);ctx.lineTo(cx+roadBottom,bottom);ctx.lineTo(cx-roadBottom,bottom);ctx.closePath();ctx.fill();
+      // roadside stripes
+      for(let i=0;i<12;i++){let z=((i/12+world*.55)%1);let yy=horizon+z*(bottom-horizon);let half=roadTop+z*(roadBottom-roadTop);ctx.fillStyle=i%2?'#f8fafc':'#ef4444';ctx.fillRect(cx-half-8*z,y+yy-y,7*z+1,12*z+2);ctx.fillRect(cx+half+1,y+yy-y,7*z+1,12*z+2)}
+      // lane markers
+      for(let i=0;i<12;i++){let z=((i/12+world*.7)%1);let yy=horizon+z*(bottom-horizon),half=roadTop+z*(roadBottom-roadTop);ctx.fillStyle='rgba(255,255,255,.82)';for(let lane=1;lane<=2;lane++){let lx=cx-half+2*half*lane/3;ctx.fillRect(lx-1.5*z,yy,3*z+1,Math.max(1,17*z))}}
+      // traffic, scaled towards horizon
+      for(const o of obstacles){if(o.z<0||o.z>1)continue;const z=o.z,yy=horizon+z*(bottom-horizon),half=roadTop+z*(roadBottom-roadTop),ox=cx+o.lane*half*.67,ow=Math.max(5,w*.075*z),oh=ow*1.25;ctx.fillStyle=o.color;ctx.fillRect(ox-ow/2,yy-oh,ow,oh);ctx.fillStyle='#1e293b';ctx.fillRect(ox-ow*.38,yy-oh*.78,ow*.76,oh*.28);ctx.fillStyle='#fff7';ctx.fillRect(ox-ow*.38,yy-oh*.12,ow*.18,oh*.09);ctx.fillRect(ox+ow*.2,yy-oh*.12,ow*.18,oh*.09)}
+      // player's car at bottom
+      const carX=cx+r.x*w*.27,carY=y+h*.78,carW=w*.105,carH=h*.17;
+      ctx.fillStyle='#111827';ctx.fillRect(carX-carW*.58,carY+carH*.72,carW*.22,carH*.25);ctx.fillRect(carX+carW*.36,carY+carH*.72,carW*.22,carH*.25);
+      ctx.fillStyle=r.color;ctx.beginPath();ctx.moveTo(carX-carW/2,carY+carH);ctx.lineTo(carX-carW*.4,carY+carH*.28);ctx.lineTo(carX-carW*.22,carY);ctx.lineTo(carX+carW*.22,carY);ctx.lineTo(carX+carW*.4,carY+carH*.28);ctx.lineTo(carX+carW/2,carY+carH);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#bdeaff';ctx.beginPath();ctx.moveTo(carX-carW*.24,carY+carH*.32);ctx.lineTo(carX-carW*.15,carY+carH*.1);ctx.lineTo(carX+carW*.15,carY+carH*.1);ctx.lineTo(carX+carW*.24,carY+carH*.32);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#fff';ctx.font=`bold ${Math.max(12,w*.04)}px Arial`;ctx.fillText(r.name,x+12,y+25);ctx.fillStyle='#0f172a';ctx.font=`${Math.max(10,w*.027)}px Arial`;ctx.fillText('SPEED '+Math.round(r.speed*180),x+12,y+44);
+    }
+    function render(){const half=canvas.width/2;drawView(0,0,0,half,canvas.height);drawView(1,half,0,half,canvas.height);ctx.fillStyle='#f8fafc';ctx.fillRect(half-2,0,4,canvas.height);ctx.fillStyle='#0f172a';ctx.fillRect(0,canvas.height-5,canvas.width,5)}
+    function frame(t){const dt=Math.min(.04,(t-last)/1000||0);last=t;if(running)update(dt);render();requestAnimationFrame(frame)}
+    document.getElementById('start').addEventListener('click',restart);
+    window.addEventListener('keydown',e=>{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key))e.preventDefault();keys[e.key]=true;keys[e.key.toLowerCase()]=true});
+    window.addEventListener('keyup',e=>{keys[e.key]=false;keys[e.key.toLowerCase()]=false});
+    render();requestAnimationFrame(frame);
+  </script>
+</body>
+</html>
